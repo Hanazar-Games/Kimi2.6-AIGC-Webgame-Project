@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2026-05-13
+
+### Added
+- FPS limit toggle (60/30) for performance tuning
+- First-time tutorial hint — pulsing controls at bottom, auto-dismisses on input
+- New high score and top score celebrations with particle effects
+
+### Changed
+- Code cleanup: removed unused bombs and maxBombs variables
+
 ## [1.6.0] - 2026-05-13
 
 ### Added
