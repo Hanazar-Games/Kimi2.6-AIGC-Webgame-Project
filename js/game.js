@@ -1370,6 +1370,29 @@ function drawTexts() {
   ctx.textAlign = 'start';
 }
 
+function drawBossUI() {
+  const boss = enemies.find(e => e.type === 'boss');
+  if (!boss || boss.introTimer > 0) return;
+  const bw = W * 0.6;
+  const bh = 10;
+  const bx = (W - bw) / 2;
+  const by = 36;
+  const pct = boss.hp / boss.maxHp;
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(bx, by, bw, bh);
+  ctx.fillStyle = pct > 0.5 ? '#ff4444' : pct > 0.25 ? '#ff8844' : '#ff0000';
+  ctx.fillRect(bx, by, bw * pct, bh);
+  ctx.strokeStyle = 'rgba(255,100,100,0.6)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(bx, by, bw, bh);
+  ctx.fillStyle = '#ffaaaa';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(`BOSS  HP: ${Math.ceil(pct * 100)}%`, W / 2, by - 6);
+  ctx.restore();
+}
+
 function drawUI() {
   document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()}`;
   document.getElementById('wave').textContent = `WAVE: ${wave}`;
@@ -1598,6 +1621,7 @@ function loop(timestamp) {
   drawLowHPWarning();
   drawBossWarning();
   if (bombAnim > 0) drawBombEffect();
+  drawBossUI();
   drawPlayer();
   drawEnemies();
   drawBullets(bullets);
