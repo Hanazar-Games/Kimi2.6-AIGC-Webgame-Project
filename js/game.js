@@ -246,6 +246,27 @@ function saveHighScore() {
 }
 loadHighScore();
 
+/* ---------- Leaderboard ---------- */
+let leaderboard = [];
+function loadLeaderboard() {
+  try {
+    const v = localStorage.getItem('stellar_defense_leaderboard');
+    if (v) leaderboard = JSON.parse(v);
+  } catch (e) {}
+}
+function saveLeaderboard() {
+  try {
+    localStorage.setItem('stellar_defense_leaderboard', JSON.stringify(leaderboard));
+  } catch (e) {}
+}
+function addToLeaderboard(score, wave) {
+  leaderboard.push({ score, wave, date: new Date().toLocaleDateString() });
+  leaderboard.sort((a, b) => b.score - a.score);
+  leaderboard = leaderboard.slice(0, 5);
+  saveLeaderboard();
+}
+loadLeaderboard();
+
 /* ---------- Stats ---------- */
 let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0 };
 function loadStats() {
@@ -325,6 +346,25 @@ function updateAchievementUI() {
     el.textContent = a.unlocked ? `✓ ${a.name}` : `? ${a.name}`;
     el.title = a.desc;
     list.appendChild(el);
+  }
+}
+function updateLeaderboardUI() {
+  const ids = ['leaderboard-list', 'leaderboard-menu-list'];
+  for (const id of ids) {
+    const list = document.getElementById(id);
+    if (!list) continue;
+    list.innerHTML = '';
+    if (leaderboard.length === 0) {
+      list.innerHTML = '<div style="color:#556688; font-size:11px;">No scores yet</div>';
+      continue;
+    }
+    leaderboard.forEach((entry, i) => {
+      const el = document.createElement('div');
+      el.style.cssText = 'color:#aabbdd; font-size:11px; margin:2px 0;';
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
+      el.textContent = `${medal} ${entry.score.toLocaleString()} (W${entry.wave})`;
+      list.appendChild(el);
+    });
   }
 }
 loadAchievements();
@@ -1542,6 +1582,7 @@ function showMenu() {
   const el = document.getElementById('menu-highscore');
   if (el) el.textContent = `High Score: ${highScore.toLocaleString()}`;
   updateAchievementUI();
+  updateLeaderboardUI();
   const sg = document.getElementById('stat-games');
   const sk = document.getElementById('stat-kills');
   const sb = document.getElementById('stat-bestwave');
@@ -1588,6 +1629,8 @@ function showGameOver() {
     const s = (sec % 60).toString().padStart(2, '0');
     ftEl.textContent = `Time: ${m}:${s}`;
   }
+  addToLeaderboard(score, wave);
+  updateLeaderboardUI();
 }
 
 /* ---------- Init & Reset ---------- */
