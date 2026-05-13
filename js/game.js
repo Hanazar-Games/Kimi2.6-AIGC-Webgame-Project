@@ -376,6 +376,12 @@ function rand(a, b) { return Math.random() * (b - a) + a; }
 function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 function angleTo(from, to) { return Math.atan2(to.y - from.y, to.x - from.x); }
+function lightenColor(hex) {
+  const r = Math.min(255, parseInt(hex.slice(1, 3), 16) + 50);
+  const g = Math.min(255, parseInt(hex.slice(3, 5), 16) + 50);
+  const b = Math.min(255, parseInt(hex.slice(5, 7), 16) + 50);
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
 
 /* ---------- Particle Spawners ---------- */
 function spawnExplosion(x, y, color, count = 12, shockwave = false) {
@@ -465,6 +471,8 @@ function spawnEnemy(type) {
   else if (side === 1) { x = W + 20; y = rand(30, H * 0.6); }
   else { x = -20; y = rand(30, H * 0.6); }
 
+  const isElite = type !== 'boss' && type !== 'swarmer' && Math.random() < 0.08;
+
   const base = {
     x, y, vx: 0, vy: 0,
     hp: 10, maxHp: 10,
@@ -475,6 +483,7 @@ function spawnEnemy(type) {
     type,
     angle: 0,
     phase: 0,
+    elite: isElite,
   };
 
   const diffMult = difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : 1.0;
@@ -500,6 +509,14 @@ function spawnEnemy(type) {
     base.speed = rand(0.6, 1.2) * spdMult;
     base.shootInterval = Math.floor(110 / spdMult);
     base.score = 400;
+  } else if (type === 'sniper') {
+    base.hp = base.maxHp = Math.floor((16 + wave * 2) * diffMult);
+    base.radius = 11;
+    base.color = '#ff88ff';
+    base.speed = 0;
+    base.shootInterval = Math.floor(100 / spdMult);
+    base.score = 300;
+    base.aimTimer = 0;
   } else if (type === 'boss') {
     base.hp = base.maxHp = Math.floor((350 + wave * 60) * diffMult);
     base.radius = 38;
@@ -519,14 +536,15 @@ function spawnEnemy(type) {
     base.speed = rand(3.0, 4.5) * spdMult;
     base.shootInterval = 99999; // doesn't shoot
     base.score = 50;
-  } else if (type === 'sniper') {
-    base.hp = base.maxHp = Math.floor((16 + wave * 2) * diffMult);
-    base.radius = 11;
-    base.color = '#ff88ff';
-    base.speed = 0;
-    base.shootInterval = Math.floor(100 / spdMult);
-    base.score = 300;
-    base.aimTimer = 0;
+  }
+
+  if (base.elite) {
+    base.hp = base.maxHp = Math.floor(base.hp * 1.5);
+    base.radius *= 1.2;
+    base.speed *= 1.15;
+    base.shootInterval = Math.floor(base.shootInterval * 0.75);
+    base.score = Math.floor(base.score * 2.5);
+    base.color = lightenColor(base.color);
   }
 
   enemies.push(base);
@@ -949,6 +967,7 @@ function checkCollisions() {
             }
           }
           spawnExplosion(e.x, e.y, e.color, 20, true);
+          if (e.elite) spawnFloatingText(e.x, e.y - 15, 'ELITE!', '#ffee88');
           spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
           sfxExplosion();
           // drop powerup chance
@@ -1205,6 +1224,19 @@ function drawEnemies() {
         ctx.stroke();
         ctx.setLineDash([]);
       }
+    }
+
+    // elite glow
+    if (e.elite) {
+      ctx.strokeStyle = '#ffee88';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius + 4, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = '#ffee88';
+      ctx.font = 'bold 8px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('★', 0, -e.radius - 8);
     }
 
     // hp bar
