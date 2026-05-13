@@ -518,6 +518,14 @@ function spawnEnemy(type) {
     base.speed = rand(3.0, 4.5) * spdMult;
     base.shootInterval = 99999; // doesn't shoot
     base.score = 50;
+  } else if (type === 'sniper') {
+    base.hp = base.maxHp = Math.floor((16 + wave * 2) * diffMult);
+    base.radius = 11;
+    base.color = '#ff88ff';
+    base.speed = 0;
+    base.shootInterval = Math.floor(100 / spdMult);
+    base.score = 300;
+    base.aimTimer = 0;
   }
 
   enemies.push(base);
@@ -609,6 +617,7 @@ function waveLogic() {
       let type = 'drone';
       if (wave >= 2 && roll < 0.20) type = 'swarmer';
       if (wave >= 3 && roll < 0.28) type = 'hunter';
+      if (wave >= 4 && roll < 0.12) type = 'sniper';
       if (wave >= 5 && roll < 0.18) type = 'tank';
       spawnEnemy(type);
       enemiesToSpawn--;
@@ -822,6 +831,10 @@ function updateEnemies(timeScale = 1) {
           const a = angleTo(e, player) + rand(-0.4, 0.4);
           spawnBullet(e.x, e.y, a, rand(2.5, 3.5), '#ffaa44', true, 5);
         }
+      } else if (e.type === 'sniper') {
+        const a = angleTo(e, player);
+        spawnBullet(e.x, e.y, a, 7, '#ff88ff', true, 3);
+        e.aimTimer = 20;
       } else if (e.type === 'boss') {
         const mode = (Math.floor(e.phase / 180) % 3);
         if (mode === 0) {
@@ -1166,6 +1179,31 @@ function drawEnemies() {
       ctx.beginPath();
       ctx.arc(0, 0, 2, 0, Math.PI * 2);
       ctx.fill();
+    } else if (e.type === 'sniper') {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -10);
+      ctx.lineTo(-8, 0);
+      ctx.lineTo(0, 10);
+      ctx.lineTo(8, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#ffccff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 3, 0, Math.PI * 2);
+      ctx.fill();
+      // aim line
+      if (e.aimTimer > 0) {
+        const a = angleTo(e, player);
+        ctx.strokeStyle = `rgba(255,136,255,${e.aimTimer / 20})`;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(a) * 120, Math.sin(a) * 120);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
     }
 
     // hp bar
