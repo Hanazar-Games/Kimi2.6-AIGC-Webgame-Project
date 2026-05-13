@@ -1652,6 +1652,26 @@ function showGameOver() {
     const newRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);
     if (newRank < 5 && (oldRank === -1 || newRank < oldRank)) {
       spawnFloatingText(W / 2, H / 2 + 80, `RANK #${newRank + 1}!`, '#ffcc44');
+      if (newRank === 0) {
+        spawnFloatingText(W / 2, H / 2 + 100, 'TOP SCORE!', '#ffee44');
+        for (let k = 0; k < 40; k++) {
+          const a = rand(0, Math.PI * 2);
+          const s = rand(3, 7);
+          particles.push({
+            x: W / 2, y: H / 2 + 90,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s,
+            life: rand(40, 80),
+            maxLife: 80,
+            color: '#ffee44',
+            size: rand(2, 5),
+            decay: 0.95,
+          });
+        }
+      }
+    }
+    if (score >= highScore && highScore > 0) {
+      spawnFloatingText(W / 2, H / 2 + 60, 'NEW HIGH SCORE!', '#44ff66');
     }
   }
 }
