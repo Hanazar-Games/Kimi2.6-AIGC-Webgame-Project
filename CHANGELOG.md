@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-05-13
+
+### Added
+- Sniper enemy type — high-speed aimed bullets from wave 4
+- Elite enemy variant system — 8% spawn chance with enhanced stats
+- In-game timer displayed on pause and game over screens
+- Pause screen stats overlay (score, wave, kills, combo, graze, time)
+
 ## [1.2.0] - 2026-05-13
 
 ### Added
