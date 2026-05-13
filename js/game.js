@@ -232,6 +232,14 @@ let dashing = 0;
 let damageFlash = 0;
 let gameStartTime = 0;
 let comboGuard = true;
+let particleDensity = 2; // 0=low, 1=medium, 2=high
+let colorTheme = 0;
+const THEMES = [
+  { name: 'CYAN', player: '#88ddff', bullet: '#44ffaa', glow: '#44ddff', engine: '#44aaff' },
+  { name: 'RED', player: '#ff8888', bullet: '#ff4444', glow: '#ff6666', engine: '#ff3333' },
+  { name: 'GREEN', player: '#88ff88', bullet: '#44ff44', glow: '#66ff66', engine: '#33ff33' },
+  { name: 'PURPLE', player: '#cc88ff', bullet: '#aa44ff', glow: '#9966ff', engine: '#7733ff' },
+];
 
 function loadHighScore() {
   try {
@@ -1162,6 +1170,7 @@ function drawStars() {
 }
 
 function drawPlayer() {
+  const theme = THEMES[colorTheme];
   ctx.save();
   ctx.translate(player.x, player.y);
   ctx.rotate(player.angle + Math.PI / 2);
@@ -1180,10 +1189,10 @@ function drawPlayer() {
 
   // glow
   ctx.shadowBlur = 15;
-  ctx.shadowColor = '#44ddff';
+  ctx.shadowColor = theme.glow;
 
   // ship body
-  ctx.fillStyle = '#88ddff';
+  ctx.fillStyle = theme.player;
   ctx.beginPath();
   ctx.moveTo(0, -14);
   ctx.lineTo(-10, 12);
@@ -1193,7 +1202,7 @@ function drawPlayer() {
   ctx.fill();
 
   // engine
-  ctx.fillStyle = '#44aaff';
+  ctx.fillStyle = theme.engine;
   ctx.beginPath();
   ctx.moveTo(-6, 10);
   ctx.lineTo(0, 20 + Math.random() * 6);
@@ -1636,8 +1645,15 @@ function showGameOver() {
     const s = (sec % 60).toString().padStart(2, '0');
     ftEl.textContent = `Time: ${m}:${s}`;
   }
-  addToLeaderboard(score, wave);
-  updateLeaderboardUI();
+  if (!practiceMode) {
+    const oldRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);
+    addToLeaderboard(score, wave);
+    updateLeaderboardUI();
+    const newRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);
+    if (newRank < 5 && (oldRank === -1 || newRank < oldRank)) {
+      spawnFloatingText(W / 2, H / 2 + 80, `RANK #${newRank + 1}!`, '#ffcc44');
+    }
+  }
 }
 
 /* ---------- Init & Reset ---------- */
