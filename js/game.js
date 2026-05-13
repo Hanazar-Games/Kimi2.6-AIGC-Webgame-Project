@@ -984,6 +984,7 @@ function checkCollisions() {
         e.vy += Math.sin(kbAngle) * kbForce;
         spawnHitSparks(b.x, b.y, e.color);
         shake = Math.max(shake, 2);
+        hitstop = 3;
         if (e.hp <= 0) {
           const pts = Math.floor(e.score * (1 + combo * 0.1));
           score += pts;
@@ -1658,6 +1659,7 @@ function resetGame() {
   dashCooldown = 0;
   dashing = 0;
   damageFlash = 0;
+  hitstop = 0;
 
   score = 0;
   wave = 1;
@@ -1773,6 +1775,30 @@ function loop(timestamp) {
 
   const timeScale = slowMo > 0 ? 0.4 : 1.0;
   if (state === STATE.PLAYING) {
+    if (hitstop > 0) {
+      hitstop -= timeScale;
+      drawStars();
+      drawPlayer();
+      drawEnemies();
+      drawBullets(bullets);
+      drawBullets(enemyBullets);
+      drawPowerups();
+      drawTouchControls();
+      drawParticles();
+      drawTexts();
+      drawWaveBorder();
+      drawWarnings();
+      drawDangerZone();
+      drawDamageFlash();
+      drawLowHPWarning();
+      drawBossWarning();
+      if (bombAnim > 0) drawBombEffect();
+      drawBossUI();
+      ctx.restore();
+      drawUI();
+      requestAnimationFrame(loop);
+      return;
+    }
     if (slowMo > 0) slowMo -= timeScale;
     updatePlayer();
     updateEnemies(timeScale);
