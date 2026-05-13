@@ -1711,6 +1711,26 @@ if (fullscreenBtn) {
   });
 }
 
+/* ---------- Reset Data ---------- */
+const resetDataBtn = document.getElementById('reset-data-btn');
+if (resetDataBtn) {
+  resetDataBtn.addEventListener('click', () => {
+    if (confirm('Reset all saved data? (high scores, achievements, stats, leaderboard)')) {
+      try {
+        localStorage.removeItem('stellar_defense_highscore');
+        localStorage.removeItem('stellar_defense_achievements');
+        localStorage.removeItem('stellar_defense_stats');
+        localStorage.removeItem('stellar_defense_leaderboard');
+      } catch (e) {}
+      highScore = 0;
+      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0 };
+      leaderboard = [];
+      for (const k in ACHIEVEMENTS) ACHIEVEMENTS[k].unlocked = false;
+      showMenu();
+    }
+  });
+}
+
 /* ---------- Event Listeners ---------- */
 document.getElementById('start-btn').addEventListener('click', () => {
   ensureAudio();
