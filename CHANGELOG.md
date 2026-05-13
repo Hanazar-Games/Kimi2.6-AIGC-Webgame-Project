@@ -2,15 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.5.0] - 2026-05-13
+## [1.6.0] - 2026-05-13
 
 ### Added
-- Practice Mode toggle — no damage, weaker enemies, scores not saved
+- Screenshot button on game over — save canvas as PNG
+- Particle density setting (Low/Med/High) for performance tuning
+- Practice Mode — no damage, weaker enemies, scores not saved
 - Reset All Data button with confirmation dialog
-- R key quick restart from game over screen
-- ESC key return to menu from game over screen
+- Leaderboard rank announcement on game over (top 5)
+- R key quick restart and ESC return to menu from game over
 
-## [1.4.0] - 2026-05-13
+## [1.5.0] - 2026-05-13
 
 ### Added
 - Combo Guard — death save when combo >= 10 (one use per run)
@@ -18,7 +20,7 @@ All notable changes to this project will be documented in this file.
 - Local leaderboard — top 5 scores with medals
 - Hitstop on enemy hits — brief freeze for impact feel
 
-## [1.3.0] - 2026-05-13
+## [1.4.0] - 2026-05-13
 
 ### Added
 - Sniper enemy type — high-speed aimed bullets from wave 4
@@ -26,7 +28,7 @@ All notable changes to this project will be documented in this file.
 - In-game timer displayed on pause and game over screens
 - Pause screen stats overlay (score, wave, kills, combo, graze, time)
 
-## [1.2.0] - 2026-05-13
+## [1.3.0] - 2026-05-13
 
 ### Added
 - Dash system — K/X key for invincible burst movement with cooldown
@@ -40,7 +42,7 @@ All notable changes to this project will be documented in this file.
 - Enemy death shockwaves push nearby bullets
 - Performance caps on particles (300) and bullets (500 enemy / 200 player)
 
-## [1.1.0] - 2026-05-13
+## [1.2.0] - 2026-05-13
 
 ### Added
 - 5 enemy types: Drone, Hunter, Tank, Swarmer, Boss
