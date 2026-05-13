@@ -378,7 +378,9 @@ function angleTo(from, to) { return Math.atan2(to.y - from.y, to.x - from.x); }
 
 /* ---------- Particle Spawners ---------- */
 function spawnExplosion(x, y, color, count = 12, shockwave = false) {
-  for (let i = 0; i < count; i++) {
+  const maxNew = Math.max(0, 300 - particles.length);
+  const actualCount = Math.min(count, maxNew);
+  for (let i = 0; i < actualCount; i++) {
     const a = rand(0, Math.PI * 2);
     const s = rand(1, 4);
     particles.push({
@@ -407,7 +409,9 @@ function spawnExplosion(x, y, color, count = 12, shockwave = false) {
 }
 
 function spawnHitSparks(x, y, color = '#ffaa44') {
-  for (let i = 0; i < 6; i++) {
+  const maxNew = Math.max(0, 300 - particles.length);
+  const count = Math.min(6, maxNew);
+  for (let i = 0; i < count; i++) {
     const a = rand(0, Math.PI * 2);
     const s = rand(1, 3);
     particles.push({
@@ -430,6 +434,8 @@ function spawnFloatingText(x, y, txt, color) {
 /* ---------- Bullet Factory ---------- */
 function spawnBullet(x, y, angle, speed, color, isEnemy = false, radius = 3) {
   const arr = isEnemy ? enemyBullets : bullets;
+  const limit = isEnemy ? 500 : 200;
+  if (arr.length >= limit) arr.shift();
   arr.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color, radius, isEnemy });
 }
 
