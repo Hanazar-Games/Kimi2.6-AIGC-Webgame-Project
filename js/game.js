@@ -230,6 +230,7 @@ let grazeTimer = 0;
 let dashCooldown = 0;
 let dashing = 0;
 let damageFlash = 0;
+let gameStartTime = 0;
 
 function loadHighScore() {
   try {
@@ -1492,11 +1493,18 @@ function showPause() {
   const pk = document.getElementById('pause-kills');
   const pc = document.getElementById('pause-combo');
   const pg = document.getElementById('pause-graze');
+  const pt = document.getElementById('pause-time');
   if (ps) ps.textContent = score.toLocaleString();
   if (pw) pw.textContent = wave;
   if (pk) pk.textContent = stats.kills;
   if (pc) pc.textContent = combo;
   if (pg) pg.textContent = grazeCount;
+  if (pt && gameStartTime > 0) {
+    const sec = Math.floor((Date.now() - gameStartTime) / 1000);
+    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const s = (sec % 60).toString().padStart(2, '0');
+    pt.textContent = `${m}:${s}`;
+  }
 }
 
 function showGameOver() {
@@ -1505,6 +1513,13 @@ function showGameOver() {
   document.getElementById('final-wave').textContent = `Wave: ${wave}`;
   const hsEl = document.getElementById('final-highscore');
   if (hsEl) hsEl.textContent = `High Score: ${highScore.toLocaleString()}`;
+  const ftEl = document.getElementById('final-time');
+  if (ftEl && gameStartTime > 0) {
+    const sec = Math.floor((Date.now() - gameStartTime) / 1000);
+    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+    const s = (sec % 60).toString().padStart(2, '0');
+    ftEl.textContent = `Time: ${m}:${s}`;
+  }
 }
 
 /* ---------- Init & Reset ---------- */
@@ -1544,6 +1559,7 @@ function resetGame() {
   damageTakenThisWave = false;
   musicBeat = 0;
   if (audioCtx) musicNextTime = audioCtx.currentTime;
+  gameStartTime = Date.now();
 
   initStars();
   startWave();
