@@ -1,0 +1,39 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [1.2.0] - 2026-05-13
+
+### Added
+- Dash system — K/X key for invincible burst movement with cooldown
+- Wave clear bonuses based on remaining HP
+- Perfect wave bonus for no-damage clears
+- Combo sustain scoring while combo >= 10
+- Boss intro sequence with WARNING overlay
+- Top-screen Boss HP bar
+- Damage flash effect when player takes hits
+- Bullet knockback on enemies
+- Enemy death shockwaves push nearby bullets
+- Performance caps on particles (300) and bullets (500 enemy / 200 player)
+
+## [1.1.0] - 2026-05-13
+
+### Added
+- 5 enemy types: Drone, Hunter, Tank, Swarmer, Boss
+- Power-up system: Energy, Power, Shield
+- Bomb system with slow-motion effect
+- Graze system for bonus points
+- 3 difficulty levels (Easy/Normal/Hard)
+- Combo scoring with milestone celebrations
+- Spawn warnings and danger zone alerts
+- Achievement system (6 achievements)
+- Stats tracking (games, kills, best wave, graze)
+- Local high score persistence
+- Touch/mobile virtual controls
+- Background music with toggle
+- Fullscreen support
+- GitHub Actions auto-deploy to Pages
+
+### Infrastructure
+- MIT License
+- README with full feature list
