@@ -732,6 +732,11 @@ function updatePlayer() {
     mx *= f; my *= f;
   }
 
+  // dismiss tutorial on input
+  if (tutorialActive && (mx !== 0 || my !== 0 || isDown(' ') || isDown('j'))) {
+    tutorialActive = false;
+  }
+
   // dash trigger
   if ((isDown('k') || isDown('x')) && dashCooldown <= 0 && dashing <= 0 && (mx !== 0 || my !== 0)) {
     keys['k'] = false;
@@ -1456,6 +1461,16 @@ function drawDamageFlash() {
   }
 }
 
+function drawTutorialHint() {
+  ctx.save();
+  ctx.globalAlpha = 0.7 + Math.sin(Date.now() * 0.005) * 0.3;
+  ctx.fillStyle = '#aabbdd';
+  ctx.font = '14px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('WASD / Arrows to move · Space to shoot · P to pause', W / 2, H - 24);
+  ctx.restore();
+}
+
 function drawWaveBorder() {
   const intensity = Math.min(1, (wave - 1) / 15);
   const r = Math.floor(50 + intensity * 150);
@@ -1714,6 +1729,8 @@ function resetGame() {
   if (audioCtx) musicNextTime = audioCtx.currentTime;
   gameStartTime = Date.now();
   comboGuard = true;
+  tutorialActive = !tutorialDismissed;
+  tutorialDismissed = true;
 
   initStars();
   startWave();
@@ -1969,6 +1986,7 @@ function loop(timestamp) {
 
   playMusicStep();
 
+  if (tutorialActive) drawTutorialHint();
   drawWaveBorder();
   drawWarnings();
   drawDangerZone();
