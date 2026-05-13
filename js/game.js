@@ -1670,7 +1670,7 @@ function showGameOver() {
         }
       }
     }
-    if (score >= highScore && highScore > 0) {
+    if (score >= highScore) {
       spawnFloatingText(W / 2, H / 2 + 60, 'NEW HIGH SCORE!', '#44ff66');
     }
   }
