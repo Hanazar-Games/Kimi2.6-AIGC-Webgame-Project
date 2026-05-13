@@ -1756,6 +1756,13 @@ function loop(timestamp) {
     state = STATE.PLAYING;
     hideScreens();
   }
+  // Quick restart from game over
+  if (isDown('r') && state === STATE.GAMEOVER) {
+    keys['r'] = false;
+    resetGame();
+    state = STATE.PLAYING;
+    hideScreens();
+  }
 
   // clear
   ctx.fillStyle = '#000000';
