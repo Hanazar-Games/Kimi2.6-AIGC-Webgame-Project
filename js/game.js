@@ -93,6 +93,10 @@ function sfxBomb() {
 function sfxGraze() {
   playTone(1200 + Math.random() * 400, 'sine', 0.04, 0.015);
 }
+function sfxDash() {
+  playTone(400, 'sawtooth', 0.15, 0.06);
+  playTone(600, 'sawtooth', 0.1, 0.04);
+}
 
 /* ---------- Background Music ---------- */
 let musicEnabled = true;
@@ -223,6 +227,8 @@ let bombCooldown = 0;
 let bombAnim = 0;
 let grazeCount = 0;
 let grazeTimer = 0;
+let dashCooldown = 0;
+let dashing = 0;
 
 function loadHighScore() {
   try {
@@ -336,6 +342,7 @@ const player = {
   bombs: 3,
   maxBombs: 5,
   grazeRadius: 28,
+  dashSpeed: 14,
 };
 
 const bullets = [];
@@ -506,8 +513,18 @@ function startWave() {
   if (wave > 1 && !damageTakenThisWave) {
     noDamageWaves++;
     if (noDamageWaves >= 5) unlockAchievement('untouchable');
+    const perfectBonus = 500 + wave * 100;
+    score += perfectBonus;
+    spawnFloatingText(W / 2, H / 2 + 30, `PERFECT! +${perfectBonus}`, '#ffcc44');
+    sfxPowerup();
   } else if (damageTakenThisWave) {
     noDamageWaves = 0;
+    // wave clear bonus based on remaining HP
+    const hpBonus = Math.floor((player.hp / player.maxHp) * (100 + wave * 20));
+    if (hpBonus > 0) {
+      score += hpBonus;
+      spawnFloatingText(W / 2, H / 2 + 30, `Wave Clear +${hpBonus}`, '#44aaff');
+    }
   }
   waveTimer = 0;
   bossSpawned = false;
@@ -616,6 +633,18 @@ function updatePlayer() {
     mx *= f; my *= f;
   }
 
+  // dash trigger
+  if ((isDown('k') || isDown('x')) && dashCooldown <= 0 && dashing <= 0 && (mx !== 0 || my !== 0)) {
+    keys['k'] = false;
+    keys['x'] = false;
+    dashing = 18;
+    dashCooldown = 120;
+    player.vx = mx * player.dashSpeed;
+    player.vy = my * player.dashSpeed;
+    sfxDash();
+    spawnFloatingText(player.x, player.y - 20, 'DASH!', '#aaddff');
+  }
+
   player.vx += (mx * speed - player.vx) * 0.2;
   player.vy += (my * speed - player.vy) * 0.2;
   player.x += player.vx;
@@ -628,6 +657,25 @@ function updatePlayer() {
   }
 
   // shooting
+  // dash
+  if (dashCooldown > 0) dashCooldown--;
+  if (dashing > 0) {
+    dashing--;
+    player.invincible = Math.max(player.invincible, 1);
+    // dash trail
+    particles.push({
+      x: player.x + rand(-4, 4),
+      y: player.y + rand(-4, 4),
+      vx: rand(-0.5, 0.5),
+      vy: rand(-0.5, 0.5),
+      life: rand(8, 16),
+      maxLife: 16,
+      color: '#aaddff',
+      size: rand(2, 4),
+      decay: 0.88,
+    });
+  }
+
   // bomb
   if (bombCooldown > 0) bombCooldown--;
   if (bombAnim > 0) bombAnim--;
@@ -1274,6 +1322,19 @@ function drawUI() {
   document.getElementById('health-fill').style.width = hpPct + '%';
   const bombEl = document.getElementById('bomb-count');
   if (bombEl) bombEl.textContent = `BOMB: ${player.bombs}`;
+  const dashEl = document.getElementById('dash-status');
+  if (dashEl) {
+    if (dashing > 0) {
+      dashEl.textContent = 'DASHING';
+      dashEl.style.color = '#aaddff';
+    } else if (dashCooldown > 0) {
+      dashEl.textContent = `DASH: ${Math.ceil(dashCooldown / 60)}s`;
+      dashEl.style.color = '#556688';
+    } else {
+      dashEl.textContent = 'DASH READY';
+      dashEl.style.color = '#88aaff';
+    }
+  }
 }
 
 /* ---------- Screens ---------- */
@@ -1329,6 +1390,8 @@ function resetGame() {
   warnings.length = 0;
   bombCooldown = 0;
   bombAnim = 0;
+  dashCooldown = 0;
+  dashing = 0;
 
   score = 0;
   wave = 1;
@@ -1457,6 +1520,10 @@ function loop(timestamp) {
       if (comboTimer <= 0) combo = 0;
     }
     if (grazeTimer > 0) grazeTimer -= timeScale;
+    // combo sustain bonus
+    if (combo >= 10 && state === STATE.PLAYING) {
+      score += Math.floor(combo * 0.05 * timeScale);
+    }
   }
 
   playMusicStep();
