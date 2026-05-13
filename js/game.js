@@ -527,8 +527,8 @@ function spawnEnemy(type) {
     elite: isElite,
   };
 
-  const diffMult = difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : 1.0;
-  const spdMult = difficulty === 1 ? 0.75 : difficulty === 3 ? 1.25 : 1.0;
+  const diffMult = practiceMode ? 0.5 : (difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : 1.0);
+  const spdMult = practiceMode ? 0.6 : (difficulty === 1 ? 0.75 : difficulty === 3 ? 1.25 : 1.0);
   if (type === 'drone') {
     base.hp = base.maxHp = Math.floor((14 + wave * 2) * diffMult);
     base.radius = 12;
@@ -1051,7 +1051,7 @@ function checkCollisions() {
       const b = enemyBullets[i];
       if (dist(b, player) < player.radius + b.radius - 2) {
         enemyBullets.splice(i, 1);
-        player.hp -= 10;
+        player.hp -= practiceMode ? 0 : 10;
         combo = Math.max(0, combo - 2);
         comboTimer = 0;
         player.invincible = 90;
@@ -1087,7 +1087,7 @@ function checkCollisions() {
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
       if (dist(e, player) < e.radius + player.radius) {
-        player.hp -= 15;
+        player.hp -= practiceMode ? 0 : 15;
         combo = Math.max(0, combo - 3);
         comboTimer = 0;
         player.invincible = 90;
@@ -1551,6 +1551,8 @@ function drawUI() {
   document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()}`;
   document.getElementById('wave').textContent = `WAVE: ${wave}`;
   document.getElementById('combo').textContent = `COMBO: x${combo}`;
+  const practiceInd = document.getElementById('practice-indicator');
+  if (practiceInd) practiceInd.style.display = practiceMode ? 'inline' : 'none';
   const grazeEl = document.getElementById('graze');
   if (grazeEl) {
     grazeEl.textContent = `GRAZE: ${grazeCount}`;
@@ -1708,6 +1710,19 @@ if (fullscreenBtn) {
     } else {
       document.exitFullscreen?.();
     }
+  });
+}
+
+/* ---------- Practice Mode Toggle ---------- */
+const practiceToggleBtn = document.getElementById('practice-toggle');
+if (practiceToggleBtn) {
+  practiceToggleBtn.addEventListener('click', () => {
+    practiceMode = !practiceMode;
+    practiceToggleBtn.textContent = practiceMode ? 'PRACTICE: ON' : 'PRACTICE: OFF';
+    practiceToggleBtn.classList.toggle('active', practiceMode);
+    practiceToggleBtn.style.background = practiceMode ? 'rgba(80,160,80,0.25)' : '';
+    practiceToggleBtn.style.borderColor = practiceMode ? 'rgba(100,220,100,0.4)' : '';
+    practiceToggleBtn.style.color = practiceMode ? '#88ffaa' : '';
   });
 }
 
