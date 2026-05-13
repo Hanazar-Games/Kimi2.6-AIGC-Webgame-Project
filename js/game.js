@@ -222,7 +222,6 @@ let comboTimer = 0;
 let shake = 0;
 let slowMo = 0;
 let difficulty = 2; // 1=easy, 2=normal, 3=hard
-let bombs = 3;
 let bombCooldown = 0;
 let bombAnim = 0;
 let grazeCount = 0;
