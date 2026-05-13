@@ -1763,6 +1763,12 @@ function loop(timestamp) {
     state = STATE.PLAYING;
     hideScreens();
   }
+  // Return to menu from game over
+  if (isDown('escape') && state === STATE.GAMEOVER) {
+    keys['escape'] = false;
+    state = STATE.MENU;
+    showMenu();
+  }
 
   // clear
   ctx.fillStyle = '#000000';
