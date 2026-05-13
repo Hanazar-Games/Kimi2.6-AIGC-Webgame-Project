@@ -1746,6 +1746,17 @@ if (resetDataBtn) {
   });
 }
 
+/* ---------- Screenshot ---------- */
+const screenshotBtn = document.getElementById('screenshot-btn');
+if (screenshotBtn) {
+  screenshotBtn.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = `stellar-defense-w${wave}-${score}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+
 /* ---------- Event Listeners ---------- */
 document.getElementById('start-btn').addEventListener('click', () => {
   ensureAudio();
