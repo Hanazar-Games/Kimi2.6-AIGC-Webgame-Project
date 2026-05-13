@@ -229,6 +229,7 @@ let grazeCount = 0;
 let grazeTimer = 0;
 let dashCooldown = 0;
 let dashing = 0;
+let damageFlash = 0;
 
 function loadHighScore() {
   try {
@@ -376,7 +377,7 @@ function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 function angleTo(from, to) { return Math.atan2(to.y - from.y, to.x - from.x); }
 
 /* ---------- Particle Spawners ---------- */
-function spawnExplosion(x, y, color, count = 12) {
+function spawnExplosion(x, y, color, count = 12, shockwave = false) {
   for (let i = 0; i < count; i++) {
     const a = rand(0, Math.PI * 2);
     const s = rand(1, 4);
@@ -390,6 +391,18 @@ function spawnExplosion(x, y, color, count = 12) {
       size: rand(1.5, 4),
       decay: rand(0.92, 0.98),
     });
+  }
+  // shockwave pushes nearby enemy bullets
+  if (shockwave) {
+    for (const b of enemyBullets) {
+      const d = Math.hypot(b.x - x, b.y - y);
+      if (d < 80 && d > 0) {
+        const a = Math.atan2(b.y - y, b.x - x);
+        const force = (80 - d) / 80 * 3;
+        b.vx += Math.cos(a) * force;
+        b.vy += Math.sin(a) * force;
+      }
+    }
   }
 }
 
@@ -873,6 +886,11 @@ function checkCollisions() {
       if (dist(b, e) < e.radius + b.radius) {
         bullets.splice(i, 1);
         e.hp -= 5 + player.powerLevel;
+        // knockback
+        const kbAngle = Math.atan2(b.vy, b.vx);
+        const kbForce = 0.8;
+        e.vx += Math.cos(kbAngle) * kbForce;
+        e.vy += Math.sin(kbAngle) * kbForce;
         spawnHitSparks(b.x, b.y, e.color);
         shake = Math.max(shake, 2);
         if (e.hp <= 0) {
@@ -898,7 +916,7 @@ function checkCollisions() {
               });
             }
           }
-          spawnExplosion(e.x, e.y, e.color, 20);
+          spawnExplosion(e.x, e.y, e.color, 20, true);
           spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
           sfxExplosion();
           // drop powerup chance
@@ -945,6 +963,7 @@ function checkCollisions() {
         comboTimer = 0;
         player.invincible = 90;
         shake = 12;
+        damageFlash = 15;
         damageTakenThisWave = true;
         spawnExplosion(player.x, player.y, '#44aaff', 16);
         sfxHurt();
@@ -970,6 +989,7 @@ function checkCollisions() {
         comboTimer = 0;
         player.invincible = 90;
         shake = 14;
+        damageFlash = 15;
         damageTakenThisWave = true;
         e.hp -= 20;
         spawnExplosion((player.x + e.x) / 2, (player.y + e.y) / 2, '#ff4444', 18);
@@ -1262,6 +1282,16 @@ function drawDangerZone() {
   }
 }
 
+function drawDamageFlash() {
+  if (damageFlash > 0) {
+    ctx.save();
+    ctx.globalAlpha = (damageFlash / 15) * 0.3;
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+}
+
 function drawLowHPWarning() {
   const hpRatio = player.hp / player.maxHp;
   if (hpRatio < 0.3 && player.hp > 0) {
@@ -1392,6 +1422,7 @@ function resetGame() {
   bombAnim = 0;
   dashCooldown = 0;
   dashing = 0;
+  damageFlash = 0;
 
   score = 0;
   wave = 1;
@@ -1520,6 +1551,7 @@ function loop(timestamp) {
       if (comboTimer <= 0) combo = 0;
     }
     if (grazeTimer > 0) grazeTimer -= timeScale;
+    if (damageFlash > 0) damageFlash -= timeScale;
     // combo sustain bonus
     if (combo >= 10 && state === STATE.PLAYING) {
       score += Math.floor(combo * 0.05 * timeScale);
@@ -1530,6 +1562,7 @@ function loop(timestamp) {
 
   drawWarnings();
   drawDangerZone();
+  drawDamageFlash();
   drawLowHPWarning();
   if (bombAnim > 0) drawBombEffect();
   drawPlayer();
