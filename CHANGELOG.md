@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-05-13
+
+### Added
+- Practice Mode toggle — no damage, weaker enemies, scores not saved
+- Reset All Data button with confirmation dialog
+- R key quick restart from game over screen
+- ESC key return to menu from game over screen
+
 ## [1.4.0] - 2026-05-13
 
 ### Added
