@@ -501,8 +501,10 @@ function spawnEnemy(type) {
     base.shootInterval = Math.floor(18 / spdMult);
     base.score = 5000;
     base.x = W / 2;
-    base.y = 70;
+    base.y = -60;
+    base.targetY = 70;
     base.vx = rand(0, 1) < 0.5 ? 1.8 : -1.8;
+    base.introTimer = 90;
   } else if (type === 'swarmer') {
     base.hp = base.maxHp = Math.floor((6 + wave) * diffMult);
     base.radius = 7;
@@ -768,9 +770,17 @@ function updateEnemies(timeScale = 1) {
       e.x += Math.sin(e.phase * 0.02) * 0.8 * timeScale;
       e.y += e.vy * timeScale;
     } else if (e.type === 'boss') {
-      e.x += e.vx * timeScale;
-      if (e.x < 70 || e.x > W - 70) e.vx *= -1;
-      e.y += Math.sin(e.phase * 0.03) * 0.5 * timeScale;
+      if (e.introTimer > 0) {
+        e.introTimer -= timeScale;
+        e.y += (e.targetY - e.y) * 0.03 * timeScale;
+        if (e.introTimer <= 0) {
+          spawnFloatingText(W / 2, H / 2 - 50, 'BOSS ENGAGED!', '#ff3333');
+        }
+      } else {
+        e.x += e.vx * timeScale;
+        if (e.x < 70 || e.x > W - 70) e.vx *= -1;
+        e.y += Math.sin(e.phase * 0.03) * 0.5 * timeScale;
+      }
     } else if (e.type === 'swarmer') {
       const a = angleTo(e, player);
       e.vx += Math.cos(a) * 0.25 * timeScale;
@@ -791,7 +801,9 @@ function updateEnemies(timeScale = 1) {
     e.shootTimer -= timeScale;
     if (e.shootTimer <= 0) {
       e.shootTimer = e.shootInterval;
-      if (e.type === 'drone') {
+      if (e.type === 'boss' && e.introTimer > 0) {
+        // boss doesn't shoot during intro
+      } else if (e.type === 'drone') {
         const a = angleTo(e, player);
         spawnBullet(e.x, e.y, a, 3.5, '#ff6666', true, 4);
       } else if (e.type === 'hunter') {
@@ -1310,6 +1322,26 @@ function drawLowHPWarning() {
   }
 }
 
+function drawBossWarning() {
+  for (const e of enemies) {
+    if (e.type === 'boss' && e.introTimer > 0) {
+      const flash = Math.abs(Math.sin(e.introTimer * 0.15)) * 0.8 + 0.2;
+      ctx.save();
+      ctx.globalAlpha = flash;
+      ctx.fillStyle = '#ff0000';
+      ctx.font = 'bold 48px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('WARNING', W / 2, H / 2 - 60);
+      ctx.font = 'bold 20px sans-serif';
+      ctx.fillText('BOSS APPROACHING', W / 2, H / 2 - 20);
+      ctx.strokeStyle = '#ff0000';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(W * 0.1, H * 0.25, W * 0.8, H * 0.5);
+      ctx.restore();
+    }
+  }
+}
+
 function drawBombEffect() {
   const r = (40 - bombAnim) * 18;
   ctx.save();
@@ -1564,6 +1596,7 @@ function loop(timestamp) {
   drawDangerZone();
   drawDamageFlash();
   drawLowHPWarning();
+  drawBossWarning();
   if (bombAnim > 0) drawBombEffect();
   drawPlayer();
   drawEnemies();
