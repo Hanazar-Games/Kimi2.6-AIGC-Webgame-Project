@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2026-05-13
+
+### Added
+- Combo Guard — death save when combo >= 10 (one use per run)
+- Wave-based screen border color (blue → red as waves increase)
+- Local leaderboard — top 5 scores with medals
+- Hitstop on enemy hits — brief freeze for impact feel
+
 ## [1.3.0] - 2026-05-13
 
 ### Added
