@@ -426,8 +426,9 @@ function lightenColor(hex) {
 
 /* ---------- Particle Spawners ---------- */
 function spawnExplosion(x, y, color, count = 12, shockwave = false) {
+  const densityMult = particleDensity === 0 ? 0.4 : particleDensity === 1 ? 0.7 : 1.0;
   const maxNew = Math.max(0, 300 - particles.length);
-  const actualCount = Math.min(count, maxNew);
+  const actualCount = Math.min(Math.floor(count * densityMult), maxNew);
   for (let i = 0; i < actualCount; i++) {
     const a = rand(0, Math.PI * 2);
     const s = rand(1, 4);
@@ -457,8 +458,9 @@ function spawnExplosion(x, y, color, count = 12, shockwave = false) {
 }
 
 function spawnHitSparks(x, y, color = '#ffaa44') {
+  const densityMult = particleDensity === 0 ? 0.4 : particleDensity === 1 ? 0.7 : 1.0;
   const maxNew = Math.max(0, 300 - particles.length);
-  const count = Math.min(6, maxNew);
+  const count = Math.min(Math.floor(6 * densityMult), maxNew);
   for (let i = 0; i < count; i++) {
     const a = rand(0, Math.PI * 2);
     const s = rand(1, 3);
@@ -635,8 +637,9 @@ function useBomb() {
   slowMo = 45;
   sfxBomb();
   // clear enemy bullets
+  const bombParticles = particleDensity === 0 ? 2 : particleDensity === 1 ? 3 : 4;
   for (const b of enemyBullets) {
-    spawnExplosion(b.x, b.y, '#ff8844', 4);
+    spawnExplosion(b.x, b.y, '#ff8844', bombParticles);
   }
   enemyBullets.length = 0;
   // damage enemies
@@ -993,7 +996,8 @@ function checkCollisions() {
           if (combo === 10 || combo === 25 || combo === 50 || combo === 100) {
             spawnFloatingText(W / 2, H / 2 - 40, `COMBO x${combo}!`, '#ff44ff');
             shake = Math.max(shake, 6);
-            for (let k = 0; k < 30; k++) {
+            const milestoneCount = particleDensity === 0 ? 12 : particleDensity === 1 ? 20 : 30;
+          for (let k = 0; k < milestoneCount; k++) {
               const a = rand(0, Math.PI * 2);
               const s = rand(2, 6);
               particles.push({
@@ -1697,6 +1701,17 @@ if (musicToggleBtn) {
     musicEnabled = !musicEnabled;
     musicToggleBtn.textContent = musicEnabled ? 'MUSIC: ON' : 'MUSIC: OFF';
     musicToggleBtn.classList.toggle('active', musicEnabled);
+  });
+}
+
+/* ---------- Particle Density Toggle ---------- */
+const particleToggleBtn = document.getElementById('particle-toggle');
+const particleLabels = ['PARTICLES: LOW', 'PARTICLES: MED', 'PARTICLES: HIGH'];
+if (particleToggleBtn) {
+  particleToggleBtn.addEventListener('click', () => {
+    particleDensity = (particleDensity + 1) % 3;
+    particleToggleBtn.textContent = particleLabels[particleDensity];
+    particleToggleBtn.classList.toggle('active', particleDensity === 2);
   });
 }
 
