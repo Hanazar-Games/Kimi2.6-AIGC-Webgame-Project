@@ -1487,6 +1487,16 @@ function hideScreens() {
 
 function showPause() {
   document.getElementById('pause-screen').classList.add('active');
+  const ps = document.getElementById('pause-score');
+  const pw = document.getElementById('pause-wave');
+  const pk = document.getElementById('pause-kills');
+  const pc = document.getElementById('pause-combo');
+  const pg = document.getElementById('pause-graze');
+  if (ps) ps.textContent = score.toLocaleString();
+  if (pw) pw.textContent = wave;
+  if (pk) pk.textContent = stats.kills;
+  if (pc) pc.textContent = combo;
+  if (pg) pg.textContent = grazeCount;
 }
 
 function showGameOver() {
