@@ -1749,6 +1749,16 @@ if (particleToggleBtn) {
   });
 }
 
+/* ---------- FPS Toggle ---------- */
+const fpsToggleBtn = document.getElementById('fps-toggle');
+if (fpsToggleBtn) {
+  fpsToggleBtn.addEventListener('click', () => {
+    targetFPS = targetFPS === 60 ? 30 : 60;
+    fpsToggleBtn.textContent = `FPS: ${targetFPS}`;
+    fpsToggleBtn.classList.toggle('active', targetFPS === 60);
+  });
+}
+
 /* ---------- Fullscreen ---------- */
 const fullscreenBtn = document.getElementById('fullscreen-btn');
 if (fullscreenBtn) {
@@ -1882,6 +1892,34 @@ function loop(timestamp) {
   drawStars();
 
   const timeScale = slowMo > 0 ? 0.4 : 1.0;
+  // frame skip for 30fps mode
+  if (targetFPS === 30) {
+    skipFrame = !skipFrame;
+    if (skipFrame) {
+      drawStars();
+      drawPlayer();
+      drawEnemies();
+      drawBullets(bullets);
+      drawBullets(enemyBullets);
+      drawPowerups();
+      drawTouchControls();
+      drawParticles();
+      drawTexts();
+      drawWaveBorder();
+      drawWarnings();
+      drawDangerZone();
+      drawDamageFlash();
+      drawLowHPWarning();
+      drawBossWarning();
+      if (bombAnim > 0) drawBombEffect();
+      drawBossUI();
+      ctx.restore();
+      drawUI();
+      requestAnimationFrame(loop);
+      return;
+    }
+  }
+
   if (state === STATE.PLAYING) {
     if (hitstop > 0) {
       hitstop -= timeScale;
