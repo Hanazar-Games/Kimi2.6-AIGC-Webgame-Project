@@ -1404,6 +1404,19 @@ function drawDamageFlash() {
   }
 }
 
+function drawWaveBorder() {
+  const intensity = Math.min(1, (wave - 1) / 15);
+  const r = Math.floor(50 + intensity * 150);
+  const g = Math.floor(100 + intensity * 20);
+  const b = Math.floor(200 - intensity * 150);
+  const alpha = 0.15 + intensity * 0.25;
+  ctx.save();
+  ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+  ctx.lineWidth = 2 + intensity * 3;
+  ctx.strokeRect(2, 2, W - 4, H - 4);
+  ctx.restore();
+}
+
 function drawLowHPWarning() {
   const hpRatio = player.hp / player.maxHp;
   if (hpRatio < 0.3 && player.hp > 0) {
@@ -1741,6 +1754,7 @@ function loop(timestamp) {
 
   playMusicStep();
 
+  drawWaveBorder();
   drawWarnings();
   drawDangerZone();
   drawDamageFlash();
