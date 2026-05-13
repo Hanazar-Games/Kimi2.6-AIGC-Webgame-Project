@@ -233,6 +233,10 @@ let gameStartTime = 0;
 let comboGuard = true;
 let particleDensity = 2; // 0=low, 1=medium, 2=high
 let colorTheme = 0;
+let targetFPS = 60;
+let skipFrame = false;
+let tutorialActive = false;
+let tutorialDismissed = false;
 const THEMES = [
   { name: 'CYAN', player: '#88ddff', bullet: '#44ffaa', glow: '#44ddff', engine: '#44aaff' },
   { name: 'RED', player: '#ff8888', bullet: '#ff4444', glow: '#ff6666', engine: '#ff3333' },
