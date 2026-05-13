@@ -231,6 +231,7 @@ let dashCooldown = 0;
 let dashing = 0;
 let damageFlash = 0;
 let gameStartTime = 0;
+let comboGuard = true;
 
 function loadHighScore() {
   try {
@@ -1019,12 +1020,22 @@ function checkCollisions() {
         spawnExplosion(player.x, player.y, '#44aaff', 16);
         sfxHurt();
         if (player.hp <= 0) {
-          player.hp = 0;
-          state = STATE.GAMEOVER;
-          if (score > highScore) { highScore = score; saveHighScore(); }
-          stats.totalGraze += grazeCount;
-          updateStats(true);
-          showGameOver();
+          if (combo >= 10 && comboGuard) {
+            comboGuard = false;
+            player.hp = 1;
+            combo = 0;
+            comboTimer = 0;
+            player.invincible = 120;
+            spawnFloatingText(player.x, player.y - 30, 'COMBO GUARD!', '#ff44ff');
+            sfxPowerup();
+          } else {
+            player.hp = 0;
+            state = STATE.GAMEOVER;
+            if (score > highScore) { highScore = score; saveHighScore(); }
+            stats.totalGraze += grazeCount;
+            updateStats(true);
+            showGameOver();
+          }
         }
       }
     }
@@ -1050,10 +1061,22 @@ function checkCollisions() {
           enemies.splice(j, 1);
         }
         if (player.hp <= 0) {
-          player.hp = 0;
-          state = STATE.GAMEOVER;
-          if (score > highScore) { highScore = score; saveHighScore(); }
-          showGameOver();
+          if (combo >= 10 && comboGuard) {
+            comboGuard = false;
+            player.hp = 1;
+            combo = 0;
+            comboTimer = 0;
+            player.invincible = 120;
+            spawnFloatingText(player.x, player.y - 30, 'COMBO GUARD!', '#ff44ff');
+            sfxPowerup();
+          } else {
+            player.hp = 0;
+            state = STATE.GAMEOVER;
+            if (score > highScore) { highScore = score; saveHighScore(); }
+            stats.totalGraze += grazeCount;
+            updateStats(true);
+            showGameOver();
+          }
         }
       }
     }
@@ -1592,6 +1615,7 @@ function resetGame() {
   musicBeat = 0;
   if (audioCtx) musicNextTime = audioCtx.currentTime;
   gameStartTime = Date.now();
+  comboGuard = true;
 
   initStars();
   startWave();
