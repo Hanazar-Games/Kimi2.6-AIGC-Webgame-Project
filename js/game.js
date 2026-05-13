@@ -390,7 +390,6 @@ const player = {
   powerLevel: 1,
   maxPower: 5,
   bombs: 3,
-  maxBombs: 5,
   grazeRadius: 28,
   dashSpeed: 14,
 };
