@@ -378,7 +378,7 @@ function updateAchievementUI() {
     list.appendChild(el);
   }
 }
-function updateLeaderboardUI() {
+function updateLeaderboardUI(highlightIndex = -1) {
   const ids = ['leaderboard-list', 'leaderboard-menu-list'];
   for (const id of ids) {
     const list = document.getElementById(id);
@@ -390,7 +390,8 @@ function updateLeaderboardUI() {
     }
     leaderboard.forEach((entry, i) => {
       const el = document.createElement('div');
-      el.style.cssText = 'color:#aabbdd; font-size:11px; margin:2px 0;';
+      const isHighlight = i === highlightIndex;
+      el.style.cssText = `color:${isHighlight ? '#ffcc44' : '#aabbdd'}; font-size:11px; margin:2px 0; font-weight:${isHighlight ? '700' : '400'};`;
       const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
       el.textContent = `${medal} ${entry.score.toLocaleString()} (W${entry.wave})`;
       list.appendChild(el);
@@ -1689,8 +1690,8 @@ function showGameOver() {
   if (!practiceMode) {
     const oldRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);
     addToLeaderboard(score, wave);
-    updateLeaderboardUI();
     const newRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);
+    updateLeaderboardUI(newRank);
     if (newRank < 5 && (oldRank === -1 || newRank < oldRank)) {
       spawnFloatingText(W / 2, H / 2 + 80, `RANK #${newRank + 1}!`, '#ffcc44');
       if (newRank === 0) {
