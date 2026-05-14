@@ -340,6 +340,22 @@ function unlockAchievement(key) {
     a.unlocked = true;
     saveAchievements();
     spawnFloatingText(W / 2, H / 2 - 60, `Achievement: ${a.name}`, '#ffcc44');
+    spawnFloatingText(W / 2, H / 2 - 40, a.desc, '#ffee88');
+    shake = Math.max(shake, 8);
+    for (let k = 0; k < 20; k++) {
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(2, 5);
+      particles.push({
+        x: W / 2, y: H / 2 - 50,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: rand(30, 60),
+        maxLife: 60,
+        color: '#ffcc44',
+        size: rand(2, 4),
+        decay: 0.95,
+      });
+    }
     sfxUpgrade();
     updateAchievementUI();
   }
