@@ -2,22 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.8.0] - 2026-05-13
+## [1.9.0] - 2026-05-13
 
 ### Added
+- FPS counter display toggle — show/hide FPS readout
 - Master volume control — 4-step toggle (Mute/33%/66%/100%)
-- Volume affects all synthesized SFX and explosion noise
 
 ### Fixed
 - Added explicit declarations for targetFPS, skipFrame, tutorial flags
 - Removed unused bombs and maxBombs variables
 
+## [1.8.0] - 2026-05-13
+
+### Added
+- First-time tutorial hint — pulsing controls at bottom, auto-dismisses on input
+- New high score and top score celebrations with particle effects
+
 ## [1.7.0] - 2026-05-13
 
 ### Added
 - FPS limit toggle (60/30) for performance tuning
-- First-time tutorial hint — pulsing controls at bottom, auto-dismisses on input
-- New high score and top score celebrations with particle effects
+- Leaderboard rank announcement on game over (top 5)
 
 ## [1.6.0] - 2026-05-13
 
@@ -26,7 +31,6 @@ All notable changes to this project will be documented in this file.
 - Particle density setting (Low/Med/High) for performance tuning
 - Practice Mode — no damage, weaker enemies, scores not saved
 - Reset All Data button with confirmation dialog
-- Leaderboard rank announcement on game over (top 5)
 - R key quick restart and ESC return to menu from game over
 
 ## [1.5.0] - 2026-05-13
