@@ -1727,6 +1727,7 @@ function resetGame() {
   dashing = 0;
   damageFlash = 0;
   hitstop = 0;
+  waveFlash = 0;
 
   score = 0;
   wave = 1;
