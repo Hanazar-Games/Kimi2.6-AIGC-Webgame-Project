@@ -235,6 +235,7 @@ let particleDensity = 2; // 0=low, 1=medium, 2=high
 let colorTheme = 0;
 let masterVolume = 1.0;
 let showFPS = true;
+let waveFlash = 0;
 let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
@@ -612,6 +613,7 @@ let spawnTimer = 0;
 let bossSpawned = false;
 
 function startWave() {
+  waveFlash = 20;
   // check no-damage streak for Untouchable achievement
   if (wave > 1 && !damageTakenThisWave) {
     noDamageWaves++;
@@ -2017,6 +2019,14 @@ function loop(timestamp) {
 
   playMusicStep();
 
+  if (waveFlash > 0) {
+    ctx.save();
+    ctx.globalAlpha = (waveFlash / 20) * 0.15;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    waveFlash--;
+  }
   if (tutorialActive) drawTutorialHint();
   drawWaveBorder();
   drawWarnings();
