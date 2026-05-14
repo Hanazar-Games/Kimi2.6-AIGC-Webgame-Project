@@ -44,6 +44,7 @@ Touch devices: drag left side to move, tap right side to shoot, middle area for 
 - **Achievements** — 6 unlockable achievements
 - **Stats tracking** — total games, kills, best wave, total graze
 - **Local high score** — persisted via `localStorage`
+- **URL score sharing** — share your results by copying the URL after game over
 
 ### Quality of Life
 - **Practice Mode** — no damage, weaker enemies, scores not saved
@@ -58,14 +59,18 @@ Touch devices: drag left side to move, tap right side to shoot, middle area for 
 - **Particle density setting** — Low/Med/High for performance tuning
 - **Fullscreen support**
 - **Background music** — procedural synth music with on/off toggle
+- **Master volume** — 4-step toggle (Mute/33%/66%/100%)
 - **Touch / mobile support** — virtual controls for phones & tablets
 - **Reset All Data** — clear localStorage with confirmation
 
 ### Visuals & Juice
 - Screen shake, particle explosions, bullet trails, engine glow
 - Bomb shockwave, combo celebrations, slow-mo effects
-- Dash trails, damage flash, enemy knockback, death shockwaves
+- Dash trails, damage flash, hitstop on enemy hits
 - Elite enemy gold borders, Boss intro WARNING sequence
+- Menu entrance animations
+- Wave start screen flash
+- Achievement unlock effects with gold particles
 
 ### Audio
 - **Web Audio API** synthesized SFX & music — no external assets needed
