@@ -2,31 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.10.0] - 2026-05-13
+## [1.11.0] - 2026-05-13
 
 ### Added
+- Enhanced achievement unlock — screen shake, gold particles, description text
 - Wave start screen flash — brief white overlay on each new wave
 - Kills and graze count on game over screen
 - FPS counter display toggle — show/hide FPS readout
 - Master volume control — 4-step toggle (Mute/33%/66%/100%)
 
 ### Fixed
+- Reset waveFlash on game restart
 - Added explicit declarations for targetFPS, skipFrame, tutorial flags
 - Removed unused bombs and maxBombs variables
 
-## [1.9.0] - 2026-05-13
+## [1.10.0] - 2026-05-13
 
 ### Added
 - First-time tutorial hint — pulsing controls at bottom, auto-dismisses on input
 - New high score and top score celebrations with particle effects
-
-## [1.8.0] - 2026-05-13
-
-### Added
 - FPS limit toggle (60/30) for performance tuning
 - Leaderboard rank announcement on game over (top 5)
 
-## [1.7.0] - 2026-05-13
+## [1.9.0] - 2026-05-13
 
 ### Added
 - Screenshot button on game over — save canvas as PNG
@@ -35,7 +33,7 @@ All notable changes to this project will be documented in this file.
 - Reset All Data button with confirmation dialog
 - R key quick restart and ESC return to menu from game over
 
-## [1.6.0] - 2026-05-13
+## [1.8.0] - 2026-05-13
 
 ### Added
 - Combo Guard — death save when combo >= 10 (one use per run)
@@ -43,7 +41,7 @@ All notable changes to this project will be documented in this file.
 - Local leaderboard — top 5 scores with medals
 - Hitstop on enemy hits — brief freeze for impact feel
 
-## [1.5.0] - 2026-05-13
+## [1.7.0] - 2026-05-13
 
 ### Added
 - Sniper enemy type — high-speed aimed bullets from wave 4
@@ -51,7 +49,7 @@ All notable changes to this project will be documented in this file.
 - In-game timer displayed on pause and game over screens
 - Pause screen stats overlay (score, wave, kills, combo, graze, time)
 
-## [1.4.0] - 2026-05-13
+## [1.6.0] - 2026-05-13
 
 ### Added
 - Dash system — K/X key for invincible burst movement with cooldown
@@ -65,7 +63,7 @@ All notable changes to this project will be documented in this file.
 - Enemy death shockwaves push nearby bullets
 - Performance caps on particles (300) and bullets (500 enemy / 200 player)
 
-## [1.2.0] - 2026-05-13
+## [1.5.0] - 2026-05-13
 
 ### Added
 - 5 enemy types: Drone, Hunter, Tank, Swarmer, Boss
