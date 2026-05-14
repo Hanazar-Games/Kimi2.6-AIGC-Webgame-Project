@@ -1715,6 +1715,7 @@ function showGameOver() {
     if (score >= highScore) {
       spawnFloatingText(W / 2, H / 2 + 60, 'NEW HIGH SCORE!', '#44ff66');
     }
+    setSharedScore(score, wave);
   }
 }
 
@@ -2074,7 +2075,27 @@ function loop(timestamp) {
   requestAnimationFrame(loop);
 }
 
+/* ---------- URL Score Sharing ---------- */
+function parseSharedScore() {
+  const params = new URLSearchParams(window.location.search);
+  const s = parseInt(params.get('score'), 10);
+  const w = parseInt(params.get('wave'), 10);
+  if (s && w) {
+    const el = document.getElementById('menu-highscore');
+    if (el) {
+      el.innerHTML = `High Score: ${highScore.toLocaleString()} <span style="color:#88aaff; font-size:12px;">(Shared: ${s.toLocaleString()} W${w})</span>`;
+    }
+  }
+}
+function setSharedScore(score, wave) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('score', score);
+  url.searchParams.set('wave', wave);
+  window.history.replaceState({}, '', url);
+}
+
 /* ---------- Start ---------- */
 initStars();
+parseSharedScore();
 showMenu();
 requestAnimationFrame(loop);
