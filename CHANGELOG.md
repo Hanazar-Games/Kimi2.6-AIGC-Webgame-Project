@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.14.0] - 2026-05-13
+
+### Added
+- URL-based score sharing — game over updates URL with score and wave
+- Shared scores displayed on menu when visiting a link
+
 ## [1.13.0] - 2026-05-13
 
 ### Added
