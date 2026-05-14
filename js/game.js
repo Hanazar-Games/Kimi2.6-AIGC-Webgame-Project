@@ -234,6 +234,7 @@ let comboGuard = true;
 let particleDensity = 2; // 0=low, 1=medium, 2=high
 let colorTheme = 0;
 let masterVolume = 1.0;
+let showFPS = true;
 let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
@@ -1795,6 +1796,16 @@ if (volumeToggleBtn) {
   });
 }
 
+/* ---------- FPS Display Toggle ---------- */
+const fpsDisplayToggleBtn = document.getElementById('fps-toggle-display');
+if (fpsDisplayToggleBtn) {
+  fpsDisplayToggleBtn.addEventListener('click', () => {
+    showFPS = !showFPS;
+    fpsDisplayToggleBtn.textContent = showFPS ? 'FPS: ON' : 'FPS: OFF';
+    fpsDisplayToggleBtn.classList.toggle('active', showFPS);
+  });
+}
+
 /* ---------- Fullscreen ---------- */
 const fullscreenBtn = document.getElementById('fullscreen-btn');
 if (fullscreenBtn) {
@@ -1882,7 +1893,8 @@ function loop(timestamp) {
 
   frameCount++;
   if (timestamp - fpsTime >= 1000) {
-    document.getElementById('fps').textContent = `FPS: ${frameCount}`;
+    const fpsEl = document.getElementById('fps');
+    if (fpsEl) fpsEl.textContent = showFPS ? `FPS: ${frameCount}` : '';
     frameCount = 0;
     fpsTime = timestamp;
   }
