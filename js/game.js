@@ -1659,6 +1659,10 @@ function showGameOver() {
   document.getElementById('final-wave').textContent = `Wave: ${wave}`;
   const hsEl = document.getElementById('final-highscore');
   if (hsEl) hsEl.textContent = `High Score: ${highScore.toLocaleString()}`;
+  const fkEl = document.getElementById('final-kills');
+  if (fkEl) fkEl.textContent = `Kills: ${stats.kills}`;
+  const fgEl = document.getElementById('final-graze');
+  if (fgEl) fgEl.textContent = `Graze: ${grazeCount}`;
   const ftEl = document.getElementById('final-time');
   if (ftEl && gameStartTime > 0) {
     const sec = Math.floor((Date.now() - gameStartTime) / 1000);
