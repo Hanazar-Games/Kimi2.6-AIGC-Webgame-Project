@@ -35,7 +35,7 @@ function playTone(freq, type, duration, vol = 0.08) {
   const g = audioCtx.createGain();
   o.type = type;
   o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-  g.gain.setValueAtTime(vol, audioCtx.currentTime);
+  g.gain.setValueAtTime(vol * masterVolume, audioCtx.currentTime);
   g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
   o.connect(g);
   g.connect(audioCtx.destination);
@@ -57,7 +57,7 @@ function sfxExplosion() {
   const noise = audioCtx.createBufferSource();
   noise.buffer = buffer;
   const g = audioCtx.createGain();
-  g.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  g.gain.setValueAtTime(0.15 * masterVolume, audioCtx.currentTime);
   g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
   noise.connect(g);
   g.connect(audioCtx.destination);
@@ -233,6 +233,7 @@ let gameStartTime = 0;
 let comboGuard = true;
 let particleDensity = 2; // 0=low, 1=medium, 2=high
 let colorTheme = 0;
+let masterVolume = 1.0;
 let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
@@ -1777,6 +1778,20 @@ if (fpsToggleBtn) {
     targetFPS = targetFPS === 60 ? 30 : 60;
     fpsToggleBtn.textContent = `FPS: ${targetFPS}`;
     fpsToggleBtn.classList.toggle('active', targetFPS === 60);
+  });
+}
+
+/* ---------- Volume Toggle ---------- */
+const volumeToggleBtn = document.getElementById('volume-toggle');
+const volumeLevels = [0, 0.33, 0.66, 1.0];
+const volumeLabels = ['VOL: MUTE', 'VOL: 33%', 'VOL: 66%', 'VOL: 100%'];
+let volumeIndex = 3;
+if (volumeToggleBtn) {
+  volumeToggleBtn.addEventListener('click', () => {
+    volumeIndex = (volumeIndex + 1) % 4;
+    masterVolume = volumeLevels[volumeIndex];
+    volumeToggleBtn.textContent = volumeLabels[volumeIndex];
+    volumeToggleBtn.classList.toggle('active', volumeIndex === 3);
   });
 }
 
