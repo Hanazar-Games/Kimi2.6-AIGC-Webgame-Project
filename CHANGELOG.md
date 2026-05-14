@@ -2,15 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.0] - 2026-05-13
+
+### Added
+- Master volume control — 4-step toggle (Mute/33%/66%/100%)
+- Volume affects all synthesized SFX and explosion noise
+
+### Fixed
+- Added explicit declarations for targetFPS, skipFrame, tutorial flags
+- Removed unused bombs and maxBombs variables
+
 ## [1.7.0] - 2026-05-13
 
 ### Added
 - FPS limit toggle (60/30) for performance tuning
 - First-time tutorial hint — pulsing controls at bottom, auto-dismisses on input
 - New high score and top score celebrations with particle effects
-
-### Changed
-- Code cleanup: removed unused bombs and maxBombs variables
 
 ## [1.6.0] - 2026-05-13
 
