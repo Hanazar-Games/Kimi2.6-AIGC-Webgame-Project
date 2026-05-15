@@ -313,6 +313,7 @@ const ACHIEVEMENTS = {
   survivor: { name: 'Survivor', desc: 'Reach Wave 10', unlocked: false },
   boss_slayer: { name: 'Boss Slayer', desc: 'Defeat a Boss', unlocked: false },
   elite_slayer: { name: 'Elite Slayer', desc: 'Defeat an Elite Boss', unlocked: false },
+  splitter_down: { name: 'Splitter Down', desc: 'Destroy a Splitter enemy', unlocked: false },
   untouchable: { name: 'Untouchable', desc: 'Clear Wave 5 without taking damage', unlocked: false },
 };
 let noDamageWaves = 0;
@@ -540,6 +541,31 @@ function spawnPowerup(x, y) {
 }
 
 /* ---------- Enemy Factory ---------- */
+function splitEnemy(x, y, elite) {
+  const count = Math.floor(rand(2, 4));
+  for (let k = 0; k < count; k++) {
+    const s = {
+      x: x + rand(-15, 15),
+      y: y + rand(-15, 15),
+      vx: 0, vy: 0,
+      hp: Math.floor((6 + wave) * (practiceMode ? 0.5 : (difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : 1.0))),
+      maxHp: 0,
+      radius: 7,
+      color: '#ff55aa',
+      speed: rand(3.0, 4.5) * (practiceMode ? 0.6 : (difficulty === 1 ? 0.75 : difficulty === 3 ? 1.25 : 1.0)),
+      shootInterval: 99999,
+      type: 'swarmer',
+      angle: 0,
+      phase: rand(0, 100),
+      elite: false,
+      score: 50,
+    };
+    s.maxHp = s.hp;
+    enemies.push(s);
+  }
+  spawnFloatingText(x, y - 20, 'SPLIT!', '#cc44ff');
+}
+
 function spawnEnemy(type) {
   const side = Math.floor(rand(0, 3));
   let x, y;
@@ -612,6 +638,13 @@ function spawnEnemy(type) {
     base.speed = rand(3.0, 4.5) * spdMult;
     base.shootInterval = 99999; // doesn't shoot
     base.score = 50;
+  } else if (type === 'splitter') {
+    base.hp = base.maxHp = Math.floor((28 + wave * 4) * diffMult);
+    base.radius = 16;
+    base.color = '#cc44ff';
+    base.speed = rand(0.5, 1.0) * spdMult;
+    base.shootInterval = Math.floor(120 / spdMult);
+    base.score = 350;
   }
 
   if (base.elite) {
@@ -716,6 +749,7 @@ function waveLogic() {
       if (wave >= 3 && roll < 0.28) type = 'hunter';
       if (wave >= 4 && roll < 0.12) type = 'sniper';
       if (wave >= 5 && roll < 0.18) type = 'tank';
+      if (wave >= 6 && roll < 0.35) type = 'splitter';
       spawnEnemy(type);
       enemiesToSpawn--;
     }
@@ -916,6 +950,11 @@ function updateEnemies(timeScale = 1) {
       if (spd > e.speed) { e.vx = (e.vx / spd) * e.speed; e.vy = (e.vy / spd) * e.speed; }
       e.x += e.vx * timeScale;
       e.y += e.vy * timeScale;
+    } else if (e.type === 'splitter') {
+      e.vy += 0.03 * timeScale;
+      if (e.vy > e.speed) e.vy = e.speed;
+      e.x += Math.sin(e.phase * 0.02) * 0.6 * timeScale;
+      e.y += e.vy * timeScale;
     }
 
     // bounds
@@ -947,6 +986,11 @@ function updateEnemies(timeScale = 1) {
         const a = angleTo(e, player);
         spawnBullet(e.x, e.y, a, 7, '#ff88ff', true, 3);
         e.aimTimer = 20;
+      } else if (e.type === 'splitter') {
+        const a = angleTo(e, player);
+        for (let k = -1; k <= 1; k++) {
+          spawnBullet(e.x, e.y, a + k * 0.25, 2.5, '#cc44ff', true, 4);
+        }
       } else if (e.type === 'boss') {
         const mode = (Math.floor(e.phase / 180) % 3);
         const elite = e.elite;
@@ -1082,6 +1126,10 @@ function checkCollisions() {
             unlockAchievement('boss_slayer');
             if (e.elite) unlockAchievement('elite_slayer');
           }
+          if (e.type === 'splitter') {
+            splitEnemy(e.x, e.y, e.elite);
+            unlockAchievement('splitter_down');
+          }
           stats.kills++;
           enemies.splice(j, 1);
         } else {
@@ -1165,6 +1213,7 @@ function checkCollisions() {
         sfxHurt();
         if (e.hp <= 0) {
           spawnExplosion(e.x, e.y, e.color, 20);
+          if (e.type === 'splitter') splitEnemy(e.x, e.y, e.elite);
           enemies.splice(j, 1);
         }
         if (player.hp <= 0) {
@@ -1336,6 +1385,21 @@ function drawEnemies() {
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.arc(0, 0, 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (e.type === 'splitter') {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -14);
+      ctx.lineTo(-12, 0);
+      ctx.lineTo(-8, 10);
+      ctx.lineTo(0, 6);
+      ctx.lineTo(8, 10);
+      ctx.lineTo(12, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#ffccff';
+      ctx.beginPath();
+      ctx.arc(0, -2, 5, 0, Math.PI * 2);
       ctx.fill();
     } else if (e.type === 'sniper') {
       ctx.fillStyle = e.color;
