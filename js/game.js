@@ -456,6 +456,7 @@ const powerups = [];
 const warnings = [];
 
 /* ---------- Starfield (parallax) ---------- */
+let nebulae = [];
 function initStars() {
   stars.length = 0;
   for (let i = 0; i < 150; i++) {
@@ -466,6 +467,22 @@ function initStars() {
       speed: Math.random() * 1.5 + 0.1,
       alpha: Math.random() * 0.7 + 0.15,
       layer: Math.random() < 0.3 ? 2 : 1,
+    });
+  }
+  nebulae = [];
+  const colors = [
+    { r: 60, g: 20, b: 80 },   // purple
+    { r: 20, g: 40, b: 90 },   // blue
+    { r: 80, g: 20, b: 30 },   // red
+  ];
+  for (let i = 0; i < 3; i++) {
+    nebulae.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      radius: Math.random() * 150 + 100,
+      color: colors[i],
+      speed: Math.random() * 0.3 + 0.1,
+      alpha: Math.random() * 0.04 + 0.03,
     });
   }
 }
@@ -1490,6 +1507,20 @@ function drawStars() {
   ctx.globalAlpha = 1;
 }
 
+function drawNebulae() {
+  for (const n of nebulae) {
+    const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.radius);
+    g.addColorStop(0, `rgba(${n.color.r},${n.color.g},${n.color.b},${n.alpha})`);
+    g.addColorStop(1, `rgba(${n.color.r},${n.color.g},${n.color.b},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+    ctx.fill();
+    n.y += n.speed;
+    if (n.y > H + n.radius) { n.y = -n.radius; n.x = rand(0, W); }
+  }
+}
+
 function drawPlayer() {
   const theme = THEMES[colorTheme];
   ctx.save();
@@ -2442,6 +2473,7 @@ function loop(timestamp) {
   }
 
   drawStars();
+  drawNebulae();
 
   const timeScale = slowMo > 0 ? 0.4 : 1.0;
   // frame skip for 30fps mode
@@ -2449,6 +2481,7 @@ function loop(timestamp) {
     skipFrame = !skipFrame;
     if (skipFrame) {
       drawStars();
+      drawNebulae();
       drawPlayer();
       drawEnemies();
       drawBullets(bullets);
@@ -2476,6 +2509,7 @@ function loop(timestamp) {
     if (hitstop > 0) {
       hitstop -= timeScale;
       drawStars();
+      drawNebulae();
       drawPlayer();
       drawEnemies();
       drawBullets(bullets);
