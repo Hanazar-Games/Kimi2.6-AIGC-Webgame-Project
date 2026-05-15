@@ -236,6 +236,7 @@ let colorTheme = 0;
 let masterVolume = 1.0;
 let showFPS = true;
 let waveFlash = 0;
+let timeStopTimer = 0;
 let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
@@ -525,6 +526,7 @@ function spawnPowerup(x, y) {
   let type = 'energy';
   if (roll < 0.15) type = 'power';
   else if (roll < 0.25) type = 'shield';
+  else if (roll < 0.30) type = 'timestop';
   powerups.push({
     x, y,
     vx: rand(-0.5, 0.5),
@@ -1000,6 +1002,10 @@ function updatePowerups(timeScale = 1) {
         player.invincible = Math.max(player.invincible, 300);
         spawnFloatingText(player.x, player.y - 20, 'SHIELD!', '#44aaff');
         sfxPowerup();
+      } else if (p.type === 'timestop') {
+        timeStopTimer = 180;
+        spawnFloatingText(player.x, player.y - 20, 'TIME STOP!', '#ff88ff');
+        sfxUpgrade();
       }
       powerups.splice(i, 1);
     }
@@ -1388,6 +1394,7 @@ function drawPowerups() {
     let label = '+';
     if (p.type === 'power') { color = '#ffcc44'; label = 'P'; }
     if (p.type === 'shield') { color = '#44aaff'; label = 'S'; }
+    if (p.type === 'timestop') { color = '#ff88ff'; label = 'T'; }
     ctx.shadowColor = color;
     ctx.fillStyle = color;
     ctx.beginPath();
@@ -1494,6 +1501,19 @@ function drawTutorialHint() {
   ctx.textAlign = 'center';
   ctx.fillText('WASD / Arrows to move · Space to shoot · P to pause', W / 2, H - 24);
   ctx.restore();
+}
+
+function drawTimeStopEffect() {
+  if (timeStopTimer > 0) {
+    const pulse = 0.2 + Math.sin(Date.now() * 0.02) * 0.15;
+    ctx.save();
+    ctx.strokeStyle = `rgba(255,136,255,${pulse})`;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, W - 8, H - 8);
+    ctx.fillStyle = `rgba(200,100,255,${pulse * 0.15})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
 }
 
 function drawWaveBorder() {
@@ -1746,6 +1766,7 @@ function resetGame() {
   damageFlash = 0;
   hitstop = 0;
   waveFlash = 0;
+  timeStopTimer = 0;
 
   score = 0;
   wave = 1;
@@ -2019,12 +2040,15 @@ function loop(timestamp) {
       return;
     }
     if (slowMo > 0) slowMo -= timeScale;
+    if (timeStopTimer > 0) timeStopTimer -= timeScale;
     updatePlayer();
-    updateEnemies(timeScale);
-    updateBullets(bullets, timeScale);
-    updateBullets(enemyBullets, timeScale);
-    updatePowerups(timeScale);
-    checkCollisions();
+    if (timeStopTimer <= 0) {
+      updateEnemies(timeScale);
+      updateBullets(bullets, timeScale);
+      updateBullets(enemyBullets, timeScale);
+      updatePowerups(timeScale);
+      checkCollisions();
+    }
     updateParticles();
     waveLogic();
 
@@ -2051,6 +2075,7 @@ function loop(timestamp) {
     waveFlash--;
   }
   if (tutorialActive) drawTutorialHint();
+  drawTimeStopEffect();
   drawWaveBorder();
   drawWarnings();
   drawDangerZone();
