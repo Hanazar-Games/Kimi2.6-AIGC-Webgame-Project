@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.25.0] - 2026-05-13
+
+### Added
+- Boss type Beta — alternate Boss variant appearing every 10 waves
+- Blue Beta Boss: faster movement, denser bullet patterns, angular shape with side fins
+- Red Alpha Boss: original patterns (wave 5, 15, 25...)
+- Independent first-encounter hints for each Boss type
+- Boss HP bar color matches Boss type (red/blue)
+
 ## [1.24.0] - 2026-05-13
 
 ### Added
