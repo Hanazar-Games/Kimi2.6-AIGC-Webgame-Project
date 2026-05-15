@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.48.0] - 2026-05-13
+
+### Added
+- Death slow-motion effect
+- Game slows to 0.15x speed for 1.5 seconds on player death
+- Dramatic bullet-time before game over screen
+
 ## [1.47.0] - 2026-05-13
 
 ### Added
