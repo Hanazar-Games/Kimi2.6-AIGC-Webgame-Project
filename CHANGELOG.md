@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.21.0] - 2026-05-13
+
+### Added
+- Bomber enemy type — fast orange enemy that rams directly at the player
+- Death explosion deals area damage within 50px radius
+- Blinking red warning ring indicator
+- Spawns from wave 7 onwards
+- New 'Bomber Down' achievement
+
 ## [1.20.0] - 2026-05-13
 
 ### Added
