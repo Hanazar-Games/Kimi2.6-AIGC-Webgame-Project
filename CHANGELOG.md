@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.51.0] - 2026-05-13
+
+### Added
+- Combo timer progress bar on HUD
+- Visual bar showing remaining combo time
+- Color shifts: purple → pink → yellow as combo increases
+
 ## [1.50.0] - 2026-05-13
 
 ### Added
