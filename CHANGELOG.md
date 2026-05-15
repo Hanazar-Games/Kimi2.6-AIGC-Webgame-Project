@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.20.0] - 2026-05-13
+
+### Added
+- Weapon selection system — choose between Balanced, Spread, and Rapid
+- Balanced: default power-level progression
+- Spread: wider fan of bullets, more per power level
+- Rapid: faster fire rate, fewer side bullets
+- Weapon choice persists in localStorage
+
 ## [1.19.0] - 2026-05-13
 
 ### Added
