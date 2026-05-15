@@ -299,11 +299,17 @@ function addToLeaderboard(score, wave) {
 loadLeaderboard();
 
 /* ---------- Stats ---------- */
-let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0 } };
+let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0 } };
 function loadStats() {
   try {
     const v = localStorage.getItem('stellar_defense_stats');
-    if (v) stats = JSON.parse(v);
+    if (v) {
+      const saved = JSON.parse(v);
+      stats = { ...stats, ...saved };
+      if (saved.weaponUses) {
+        stats.weaponUses = { ...stats.weaponUses, ...saved.weaponUses };
+      }
+    }
   } catch (e) {}
 }
 function saveStats() {
@@ -2549,6 +2555,16 @@ function showMenu() {
   if (st) st.textContent = `Time: ${Math.floor(stats.totalTime / 60)}m`;
   if (sc) sc.textContent = `Best Combo: ${stats.highestCombo}`;
   if (sbs) sbs.textContent = `Bosses: ${stats.bossesDefeated}`;
+  const sw = document.getElementById('stat-weapons');
+  if (sw) {
+    const w = stats.weaponUses;
+    const parts = [];
+    if (w.balanced) parts.push(`B:${w.balanced}`);
+    if (w.spread) parts.push(`S:${w.spread}`);
+    if (w.rapid) parts.push(`R:${w.rapid}`);
+    if (w.laser) parts.push(`L:${w.laser}`);
+    sw.textContent = parts.length ? `Weapons: ${parts.join(' · ')}` : 'Weapons: —';
+  }
 }
 
 function hideScreens() {
@@ -2833,7 +2849,7 @@ if (resetDataBtn) {
         localStorage.removeItem('stellar_defense_encountered');
       } catch (e) {}
       highScore = 0;
-      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0 } };
+      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0 } };
       leaderboard = [];
       persistentEncountered = new Set();
       for (const k in ACHIEVEMENTS) ACHIEVEMENTS[k].unlocked = false;

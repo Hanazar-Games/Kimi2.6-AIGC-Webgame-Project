@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.59.1] - 2026-05-13
+
+### Fixed
+- Laser weapon missing from `weaponUses` statistics
+- `loadStats()` now properly merges missing fields from defaults
+- Menu now displays weapon usage counts (B/S/R/L abbreviations)
+
 ## [1.59.0] - 2026-05-13
 
 ### Added
