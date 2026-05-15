@@ -316,6 +316,7 @@ const ACHIEVEMENTS = {
   elite_slayer: { name: 'Elite Slayer', desc: 'Defeat an Elite Boss', unlocked: false },
   splitter_down: { name: 'Splitter Down', desc: 'Destroy a Splitter enemy', unlocked: false },
   bomber_down: { name: 'Bomber Down', desc: 'Destroy a Bomber enemy', unlocked: false },
+  shield_breaker: { name: 'Shield Breaker', desc: 'Destroy a Shielder enemy', unlocked: false },
   untouchable: { name: 'Untouchable', desc: 'Clear Wave 5 without taking damage', unlocked: false },
 };
 let noDamageWaves = 0;
@@ -687,6 +688,16 @@ function spawnEnemy(type) {
     base.speed = rand(4.0, 5.5) * spdMult;
     base.shootInterval = 99999;
     base.score = 150;
+  } else if (type === 'shielder') {
+    base.hp = base.maxHp = Math.floor((20 + wave * 3) * diffMult);
+    base.radius = 18;
+    base.color = '#44ddaa';
+    base.speed = rand(0.8, 1.4) * spdMult;
+    base.shootInterval = Math.floor(80 / spdMult);
+    base.score = 500;
+    base.shield = Math.floor((15 + wave * 2) * diffMult);
+    base.maxShield = base.shield;
+    base.shieldRegenTimer = 0;
   }
 
   if (base.elite) {
@@ -793,6 +804,7 @@ function waveLogic() {
       if (wave >= 5 && roll < 0.18) type = 'tank';
       if (wave >= 6 && roll < 0.35) type = 'splitter';
       if (wave >= 7 && roll < 0.42) type = 'bomber';
+      if (wave >= 8 && roll < 0.48) type = 'shielder';
       spawnEnemy(type);
       enemiesToSpawn--;
     }
@@ -1026,6 +1038,19 @@ function updateEnemies(timeScale = 1) {
       e.vy = Math.sin(a) * e.speed;
       e.x += e.vx * timeScale;
       e.y += e.vy * timeScale;
+    } else if (e.type === 'shielder') {
+      e.vy += 0.015 * timeScale;
+      if (e.vy > e.speed) e.vy = e.speed;
+      e.x += Math.sin(e.phase * 0.015) * 0.5 * timeScale;
+      e.y += e.vy * timeScale;
+      // shield regen
+      if (e.shield <= 0) {
+        e.shieldRegenTimer -= timeScale;
+        if (e.shieldRegenTimer <= 0) {
+          e.shield = Math.min(e.maxShield, e.shield + 1);
+          e.shieldRegenTimer = 30;
+        }
+      }
     }
 
     // bounds
@@ -1153,7 +1178,17 @@ function checkCollisions() {
       const e = enemies[j];
       if (dist(b, e) < e.radius + b.radius) {
         bullets.splice(i, 1);
-        e.hp -= 5 + player.powerLevel;
+        let dmg = 5 + player.powerLevel;
+        if (e.shield > 0) {
+          e.shield -= dmg;
+          e.shieldRegenTimer = 90; // pause regen for 1.5s after hit
+          if (e.shield <= 0) {
+            spawnFloatingText(e.x, e.y - e.radius - 8, 'SHIELD BREAK!', '#44ddaa');
+            sfxExplosion();
+          }
+        } else {
+          e.hp -= dmg;
+        }
         // knockback
         const kbAngle = Math.atan2(b.vy, b.vx);
         const kbForce = 0.8;
@@ -1205,6 +1240,7 @@ function checkCollisions() {
             bomberExplode(e);
             unlockAchievement('bomber_down');
           }
+          if (e.type === 'shielder') unlockAchievement('shield_breaker');
           stats.kills++;
           enemies.splice(j, 1);
         } else {
@@ -1497,6 +1533,28 @@ function drawEnemies() {
         ctx.beginPath();
         ctx.arc(0, 0, e.radius + 3, 0, Math.PI * 2);
         ctx.stroke();
+      }
+    } else if (e.type === 'shielder') {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#88ffcc';
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fill();
+      // shield ring
+      if (e.shield > 0) {
+        const shieldPct = e.shield / e.maxShield;
+        ctx.strokeStyle = `rgba(68, 221, 170, ${0.3 + shieldPct * 0.7})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius + 6, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = '#44ddaa';
+        ctx.font = 'bold 8px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('🛡', 0, -e.radius - 10);
       }
     } else if (e.type === 'sniper') {
       ctx.fillStyle = e.color;
