@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.47.0] - 2026-05-13
+
+### Added
+- Nightmare difficulty (4th level)
+- 2x enemy HP, 1.75x enemy speed
+- Player has only 1 HP and 1 bomb
+- Elite spawn rate increased to 15%
+- New 'Nightmare Survivor' achievement (reach Wave 10)
+
 ## [1.46.0] - 2026-05-13
 
 ### Added
