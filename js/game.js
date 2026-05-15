@@ -257,6 +257,8 @@ let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
 let asteroids = [];
+let practiceMode = false;
+let autoFire = false;
 let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser', 'ricochet'
 let encounteredTypes = new Set();
 let persistentEncountered = new Set();
@@ -1257,7 +1259,7 @@ function updatePlayer() {
   }
 
   player.shootCooldown--;
-  const shooting = isDown(' ') || isDown('j') || touchShootBtn;
+  const shooting = isDown(' ') || isDown('j') || touchShootBtn || autoFire;
   if (shooting && player.shootCooldown <= 0) {
     const pl = player.powerLevel;
     const bSpeed = 10;
@@ -3005,6 +3007,32 @@ if (practiceToggleBtn) {
     practiceToggleBtn.style.background = practiceMode ? 'rgba(80,160,80,0.25)' : '';
     practiceToggleBtn.style.borderColor = practiceMode ? 'rgba(100,220,100,0.4)' : '';
     practiceToggleBtn.style.color = practiceMode ? '#88ffaa' : '';
+  });
+}
+
+/* ---------- Auto Fire Toggle ---------- */
+const autoFireToggleBtn = document.getElementById('autofire-toggle');
+if (autoFireToggleBtn) {
+  // load saved preference
+  try {
+    const saved = localStorage.getItem('stellar_defense_autofire');
+    if (saved === 'true') {
+      autoFire = true;
+      autoFireToggleBtn.textContent = 'AUTO FIRE: ON';
+      autoFireToggleBtn.classList.add('active');
+      autoFireToggleBtn.style.background = 'rgba(80,120,160,0.25)';
+      autoFireToggleBtn.style.borderColor = 'rgba(100,180,255,0.4)';
+      autoFireToggleBtn.style.color = '#88ccff';
+    }
+  } catch (e) {}
+  autoFireToggleBtn.addEventListener('click', () => {
+    autoFire = !autoFire;
+    autoFireToggleBtn.textContent = autoFire ? 'AUTO FIRE: ON' : 'AUTO FIRE: OFF';
+    autoFireToggleBtn.classList.toggle('active', autoFire);
+    autoFireToggleBtn.style.background = autoFire ? 'rgba(80,120,160,0.25)' : '';
+    autoFireToggleBtn.style.borderColor = autoFire ? 'rgba(100,180,255,0.4)' : '';
+    autoFireToggleBtn.style.color = autoFire ? '#88ccff' : '';
+    try { localStorage.setItem('stellar_defense_autofire', autoFire); } catch (e) {}
   });
 }
 

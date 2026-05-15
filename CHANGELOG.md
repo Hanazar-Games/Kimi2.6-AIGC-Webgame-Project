@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.2] - 2026-05-13
+
+### Added
+- Auto Fire toggle in menu
+  - OFF by default, persists via localStorage
+  - When ON, ship fires continuously without holding shoot key
+  - Great for casual play and touch screen users
+  - Blue highlight when active
+
 ## [1.63.1] - 2026-05-13
 
 ### Added
