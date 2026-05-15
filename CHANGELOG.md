@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.30.0] - 2026-05-13
+
+### Added
+- Expanded game over screen statistics
+- Best Combo and Weapon Used displays
+- Time format MM:SS
+
 ## [1.29.0] - 2026-05-13
 
 ### Added
