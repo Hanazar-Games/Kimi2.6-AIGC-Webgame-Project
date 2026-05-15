@@ -2084,6 +2084,13 @@ function loop(timestamp) {
 
   playMusicStep();
 
+  if (state === STATE.PAUSED) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
   if (waveFlash > 0) {
     ctx.save();
     ctx.globalAlpha = (waveFlash / 20) * 0.15;
