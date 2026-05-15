@@ -619,6 +619,7 @@ const ENEMY_HINTS = {
   bomber: 'Rams at you — explodes on death!',
   shielder: 'Has regenerating shield — break it fast!',
 };
+let bossFirstEncounter = { alpha: false, beta: false };
 
 function spawnEnemy(type) {
   const side = Math.floor(rand(0, 3));
@@ -674,11 +675,19 @@ function spawnEnemy(type) {
     base.score = 300;
     base.aimTimer = 0;
   } else if (type === 'boss') {
+    const bossType = (Math.floor(wave / 5) % 2 === 0) ? 'alpha' : 'beta';
+    base.bossType = bossType;
     base.hp = base.maxHp = Math.floor((350 + wave * 60) * diffMult);
     base.radius = 38;
-    base.color = isElite ? '#ffaa00' : '#ff3333';
-    base.speed = 0.8;
-    base.shootInterval = Math.floor(18 / spdMult);
+    if (bossType === 'beta') {
+      base.color = isElite ? '#ffaa00' : '#3366ff';
+      base.speed = 1.0;
+      base.shootInterval = Math.floor(14 / spdMult);
+    } else {
+      base.color = isElite ? '#ffaa00' : '#ff3333';
+      base.speed = 0.8;
+      base.shootInterval = Math.floor(18 / spdMult);
+    }
     base.score = 5000;
     base.x = W / 2;
     base.y = -60;
@@ -730,7 +739,16 @@ function spawnEnemy(type) {
   // first encounter hint
   if (!encounteredTypes.has(type)) {
     encounteredTypes.add(type);
-    const hint = ENEMY_HINTS[type];
+    let hint = ENEMY_HINTS[type];
+    if (type === 'boss') {
+      const bt = base.bossType;
+      if (!bossFirstEncounter[bt]) {
+        bossFirstEncounter[bt] = true;
+        hint = bt === 'beta' ? 'BETA BOSS — faster movement, denser bullet patterns!' : 'ALPHA BOSS — massive health, complex bullet patterns!';
+      } else {
+        hint = null;
+      }
+    }
     if (hint) {
       encounterText = hint;
       encounterTimer = 180; // 3 seconds
@@ -1030,7 +1048,8 @@ function updateEnemies(timeScale = 1) {
         e.introTimer -= timeScale;
         e.y += (e.targetY - e.y) * 0.03 * timeScale;
         if (e.introTimer <= 0) {
-          spawnFloatingText(W / 2, H / 2 - 50, e.elite ? 'ELITE BOSS ENGAGED!' : 'BOSS ENGAGED!', e.elite ? '#ffaa00' : '#ff3333');
+          const isBeta = e.bossType === 'beta';
+          spawnFloatingText(W / 2, H / 2 - 50, e.elite ? 'ELITE BOSS ENGAGED!' : 'BOSS ENGAGED!', e.elite ? '#ffaa00' : (isBeta ? '#3366ff' : '#ff3333'));
         }
       } else {
         e.x += e.vx * timeScale;
@@ -1041,8 +1060,8 @@ function updateEnemies(timeScale = 1) {
           e.enraged = true;
           e.shootInterval = Math.floor(e.shootInterval * 0.6);
           e.vx *= 1.5;
-          e.color = '#ff00aa';
-          spawnFloatingText(e.x, e.y - 50, e.elite ? 'ELITE ENRAGED!' : 'ENRAGED!', e.elite ? '#ffaa00' : '#ff00aa');
+          e.color = e.bossType === 'beta' ? '#00aaff' : '#ff00aa';
+          spawnFloatingText(e.x, e.y - 50, e.elite ? 'ELITE ENRAGED!' : 'ENRAGED!', e.elite ? '#ffaa00' : (e.bossType === 'beta' ? '#00aaff' : '#ff00aa'));
           shake = Math.max(shake, 10);
           sfxHurt();
         }
@@ -1118,27 +1137,31 @@ function updateEnemies(timeScale = 1) {
       } else if (e.type === 'boss') {
         const mode = (Math.floor(e.phase / 180) % 3);
         const elite = e.elite;
+        const isBeta = e.bossType === 'beta';
         if (mode === 0) {
           const base = e.phase * 0.08;
-          const count = elite ? 8 : 6;
-          const spd = elite ? 3.6 : 3;
+          const count = elite ? 8 : (isBeta ? 8 : 6);
+          const spd = elite ? 3.6 : (isBeta ? 3.4 : 3);
+          const col = elite ? '#ff8800' : (isBeta ? '#3366ff' : '#ff3333');
           for (let k = 0; k < count; k++) {
             const a = base + (Math.PI * 2 / count) * k;
-            spawnBullet(e.x, e.y, a, spd, elite ? '#ff8800' : '#ff3333', true, 5);
+            spawnBullet(e.x, e.y, a, spd, col, true, 5);
           }
         } else if (mode === 1) {
           const a = angleTo(e, player);
-          const spread = elite ? 3 : 2;
-          const spd = elite ? 4.2 : 3.5;
+          const spread = elite ? 3 : (isBeta ? 4 : 2);
+          const spd = elite ? 4.2 : (isBeta ? 4.0 : 3.5);
+          const col = elite ? '#ffaa33' : (isBeta ? '#5588ff' : '#ff5533');
           for (let k = -spread; k <= spread; k++) {
-            spawnBullet(e.x, e.y, a + k * 0.12, spd, elite ? '#ffaa33' : '#ff5533', true, 4);
+            spawnBullet(e.x, e.y, a + k * 0.1, spd, col, true, 4);
           }
         } else {
-          const count = elite ? 16 : 12;
-          const spd = elite ? 3.2 : 2.5;
+          const count = elite ? 16 : (isBeta ? 18 : 12);
+          const spd = elite ? 3.2 : (isBeta ? 3.0 : 2.5);
+          const col = elite ? '#ffcc66' : (isBeta ? '#88aaff' : '#ff7777');
           const a0 = rand(0, Math.PI * 2);
           for (let k = 0; k < count; k++) {
-            spawnBullet(e.x, e.y, a0 + (Math.PI * 2 / count) * k, spd, elite ? '#ffcc66' : '#ff7777', true, 4);
+            spawnBullet(e.x, e.y, a0 + (Math.PI * 2 / count) * k, spd, col, true, 4);
           }
         }
         e.shootTimer = e.shootInterval;
@@ -1514,19 +1537,51 @@ function drawEnemies() {
       ctx.fillRect(-8, -18, 16, 6);
     } else if (e.type === 'boss') {
       ctx.fillStyle = e.color;
-      ctx.beginPath();
-      ctx.moveTo(0, 30);
-      ctx.lineTo(-28, -10);
-      ctx.lineTo(-16, -24);
-      ctx.lineTo(0, -16);
-      ctx.lineTo(16, -24);
-      ctx.lineTo(28, -10);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = e.elite ? '#ffee88' : '#ffaa00';
-      ctx.beginPath();
-      ctx.arc(0, 0, e.elite ? 14 : 10, 0, Math.PI * 2);
-      ctx.fill();
+      if (e.bossType === 'beta') {
+        // Beta boss: sharper, more angular shape
+        ctx.beginPath();
+        ctx.moveTo(0, 34);
+        ctx.lineTo(-26, -6);
+        ctx.lineTo(-20, -28);
+        ctx.lineTo(0, -20);
+        ctx.lineTo(20, -28);
+        ctx.lineTo(26, -6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = e.elite ? '#ffee88' : '#66aaff';
+        ctx.beginPath();
+        ctx.arc(0, 0, e.elite ? 14 : 10, 0, Math.PI * 2);
+        ctx.fill();
+        // side fins
+        ctx.fillStyle = e.color;
+        ctx.beginPath();
+        ctx.moveTo(-20, -6);
+        ctx.lineTo(-32, 4);
+        ctx.lineTo(-22, 10);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(20, -6);
+        ctx.lineTo(32, 4);
+        ctx.lineTo(22, 10);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Alpha boss: original shape
+        ctx.beginPath();
+        ctx.moveTo(0, 30);
+        ctx.lineTo(-28, -10);
+        ctx.lineTo(-16, -24);
+        ctx.lineTo(0, -16);
+        ctx.lineTo(16, -24);
+        ctx.lineTo(28, -10);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = e.elite ? '#ffee88' : '#ffaa00';
+        ctx.beginPath();
+        ctx.arc(0, 0, e.elite ? 14 : 10, 0, Math.PI * 2);
+        ctx.fill();
+      }
       // elite crown
       if (e.elite) {
         ctx.fillStyle = '#ffee88';
@@ -1898,15 +1953,20 @@ function drawBossUI() {
   const bx = (W - bw) / 2;
   const by = 36;
   const pct = boss.hp / boss.maxHp;
+  const isBeta = boss.bossType === 'beta';
   ctx.save();
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.fillRect(bx, by, bw, bh);
-  ctx.fillStyle = pct > 0.5 ? '#ff4444' : pct > 0.25 ? '#ff8844' : '#ff0000';
+  if (isBeta) {
+    ctx.fillStyle = pct > 0.5 ? '#3366ff' : pct > 0.25 ? '#5588ff' : '#0022ff';
+  } else {
+    ctx.fillStyle = pct > 0.5 ? '#ff4444' : pct > 0.25 ? '#ff8844' : '#ff0000';
+  }
   ctx.fillRect(bx, by, bw * pct, bh);
-  ctx.strokeStyle = 'rgba(255,100,100,0.6)';
+  ctx.strokeStyle = isBeta ? 'rgba(100,150,255,0.6)' : 'rgba(255,100,100,0.6)';
   ctx.lineWidth = 1;
   ctx.strokeRect(bx, by, bw, bh);
-  ctx.fillStyle = '#ffaaaa';
+  ctx.fillStyle = isBeta ? '#aabbff' : '#ffaaaa';
   ctx.font = 'bold 12px sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText(`BOSS  HP: ${Math.ceil(pct * 100)}%`, W / 2, by - 6);
@@ -2095,6 +2155,7 @@ function resetGame() {
   encounteredTypes.clear();
   encounterText = null;
   encounterTimer = 0;
+  bossFirstEncounter = { alpha: false, beta: false };
   gameStartTime = Date.now();
   comboGuard = true;
   tutorialActive = !tutorialDismissed;
