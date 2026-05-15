@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.62.0] - 2026-05-13
+
+### Added
+- Background asteroids
+  - 3-7 irregular polygon asteroids floating in the background
+  - Slowly drift and rotate for depth effect
+  - Semi-transparent gray/brown tones, respecting particle density setting
+  - Wrap around screen edges for continuous motion
+  - Rendered behind player/enemies, above nebulae
+
 ## [1.61.0] - 2026-05-13
 
 ### Added

@@ -255,6 +255,7 @@ let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
+let asteroids = [];
 let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser', 'ricochet'
 let encounteredTypes = new Set();
 let persistentEncountered = new Set();
@@ -549,6 +550,30 @@ function initStars() {
       color: colors[i],
       speed: Math.random() * 0.3 + 0.1,
       alpha: Math.random() * 0.04 + 0.03,
+    });
+  }
+  // background asteroids
+  asteroids = [];
+  const asteroidCount = particleDensity === 0 ? 3 : particleDensity === 1 ? 5 : 7;
+  for (let i = 0; i < asteroidCount; i++) {
+    const radius = rand(12, 35);
+    const points = [];
+    const numPoints = Math.floor(rand(6, 10));
+    for (let j = 0; j < numPoints; j++) {
+      const a = (j / numPoints) * Math.PI * 2;
+      const r = radius * rand(0.7, 1.3);
+      points.push({ x: Math.cos(a) * r, y: Math.sin(a) * r });
+    }
+    asteroids.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: rand(-0.15, 0.15),
+      vy: rand(-0.08, 0.08),
+      radius,
+      points,
+      rotation: rand(0, Math.PI * 2),
+      rotSpeed: rand(-0.003, 0.003),
+      color: `rgba(${Math.floor(rand(40, 70))}, ${Math.floor(rand(35, 60))}, ${Math.floor(rand(45, 75))}, ${rand(0.15, 0.35)})`,
     });
   }
 }
@@ -1870,6 +1895,36 @@ function drawNebulae() {
     if (n.y > H + n.radius) { n.y = -n.radius; n.x = rand(0, W); }
   }
 }
+function updateAsteroids(timeScale = 1) {
+  for (const a of asteroids) {
+    a.x += a.vx * timeScale;
+    a.y += a.vy * timeScale;
+    a.rotation += a.rotSpeed * timeScale;
+    if (a.x < -a.radius * 2) a.x = W + a.radius * 2;
+    if (a.x > W + a.radius * 2) a.x = -a.radius * 2;
+    if (a.y < -a.radius * 2) a.y = H + a.radius * 2;
+    if (a.y > H + a.radius * 2) a.y = -a.radius * 2;
+  }
+}
+function drawAsteroids() {
+  for (const a of asteroids) {
+    ctx.save();
+    ctx.translate(a.x, a.y);
+    ctx.rotate(a.rotation);
+    ctx.fillStyle = a.color;
+    ctx.strokeStyle = a.color.slice(0, a.color.lastIndexOf(',')) + ',0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(a.points[0].x, a.points[0].y);
+    for (let i = 1; i < a.points.length; i++) {
+      ctx.lineTo(a.points[i].x, a.points[i].y);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+}
 
 function drawPlayer() {
   const theme = THEMES[colorTheme];
@@ -3022,6 +3077,7 @@ function loop(timestamp) {
 
   drawStars();
   drawNebulae();
+  drawAsteroids();
 
   const timeScale = deathSlowMo > 0 ? 0.15 : (slowMo > 0 ? 0.4 : 1.0);
   // frame skip for 30fps mode
@@ -3030,6 +3086,7 @@ function loop(timestamp) {
     if (skipFrame) {
       drawStars();
       drawNebulae();
+      drawAsteroids();
       drawPlayer();
       drawEnemies();
       drawBullets(bullets);
@@ -3059,6 +3116,7 @@ function loop(timestamp) {
       hitstop -= timeScale;
       drawStars();
       drawNebulae();
+      drawAsteroids();
       drawPlayer();
       drawEnemies();
       drawBullets(bullets);
@@ -3096,6 +3154,7 @@ function loop(timestamp) {
       updatePowerups(timeScale);
       checkCollisions();
     }
+    updateAsteroids(timeScale);
     updateParticles();
     updateShockwaves(timeScale);
     waveLogic();
