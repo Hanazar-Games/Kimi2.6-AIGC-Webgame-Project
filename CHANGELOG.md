@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.24.0] - 2026-05-13
+
+### Added
+- First-encounter hint system — displays tooltip when new enemy type appears
+- Includes description for all 9 enemy types
+- Auto-dismisses after 3 seconds with fade-out
+- Resets on each new game run
+
 ## [1.23.0] - 2026-05-13
 
 ### Added
