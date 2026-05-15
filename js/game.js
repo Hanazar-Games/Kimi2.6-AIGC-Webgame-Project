@@ -358,6 +358,7 @@ const ACHIEVEMENTS = {
   divider_down: { name: 'Divider Down', desc: 'Destroy a Divider enemy', unlocked: false },
   boss_hunter: { name: 'Boss Hunter', desc: 'Defeat 5 Bosses', unlocked: false },
   nightmare_survivor: { name: 'Nightmare Survivor', desc: 'Reach Wave 10 on Nightmare', unlocked: false },
+  theme_survivor: { name: 'Theme Survivor', desc: 'Clear a Theme wave without taking damage', unlocked: false },
   magnetic_personality: { name: 'Magnetic Personality', desc: 'Pick up a Magnet power-up', unlocked: false },
   ricochet_king: { name: 'Ricochet King', desc: 'Kill an enemy with a bounced bullet', unlocked: false },
 };
@@ -1005,6 +1006,7 @@ function startWave() {
   if (wave > 1 && !damageTakenThisWave) {
     noDamageWaves++;
     if (noDamageWaves >= 5) unlockAchievement('untouchable');
+    if (waveTheme) unlockAchievement('theme_survivor');
     const perfectBonus = 500 + wave * 100;
     score += perfectBonus;
     spawnFloatingText(W / 2, H / 2 + 30, `PERFECT! +${perfectBonus}`, '#ffcc44');

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.1] - 2026-05-13
+
+### Added
+- New achievement: `Theme Survivor` — Clear a Theme wave without taking damage
+
 ## [1.63.0] - 2026-05-13
 
 ### Added
