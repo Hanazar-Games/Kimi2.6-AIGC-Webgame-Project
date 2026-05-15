@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.38.0] - 2026-05-13
+
+### Added
+- Improved danger zone visuals
+- Always-visible dashed danger line at bottom 100px
+- Pulsing warning text when enemies approach bottom
+
 ## [1.37.0] - 2026-05-13
 
 ### Changed
