@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.31.0] - 2026-05-13
+
+### Added
+- Nebula background effect — 3 drifting radial-gradient clouds
+- Colors: purple, blue, red for visual depth
+- Slow parallax movement behind all game elements
+
 ## [1.30.0] - 2026-05-13
 
 ### Added
