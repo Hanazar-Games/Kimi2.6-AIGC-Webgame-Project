@@ -530,6 +530,8 @@ function spawnExplosion(x, y, color, count = 12, shockwave = false) {
         b.vy += Math.sin(a) * force;
       }
     }
+    // visual shockwave ring
+    shockwaves.push({ x, y, radius: 5, maxRadius: 60, life: 20, maxLife: 20, color });
   }
 }
 
@@ -2020,6 +2022,29 @@ function drawBombEffect() {
   ctx.restore();
 }
 
+function updateShockwaves(timeScale = 1) {
+  for (let i = shockwaves.length - 1; i >= 0; i--) {
+    const s = shockwaves[i];
+    s.life -= timeScale;
+    s.radius = s.maxRadius * (1 - s.life / s.maxLife);
+    if (s.life <= 0) shockwaves.splice(i, 1);
+  }
+}
+
+function drawShockwaves() {
+  for (const s of shockwaves) {
+    const alpha = s.life / s.maxLife * 0.5;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
 function drawTexts() {
   for (const t of texts) {
     const progress = 1 - t.life / t.maxLife;
@@ -2248,6 +2273,7 @@ function resetGame() {
   enemies.length = 0;
   particles.length = 0;
   texts.length = 0;
+  shockwaves.length = 0;
   powerups.length = 0;
   warnings.length = 0;
   bombCooldown = 0;
@@ -2519,6 +2545,7 @@ function loop(timestamp) {
       drawPowerups();
       drawTouchControls();
       drawParticles();
+      drawShockwaves();
       drawTexts();
       drawWaveBorder();
       drawWarnings();
@@ -2547,6 +2574,7 @@ function loop(timestamp) {
       drawPowerups();
       drawTouchControls();
       drawParticles();
+      drawShockwaves();
       drawTexts();
       drawWaveBorder();
       drawWarnings();
@@ -2573,6 +2601,7 @@ function loop(timestamp) {
       checkCollisions();
     }
     updateParticles();
+    updateShockwaves(timeScale);
     waveLogic();
 
     if (comboTimer > 0) {
@@ -2634,6 +2663,7 @@ function loop(timestamp) {
   drawPowerups();
   drawTouchControls();
   drawParticles();
+  drawShockwaves();
   drawTexts();
 
   ctx.restore();
