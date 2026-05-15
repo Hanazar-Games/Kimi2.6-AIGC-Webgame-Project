@@ -2722,7 +2722,14 @@ function loop(timestamp) {
   frameCount++;
   if (timestamp - fpsTime >= 1000) {
     const fpsEl = document.getElementById('fps');
-    if (fpsEl) fpsEl.textContent = showFPS ? `FPS: ${frameCount}` : '';
+    if (fpsEl) {
+      if (showFPS) {
+        fpsEl.textContent = `FPS: ${frameCount}`;
+        fpsEl.style.color = frameCount >= 55 ? '#44ff88' : frameCount >= 30 ? '#ffcc44' : '#ff4444';
+      } else {
+        fpsEl.textContent = '';
+      }
+    }
     frameCount = 0;
     fpsTime = timestamp;
   }
