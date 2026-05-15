@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.41.0] - 2026-05-13
+
+### Added
+- In-game timer display on HUD (MM:SS format)
+- Real-time elapsed time during gameplay
+
 ## [1.40.0] - 2026-05-13
 
 ### Added
