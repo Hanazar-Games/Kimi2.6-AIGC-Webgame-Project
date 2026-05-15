@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.62.1] - 2026-05-13
+
+### Added
+- 3 new achievements (total: 24)
+  - `magnetic_personality` — Pick up a Magnet power-up
+  - `ricochet_king` — Kill an enemy with a bounced bullet
+- Updated `weapon_master` achievement: now requires all 5 weapons (was 3)
+
 ## [1.62.0] - 2026-05-13
 
 ### Added

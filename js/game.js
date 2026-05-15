@@ -348,7 +348,7 @@ const ACHIEVEMENTS = {
   combo_50: { name: 'Combo Master', desc: 'Reach a 50x combo', unlocked: false },
   combo_100: { name: 'Combo God', desc: 'Reach a 100x combo', unlocked: false },
   untouchable: { name: 'Untouchable', desc: 'Clear Wave 5 without taking damage', unlocked: false },
-  weapon_master: { name: 'Weapon Master', desc: 'Use all 3 weapons in one run', unlocked: false },
+  weapon_master: { name: 'Weapon Master', desc: 'Use all 5 weapons in one run', unlocked: false },
   bomb_saver: { name: 'Bomb Saver', desc: 'Clear a wave without using bombs', unlocked: false },
   graze_king: { name: 'Graze King', desc: 'Graze 200 bullets in one run', unlocked: false },
   marathon: { name: 'Marathon', desc: 'Reach Wave 20', unlocked: false },
@@ -357,6 +357,8 @@ const ACHIEVEMENTS = {
   divider_down: { name: 'Divider Down', desc: 'Destroy a Divider enemy', unlocked: false },
   boss_hunter: { name: 'Boss Hunter', desc: 'Defeat 5 Bosses', unlocked: false },
   nightmare_survivor: { name: 'Nightmare Survivor', desc: 'Reach Wave 10 on Nightmare', unlocked: false },
+  magnetic_personality: { name: 'Magnetic Personality', desc: 'Pick up a Magnet power-up', unlocked: false },
+  ricochet_king: { name: 'Ricochet King', desc: 'Kill an enemy with a bounced bullet', unlocked: false },
 };
 let noDamageWaves = 0;
 let damageTakenThisWave = false;
@@ -987,7 +989,7 @@ let spawnTimer = 0;
 let bossSpawned = false;
 
 function checkWaveAchievements() {
-  if (usedWeapons.size >= 3) unlockAchievement('weapon_master');
+  if (usedWeapons.size >= 5) unlockAchievement('weapon_master');
   if (bombsUsedThisWave === 0 && wave > 1) unlockAchievement('bomb_saver');
   if (grazeCount >= 200) unlockAchievement('graze_king');
   if (wave >= 20) unlockAchievement('marathon');
@@ -1614,6 +1616,7 @@ function updatePowerups(timeScale = 1) {
         magnetTimer = 300;
         spawnFloatingText(player.x, player.y - 20, 'MAGNET!', '#ffaa44');
         sfxPowerup();
+        unlockAchievement('magnetic_personality');
       }
       powerups.splice(i, 1);
     }
@@ -1737,6 +1740,7 @@ function checkCollisions() {
           if (e.type === 'shielder') unlockAchievement('shield_breaker');
           if (e.type === 'medic') unlockAchievement('medic_down');
           if (e.type === 'divider') unlockAchievement('divider_down');
+          if (b.maxBounces > 0 && b.bounces < b.maxBounces) unlockAchievement('ricochet_king');
           stats.kills++;
           enemies.splice(j, 1);
         } else {
