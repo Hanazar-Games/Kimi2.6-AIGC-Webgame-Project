@@ -242,6 +242,9 @@ let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
 let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid'
+let encounteredTypes = new Set();
+let encounterText = null;
+let encounterTimer = 0;
 const THEMES = [
   { name: 'CYAN', player: '#88ddff', bullet: '#44ffaa', glow: '#44ddff', engine: '#44aaff' },
   { name: 'RED', player: '#ff8888', bullet: '#ff4444', glow: '#ff6666', engine: '#ff3333' },
@@ -605,6 +608,18 @@ function splitEnemy(x, y, elite) {
   spawnFloatingText(x, y - 20, 'SPLIT!', '#cc44ff');
 }
 
+const ENEMY_HINTS = {
+  drone: 'Basic enemy — moves and shoots',
+  hunter: 'Fast enemy — shoots 3-way bullets',
+  tank: 'Slow but tough — shoots shotgun spread',
+  sniper: 'Stationary — fires high-speed aimed shots',
+  swarmer: 'Tiny but fast — rushes directly at you',
+  boss: 'BOSS — massive health, complex bullet patterns',
+  splitter: 'Splits into Swarmers on death!',
+  bomber: 'Rams at you — explodes on death!',
+  shielder: 'Has regenerating shield — break it fast!',
+};
+
 function spawnEnemy(type) {
   const side = Math.floor(rand(0, 3));
   let x, y;
@@ -710,6 +725,16 @@ function spawnEnemy(type) {
     base.shootInterval = Math.floor(base.shootInterval * 0.75);
     base.score = Math.floor(base.score * 2.5);
     base.color = lightenColor(base.color);
+  }
+
+  // first encounter hint
+  if (!encounteredTypes.has(type)) {
+    encounteredTypes.add(type);
+    const hint = ENEMY_HINTS[type];
+    if (hint) {
+      encounterText = hint;
+      encounterTimer = 180; // 3 seconds
+    }
   }
 
   enemies.push(base);
@@ -2067,6 +2092,9 @@ function resetGame() {
   damageTakenThisWave = false;
   musicBeat = 0;
   if (audioCtx) musicNextTime = audioCtx.currentTime;
+  encounteredTypes.clear();
+  encounterText = null;
+  encounterTimer = 0;
   gameStartTime = Date.now();
   comboGuard = true;
   tutorialActive = !tutorialDismissed;
@@ -2368,6 +2396,7 @@ function loop(timestamp) {
     }
     if (grazeTimer > 0) grazeTimer -= timeScale;
     if (damageFlash > 0) damageFlash -= timeScale;
+    if (encounterTimer > 0) encounterTimer -= timeScale;
     // combo sustain bonus
     if (combo >= 10 && state === STATE.PLAYING) {
       score += Math.floor(combo * 0.05 * timeScale);
@@ -2392,6 +2421,18 @@ function loop(timestamp) {
     waveFlash--;
   }
   if (tutorialActive) drawTutorialHint();
+  if (encounterText && encounterTimer > 0) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, encounterTimer / 30);
+    ctx.fillStyle = '#ffee88';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('FIRST ENCOUNTER', W / 2, H / 2 - 30);
+    ctx.fillStyle = '#aabbdd';
+    ctx.font = '14px sans-serif';
+    ctx.fillText(encounterText, W / 2, H / 2);
+    ctx.restore();
+  }
   drawTimeStopEffect();
   drawWaveBorder();
   drawWarnings();
