@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.61.0] - 2026-05-13
+
+### Added
+- New weapon: Ricochet
+  - Bullets bounce off screen edges (up to 2 bounces)
+  - Can hit enemies behind cover / around corners
+  - Bounce sparks on wall contact
+  - White dot indicators show remaining bounces
+  - 2 bullets at power level 1, up to 3 at max power
+  - Unique triangle-wave shooting SFX
+  - Color: amber/gold (#ffcc66)
+
 ## [1.60.0] - 2026-05-13
 
 ### Added

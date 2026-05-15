@@ -50,6 +50,8 @@ function sfxShoot() {
     playTone(600, 'sawtooth', 0.1, 0.05);
   } else if (weaponType === 'laser') {
     playTone(2000, 'sawtooth', 0.08, 0.06);
+  } else if (weaponType === 'ricochet') {
+    playTone(1400, 'triangle', 0.07, 0.04);
   } else {
     playTone(880, 'square', 0.08, 0.04);
   }
@@ -253,7 +255,7 @@ let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
-let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser'
+let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser', 'ricochet'
 let encounteredTypes = new Set();
 let persistentEncountered = new Set();
 let encounterText = null;
@@ -300,7 +302,7 @@ function addToLeaderboard(score, wave) {
 loadLeaderboard();
 
 /* ---------- Stats ---------- */
-let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0 } };
+let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0, ricochet: 0 } };
 function loadStats() {
   try {
     const v = localStorage.getItem('stellar_defense_stats');
@@ -642,11 +644,11 @@ function spawnFloatingText(x, y, txt, color) {
 }
 
 /* ---------- Bullet Factory ---------- */
-function spawnBullet(x, y, angle, speed, color, isEnemy = false, radius = 3) {
+function spawnBullet(x, y, angle, speed, color, isEnemy = false, radius = 3, bounces = 0) {
   const arr = isEnemy ? enemyBullets : bullets;
   const limit = isEnemy ? 500 : 200;
   if (arr.length >= limit) arr.shift();
-  arr.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color, radius, isEnemy });
+  arr.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color, radius, isEnemy, bounces, maxBounces: bounces });
 }
 
 function spawnLaser(x, y, angle) {
@@ -1229,6 +1231,13 @@ function updatePlayer() {
         const offsetX = (k - (laserCount - 1) / 2) * 14;
         spawnLaser(player.x + offsetX, player.y - 10, baseAngle);
       }
+    } else if (weaponType === 'ricochet') {
+      player.shootCooldown = 7;
+      const rCount = 1 + Math.floor(pl / 2);
+      for (let k = 0; k < rCount; k++) {
+        const offsetX = (k - (rCount - 1) / 2) * 10;
+        spawnBullet(player.x + offsetX, player.y - 10, baseAngle, bSpeed * 0.95, '#ffcc66', false, 4, 2);
+      }
     } else {
       // balanced
       player.shootCooldown = 6;
@@ -1508,6 +1517,22 @@ function updateBullets(arr, timeScale = 1) {
       if (b.life <= 0) {
         arr.splice(i, 1);
         continue;
+      }
+    }
+    // ricochet bounce
+    if (!b.isEnemy && b.maxBounces > 0) {
+      let bounced = false;
+      if (b.x < b.radius) { b.x = b.radius; b.vx = Math.abs(b.vx); bounced = true; }
+      else if (b.x > W - b.radius) { b.x = W - b.radius; b.vx = -Math.abs(b.vx); bounced = true; }
+      if (b.y < b.radius) { b.y = b.radius; b.vy = Math.abs(b.vy); bounced = true; }
+      else if (b.y > H - b.radius) { b.y = H - b.radius; b.vy = -Math.abs(b.vy); bounced = true; }
+      if (bounced) {
+        b.bounces--;
+        spawnHitSparks(b.x, b.y, '#ffcc66');
+        if (b.bounces < 0) {
+          arr.splice(i, 1);
+          continue;
+        }
       }
     }
     if (b.x < -20 || b.x > W + 20 || b.y < -20 || b.y > H + 20) {
@@ -2162,6 +2187,19 @@ function drawBullets(arr) {
       ctx.moveTo(b.x, b.y);
       ctx.lineTo(tx, ty);
       ctx.stroke();
+      // ricochet bounce dots
+      if (b.maxBounces > 0 && b.bounces >= 0) {
+        ctx.globalAlpha = 0.8;
+        ctx.fillStyle = '#ffffff';
+        const dots = b.bounces + 1;
+        for (let d = 0; d < dots; d++) {
+          const dx = Math.cos(b.phase || 0 + d * 2) * (b.radius + 3);
+          const dy = Math.sin(b.phase || 0 + d * 2) * (b.radius + 3);
+          ctx.beginPath();
+          ctx.arc(b.x + dx, b.y + dy, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
     }
     ctx.restore();
   }
@@ -2593,6 +2631,7 @@ function showMenu() {
     if (w.spread) parts.push(`S:${w.spread}`);
     if (w.rapid) parts.push(`R:${w.rapid}`);
     if (w.laser) parts.push(`L:${w.laser}`);
+    if (w.ricochet) parts.push(`Rc:${w.ricochet}`);
     sw.textContent = parts.length ? `Weapons: ${parts.join(' · ')}` : 'Weapons: —';
   }
 }
@@ -2776,7 +2815,7 @@ document.querySelectorAll('#weapon-select .weapon-btn').forEach(btn => {
 function loadWeapon() {
   try {
     const v = localStorage.getItem('stellar_defense_weapon');
-    if (v && ['balanced', 'spread', 'rapid', 'laser'].includes(v)) {
+    if (v && ['balanced', 'spread', 'rapid', 'laser', 'ricochet'].includes(v)) {
       weaponType = v;
       document.querySelectorAll('#weapon-select .weapon-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.weapon === v);
@@ -2880,7 +2919,7 @@ if (resetDataBtn) {
         localStorage.removeItem('stellar_defense_encountered');
       } catch (e) {}
       highScore = 0;
-      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0 } };
+      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0, ricochet: 0 } };
       leaderboard = [];
       persistentEncountered = new Set();
       for (const k in ACHIEVEMENTS) ACHIEVEMENTS[k].unlocked = false;
