@@ -239,6 +239,7 @@ let dashing = 0;
 let damageFlash = 0;
 let gameStartTime = 0;
 let comboGuard = true;
+let comboScale = 1;
 let particleDensity = 2; // 0=low, 1=medium, 2=high
 let colorTheme = 0;
 let masterVolume = 1.0;
@@ -862,6 +863,7 @@ function useBomb() {
       score += pts;
       combo++;
       comboTimer = 180;
+      comboScale = 1.4;
       spawnExplosion(e.x, e.y, e.color, 20);
       spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
       if (Math.random() < 0.15) spawnPowerup(e.x, e.y);
@@ -2061,7 +2063,19 @@ function drawBossUI() {
 function drawUI() {
   document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()}`;
   document.getElementById('wave').textContent = `WAVE: ${wave}`;
-  document.getElementById('combo').textContent = `COMBO: x${combo}`;
+  const comboEl = document.getElementById('combo');
+  if (comboEl) {
+    comboEl.textContent = `COMBO: x${combo}`;
+    if (comboScale > 1) {
+      comboEl.style.transform = `scale(${comboScale})`;
+      comboEl.style.display = 'inline-block';
+      comboScale -= 0.04;
+      if (comboScale <= 1) {
+        comboScale = 1;
+        comboEl.style.transform = 'scale(1)';
+      }
+    }
+  }
   const practiceInd = document.getElementById('practice-indicator');
   if (practiceInd) practiceInd.style.display = practiceMode ? 'inline' : 'none';
   const grazeEl = document.getElementById('graze');
