@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.40.0] - 2026-05-13
+
+### Added
+- Enhanced pause screen with vignette effect
+- Darker overlay (45%) with radial gradient
+- Focuses attention toward screen center
+
 ## [1.39.0] - 2026-05-13
 
 ### Added
