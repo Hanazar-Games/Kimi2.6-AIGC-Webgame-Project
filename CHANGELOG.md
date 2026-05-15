@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.35.0] - 2026-05-13
+
+### Added
+- Improved floating text animation with scale pulse effect
+- Text grows then shrinks smoothly during lifetime
+- Enhanced visual feedback for scores, combos, and power-ups
+
 ## [1.34.0] - 2026-05-13
 
 ### Added
