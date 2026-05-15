@@ -944,6 +944,25 @@ function waveLogic() {
       spawnEnemy('boss');
       bossSpawned = true;
     } else {
+      if (!damageTakenThisWave && wave > 1) {
+        spawnFloatingText(W / 2, H / 2 - 40, 'PERFECT WAVE!', '#ffee44');
+        shake = Math.max(shake, 8);
+        const perfectCount = particleDensity === 0 ? 15 : particleDensity === 1 ? 25 : 35;
+        for (let k = 0; k < perfectCount; k++) {
+          const a = rand(0, Math.PI * 2);
+          const s = rand(2, 5);
+          particles.push({
+            x: W / 2, y: H / 2 - 40,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s,
+            life: rand(30, 60),
+            maxLife: 60,
+            color: '#ffee44',
+            size: rand(2, 4),
+            decay: 0.95,
+          });
+        }
+      }
       wave++;
       checkWaveAchievements();
       startWave();
