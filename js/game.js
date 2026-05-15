@@ -48,6 +48,8 @@ function sfxShoot() {
     playTone(1200, 'square', 0.06, 0.03);
   } else if (weaponType === 'spread') {
     playTone(600, 'sawtooth', 0.1, 0.05);
+  } else if (weaponType === 'laser') {
+    playTone(2000, 'sawtooth', 0.08, 0.06);
   } else {
     playTone(880, 'square', 0.08, 0.04);
   }
@@ -250,7 +252,7 @@ let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
-let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid'
+let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser'
 let encounteredTypes = new Set();
 let encounterText = null;
 let encounterTimer = 0;
@@ -565,6 +567,23 @@ function spawnBullet(x, y, angle, speed, color, isEnemy = false, radius = 3) {
   const limit = isEnemy ? 500 : 200;
   if (arr.length >= limit) arr.shift();
   arr.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color, radius, isEnemy });
+}
+
+function spawnLaser(x, y, angle) {
+  if (bullets.length >= 200) bullets.shift();
+  const speed = 18;
+  bullets.push({
+    x, y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    color: '#ff66ff',
+    radius: 4,
+    isEnemy: false,
+    laser: true,
+    life: 12,
+    maxLife: 12,
+    damage: 8 + player.powerLevel * 2,
+  });
 }
 
 /* ---------- Power-up Factory ---------- */
@@ -1042,6 +1061,13 @@ function updatePlayer() {
         const a = baseAngle - spread / 2 + (spread / (count - 1)) * k;
         spawnBullet(player.x, player.y - 10, a, bSpeed * (0.9 + Math.random() * 0.15), '#44ffaa');
       }
+    } else if (weaponType === 'laser') {
+      player.shootCooldown = 10;
+      const laserCount = 1 + Math.floor(pl / 2);
+      for (let k = 0; k < laserCount; k++) {
+        const offsetX = (k - (laserCount - 1) / 2) * 14;
+        spawnLaser(player.x + offsetX, player.y - 10, baseAngle);
+      }
     } else {
       // balanced
       player.shootCooldown = 6;
@@ -1247,6 +1273,13 @@ function updateBullets(arr, timeScale = 1) {
     const b = arr[i];
     b.x += b.vx * timeScale;
     b.y += b.vy * timeScale;
+    if (b.laser) {
+      b.life -= timeScale;
+      if (b.life <= 0) {
+        arr.splice(i, 1);
+        continue;
+      }
+    }
     if (b.x < -20 || b.x > W + 20 || b.y < -20 || b.y > H + 20) {
       arr.splice(i, 1);
     }
@@ -1298,8 +1331,10 @@ function checkCollisions() {
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
       if (dist(b, e) < e.radius + b.radius) {
-        bullets.splice(i, 1);
-        let dmg = 5 + player.powerLevel;
+        if (b.laser && b.hitTimer > 0) continue;
+        if (!b.laser) bullets.splice(i, 1);
+        if (b.laser) b.hitTimer = 4;
+        let dmg = b.laser ? (b.damage || 10) : (5 + player.powerLevel);
         if (e.shield > 0) {
           e.shield -= dmg;
           e.shieldRegenTimer = 90; // pause regen for 1.5s after hit
@@ -1815,24 +1850,50 @@ function drawEnemies() {
 function drawBullets(arr) {
   for (const b of arr) {
     ctx.save();
-    ctx.shadowBlur = 6;
-    ctx.shadowColor = b.color;
-    ctx.fillStyle = b.color;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-    ctx.fill();
-    // trail
-    const trailLen = Math.min(18, Math.hypot(b.vx, b.vy) * 2.5);
-    const tx = b.x - (b.vx / Math.hypot(b.vx, b.vy || 1)) * trailLen;
-    const ty = b.y - (b.vy / Math.hypot(b.vx, b.vy || 1)) * trailLen;
-    ctx.globalAlpha = 0.35;
-    ctx.strokeStyle = b.color;
-    ctx.lineWidth = b.radius * 1.8;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(b.x, b.y);
-    ctx.lineTo(tx, ty);
-    ctx.stroke();
+    if (b.laser) {
+      // laser beam effect
+      const lifePct = b.life / b.maxLife;
+      const beamLen = 30;
+      const bx = b.x - (b.vx / Math.hypot(b.vx, b.vy || 1)) * beamLen;
+      const by = b.y - (b.vy / Math.hypot(b.vx, b.vy || 1)) * beamLen;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = b.color;
+      ctx.globalAlpha = lifePct * 0.8;
+      ctx.strokeStyle = b.color;
+      ctx.lineWidth = b.radius * 2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+      // bright core
+      ctx.globalAlpha = lifePct;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = b.radius * 0.8;
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y);
+      ctx.lineTo(bx, by);
+      ctx.stroke();
+    } else {
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = b.color;
+      ctx.fillStyle = b.color;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // trail
+      const trailLen = Math.min(18, Math.hypot(b.vx, b.vy) * 2.5);
+      const tx = b.x - (b.vx / Math.hypot(b.vx, b.vy || 1)) * trailLen;
+      const ty = b.y - (b.vy / Math.hypot(b.vx, b.vy || 1)) * trailLen;
+      ctx.globalAlpha = 0.35;
+      ctx.strokeStyle = b.color;
+      ctx.lineWidth = b.radius * 1.8;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 }
@@ -2388,7 +2449,7 @@ document.querySelectorAll('#weapon-select .weapon-btn').forEach(btn => {
 function loadWeapon() {
   try {
     const v = localStorage.getItem('stellar_defense_weapon');
-    if (v && ['balanced', 'spread', 'rapid'].includes(v)) {
+    if (v && ['balanced', 'spread', 'rapid', 'laser'].includes(v)) {
       weaponType = v;
       document.querySelectorAll('#weapon-select .weapon-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.weapon === v);
