@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.56.0] - 2026-05-13
+
+### Added
+- Difficulty indicator on HUD
+- Color-coded: Easy=green, Normal=blue, Hard=orange, Nightmare=red
+- Updates in real-time when difficulty changes
+
 ## [1.55.0] - 2026-05-13
 
 ### Added
