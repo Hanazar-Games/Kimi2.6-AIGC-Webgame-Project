@@ -2279,7 +2279,8 @@ function drawBossUI() {
 }
 
 function drawUI() {
-  document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()}`;
+  const mult = (1 + combo * 0.1).toFixed(1);
+  document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()} (x${mult})`;
   document.getElementById('wave').textContent = `WAVE: ${wave}`;
   const timerEl = document.getElementById('timer');
   if (timerEl && gameStartTime > 0) {
