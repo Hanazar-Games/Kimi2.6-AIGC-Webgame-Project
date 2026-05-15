@@ -2834,6 +2834,39 @@ function showPause() {
     const s = (sec % 60).toString().padStart(2, '0');
     pt.textContent = `${m}:${s}`;
   }
+  const pWeapon = document.getElementById('pause-weapon');
+  if (pWeapon) pWeapon.textContent = weaponType.charAt(0).toUpperCase() + weaponType.slice(1);
+  const pDiff = document.getElementById('pause-diff');
+  if (pDiff) {
+    const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
+    pDiff.textContent = diffNames[difficulty] || 'Normal';
+  }
+  const pThemeRow = document.getElementById('pause-theme-row');
+  const pTheme = document.getElementById('pause-theme');
+  if (pThemeRow && pTheme) {
+    if (waveTheme) {
+      pThemeRow.style.display = 'block';
+      pTheme.textContent = waveTheme;
+      const themeColors = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
+      pTheme.style.color = themeColors[waveTheme] || '#ff88ff';
+    } else {
+      pThemeRow.style.display = 'none';
+    }
+  }
+  const pBuffsRow = document.getElementById('pause-buffs-row');
+  const pBuffs = document.getElementById('pause-buffs');
+  if (pBuffsRow && pBuffs) {
+    const buffs = [];
+    if (player.invincible > 0) buffs.push(`Shield ${Math.ceil(player.invincible / 60)}s`);
+    if (timeStopTimer > 0) buffs.push(`Time Stop ${Math.ceil(timeStopTimer / 60)}s`);
+    if (magnetTimer > 0) buffs.push(`Magnet ${Math.ceil(magnetTimer / 60)}s`);
+    if (buffs.length) {
+      pBuffsRow.style.display = 'block';
+      pBuffs.textContent = buffs.join(' · ');
+    } else {
+      pBuffsRow.style.display = 'none';
+    }
+  }
 }
 
 function animateGameOverStats() {

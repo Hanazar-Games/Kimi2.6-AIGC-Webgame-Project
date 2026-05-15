@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.4] - 2026-05-13
+
+### Improved
+- Enhanced pause screen with more status info
+  - Current weapon and difficulty display
+  - Active wave theme (if any) with matching color
+  - Active buffs list: Shield, Time Stop, Magnet with remaining duration
+  - Cleaner layout with separator line
+
 ## [1.63.3] - 2026-05-13
 
 ### Added

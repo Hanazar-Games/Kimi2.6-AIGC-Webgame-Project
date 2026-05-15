@@ -95,7 +95,7 @@
         <p style="color:#88aadd; font-size:12px; letter-spacing:1px; margin-bottom:6px;">ENEMY LOG</p>
         <div id="enemy-log-list" style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center;"></div>
       </div>
-      <p style="color:#556688; font-size:10px; margin-top:10px;">v1.63.3 — Built with vanilla JS</p>
+      <p style="color:#556688; font-size:10px; margin-top:10px;">v1.63.4 — Built with vanilla JS</p>
     </div>
     <div id="pause-screen" class="screen">
       <h2>PAUSED</h2>
@@ -106,6 +106,16 @@
         <p>Combo: <span id="pause-combo">0</span></p>
         <p>Graze: <span id="pause-graze">0</span></p>
         <p>Time: <span id="pause-time">00:00</span></p>
+        <p style="color:#88aadd; font-size:12px; margin-top:8px; border-top:1px solid #334466; padding-top:6px;">
+          Weapon: <span id="pause-weapon" style="color:#aaddff;">Balanced</span> · 
+          Diff: <span id="pause-diff" style="color:#aaddff;">Normal</span>
+        </p>
+        <p id="pause-theme-row" style="color:#88aadd; font-size:12px; display:none;">
+          Theme: <span id="pause-theme" style="color:#ff88ff;">—</span>
+        </p>
+        <p id="pause-buffs-row" style="color:#88aadd; font-size:12px; display:none;">
+          Buffs: <span id="pause-buffs" style="color:#88ffaa;">—</span>
+        </p>
       </div>
       <button id="resume-btn">RESUME</button>
     </div>
