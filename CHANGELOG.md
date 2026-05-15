@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.45.0] - 2026-05-13
+
+### Added
+- 2 new achievements:
+  - Piercing Shot: hit 3 enemies with one laser beam
+  - Boss Hunter: defeat 5 Bosses total
+
 ## [1.44.0] - 2026-05-13
 
 ### Added
