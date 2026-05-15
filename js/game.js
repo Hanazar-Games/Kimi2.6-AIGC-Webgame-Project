@@ -1690,9 +1690,27 @@ function showPause() {
   }
 }
 
+function animateGameOverStats() {
+  const scoreEl = document.getElementById('final-score');
+  const killsEl = document.getElementById('final-kills');
+  const grazeEl = document.getElementById('final-graze');
+  let current = 0;
+  const step = Math.max(1, Math.floor(score / 40));
+  const interval = setInterval(() => {
+    current += step;
+    if (current >= score) {
+      current = score;
+      clearInterval(interval);
+    }
+    if (scoreEl) scoreEl.textContent = `Score: ${current.toLocaleString()}`;
+  }, 25);
+  if (killsEl) killsEl.textContent = `Kills: ${stats.kills}`;
+  if (grazeEl) grazeEl.textContent = `Graze: ${grazeCount}`;
+}
+
 function showGameOver() {
   document.getElementById('gameover-screen').classList.add('active');
-  document.getElementById('final-score').textContent = `Score: ${score.toLocaleString()}`;
+  animateGameOverStats();
   document.getElementById('final-wave').textContent = `Wave: ${wave}`;
   const hsEl = document.getElementById('final-highscore');
   if (hsEl) hsEl.textContent = `High Score: ${highScore.toLocaleString()}`;
