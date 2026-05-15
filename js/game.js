@@ -896,6 +896,16 @@ function updateEnemies(timeScale = 1) {
         e.x += e.vx * timeScale;
         if (e.x < 70 || e.x > W - 70) e.vx *= -1;
         e.y += Math.sin(e.phase * 0.03) * 0.5 * timeScale;
+        // boss phase 2
+        if (e.hp < e.maxHp * 0.5 && !e.enraged) {
+          e.enraged = true;
+          e.shootInterval = Math.floor(e.shootInterval * 0.6);
+          e.vx *= 1.5;
+          e.color = '#ff00aa';
+          spawnFloatingText(e.x, e.y - 40, 'ENRAGED!', '#ff00aa');
+          shake = Math.max(shake, 10);
+          sfxHurt();
+        }
       }
     } else if (e.type === 'swarmer') {
       const a = angleTo(e, player);
