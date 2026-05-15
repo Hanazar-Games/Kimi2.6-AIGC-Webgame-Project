@@ -1936,8 +1936,8 @@ function drawPlayer() {
   ctx.translate(player.x, player.y);
   ctx.rotate(player.angle + Math.PI / 2);
 
-  const flash = player.invincible > 0 && Math.floor(player.invincible / 4) % 2 === 0;
-  ctx.globalAlpha = flash ? 0.4 : 1;
+  const flash = player.invincible > 0 && Math.floor(player.invincible / 3) % 2 === 0;
+  ctx.globalAlpha = flash ? 0.25 : 1;
 
   // shield ring
   if (player.invincible > 120) {
@@ -1951,6 +1951,19 @@ function drawPlayer() {
   // glow
   ctx.shadowBlur = 15;
   ctx.shadowColor = theme.glow;
+
+  // invincibility outline
+  if (player.invincible > 0 && !flash) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, -16);
+    ctx.lineTo(-12, 14);
+    ctx.lineTo(0, 10);
+    ctx.lineTo(12, 14);
+    ctx.closePath();
+    ctx.stroke();
+  }
 
   // ship body
   ctx.fillStyle = theme.player;

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.62.2] - 2026-05-13
+
+### Improved
+- Enhanced player invincibility flash effect
+  - Faster blink rate (every 3 frames vs 4)
+  - Lower alpha during blink (0.25 vs 0.4) for clearer visibility
+  - White outline ring around ship when visible during i-frames
+  - Makes it much easier to tell when you're safe after taking damage
+
 ## [1.62.1] - 2026-05-13
 
 ### Added
