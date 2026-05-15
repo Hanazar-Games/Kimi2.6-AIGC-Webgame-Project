@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.44.0] - 2026-05-13
+
+### Added
+- Boss defeat spectacle effects
+- Double explosion with 65 total particles
+- 'BOSS DEFEATED!' announcement
+- Strong screen shake and damage flash
+
 ## [1.43.0] - 2026-05-13
 
 ### Added
