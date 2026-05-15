@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.34.0] - 2026-05-13
+
+### Added
+- Combo counter scale animation
+- Text briefly scales to 1.4x when combo increases
+- Smooth decay for clear visual feedback
+
 ## [1.33.0] - 2026-05-13
 
 ### Added
