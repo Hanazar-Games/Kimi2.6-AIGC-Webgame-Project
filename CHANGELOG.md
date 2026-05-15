@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.53.0] - 2026-05-13
+
+### Added
+- Enhanced damage flash with red screen border
+- More visually noticeable hit feedback
+- Border intensity 1.5x the overlay alpha
+
 ## [1.52.0] - 2026-05-13
 
 ### Added
