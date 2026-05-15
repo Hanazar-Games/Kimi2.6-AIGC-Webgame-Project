@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.43.0] - 2026-05-13
+
+### Added
+- Laser weapon type
+- Penetrating beams that pass through multiple enemies
+- Higher damage with 10-frame cooldown
+- Power level increases beam count (up to 3)
+- Magenta beam with white core visual
+- Unique 2000Hz sawtooth shoot sound
+
 ## [1.42.0] - 2026-05-13
 
 ### Added
