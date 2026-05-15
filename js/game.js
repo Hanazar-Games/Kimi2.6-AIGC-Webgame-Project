@@ -1410,6 +1410,13 @@ function checkCollisions() {
             unlockAchievement('boss_slayer');
             if (e.elite) unlockAchievement('elite_slayer');
             stats.bossesDefeated++;
+            // boss defeat spectacle
+            spawnExplosion(e.x, e.y, e.color, 40, true);
+            spawnExplosion(e.x, e.y, '#ffee88', 25, true);
+            spawnFloatingText(W / 2, H / 2 - 60, 'BOSS DEFEATED!', '#ffee44');
+            shake = Math.max(shake, 20);
+            damageFlash = 10;
+            sfxExplosion();
           }
           if (e.type === 'splitter') {
             splitEnemy(e.x, e.y, e.elite);
