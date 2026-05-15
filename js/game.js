@@ -2309,6 +2309,8 @@ function drawUI() {
     timerEl.textContent = `${m}:${s}`;
   }
   const comboEl = document.getElementById('combo');
+  const comboFill = document.getElementById('combo-fill');
+  const comboBar = document.getElementById('combo-bar');
   if (comboEl) {
     comboEl.textContent = `COMBO: x${combo}`;
     if (comboScale > 1) {
@@ -2319,6 +2321,15 @@ function drawUI() {
         comboScale = 1;
         comboEl.style.transform = 'scale(1)';
       }
+    }
+  }
+  if (comboFill && comboBar) {
+    if (combo > 0 && comboTimer > 0) {
+      comboBar.style.display = 'inline-block';
+      comboFill.style.width = `${(comboTimer / 180) * 100}%`;
+      comboFill.style.background = combo >= 25 ? '#ffee44' : combo >= 10 ? '#ff88ff' : '#aa88ff';
+    } else {
+      comboBar.style.display = 'none';
     }
   }
   const practiceInd = document.getElementById('practice-indicator');
