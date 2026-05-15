@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.15.0] - 2026-05-13
+
+### Added
+- Time Stop power-up — freezes enemies and bullets for 3 seconds
+- Player can still move and shoot during time stop
+- Purple pulse border visual effect
+
 ## [1.14.0] - 2026-05-13
 
 ### Added
