@@ -649,6 +649,7 @@ function spawnEnemy(type) {
     angle: 0,
     phase: 0,
     elite: isElite,
+    hitFlash: 0,
   };
 
   const diffMult = practiceMode ? 0.5 : (difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : 1.0);
@@ -1115,6 +1116,7 @@ function updateEnemies(timeScale = 1) {
     }
 
     // shoot
+    if (e.hitFlash > 0) e.hitFlash -= timeScale;
     e.shootTimer -= timeScale;
     if (e.shootTimer <= 0) {
       e.shootTimer = e.shootInterval;
@@ -1254,6 +1256,7 @@ function checkCollisions() {
         e.vx += Math.cos(kbAngle) * kbForce;
         e.vy += Math.sin(kbAngle) * kbForce;
         spawnHitSparks(b.x, b.y, e.color);
+        e.hitFlash = 4;
         shake = Math.max(shake, 2);
         hitstop = 3;
         if (e.hp <= 0) {
@@ -1717,6 +1720,16 @@ function drawEnemies() {
       ctx.fillRect(-bw / 2, -e.radius - 10, bw, bh);
       ctx.fillStyle = pct > 0.5 ? '#44ff66' : pct > 0.25 ? '#ffcc44' : '#ff4444';
       ctx.fillRect(-bw / 2, -e.radius - 10, bw * pct, bh);
+    }
+
+    // hit flash
+    if (e.hitFlash > 0) {
+      ctx.globalAlpha = e.hitFlash / 4 * 0.6;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius + 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
     }
 
     ctx.shadowBlur = 0;
