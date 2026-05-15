@@ -341,6 +341,8 @@ const ACHIEVEMENTS = {
   graze_king: { name: 'Graze King', desc: 'Graze 200 bullets in one run', unlocked: false },
   marathon: { name: 'Marathon', desc: 'Reach Wave 20', unlocked: false },
   millionaire: { name: 'Millionaire', desc: 'Score 1,000,000 points', unlocked: false },
+  piercing_shot: { name: 'Piercing Shot', desc: 'Hit 3 enemies with one laser', unlocked: false },
+  boss_hunter: { name: 'Boss Hunter', desc: 'Defeat 5 Bosses', unlocked: false },
 };
 let noDamageWaves = 0;
 let damageTakenThisWave = false;
@@ -1333,7 +1335,11 @@ function checkCollisions() {
       if (dist(b, e) < e.radius + b.radius) {
         if (b.laser && b.hitTimer > 0) continue;
         if (!b.laser) bullets.splice(i, 1);
-        if (b.laser) b.hitTimer = 4;
+        if (b.laser) {
+          b.hitTimer = 4;
+          b.hitCount = (b.hitCount || 0) + 1;
+          if (b.hitCount >= 3) unlockAchievement('piercing_shot');
+        }
         let dmg = b.laser ? (b.damage || 10) : (5 + player.powerLevel);
         if (e.shield > 0) {
           e.shield -= dmg;
@@ -1410,6 +1416,7 @@ function checkCollisions() {
             unlockAchievement('boss_slayer');
             if (e.elite) unlockAchievement('elite_slayer');
             stats.bossesDefeated++;
+            if (stats.bossesDefeated >= 5) unlockAchievement('boss_hunter');
             // boss defeat spectacle
             spawnExplosion(e.x, e.y, e.color, 40, true);
             spawnExplosion(e.x, e.y, '#ffee88', 25, true);
