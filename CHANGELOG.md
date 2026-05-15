@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.32.0] - 2026-05-13
+
+### Added
+- Improved bullet trail visuals
+- Line-based trails scaling with bullet velocity
+- Thicker, more visible trails with rounded caps
+
 ## [1.31.0] - 2026-05-13
 
 ### Added
