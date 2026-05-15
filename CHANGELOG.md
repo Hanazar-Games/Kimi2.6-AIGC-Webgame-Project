@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.37.0] - 2026-05-13
+
+### Changed
+- Balanced special enemy spawn rates for smoother difficulty curve
+- Splitter: 35% → 25% (wave 6+)
+- Bomber: 42% → 30% (wave 7+)
+- Shielder: 48% → 22% (wave 8+)
+
 ## [1.36.0] - 2026-05-13
 
 ### Added
