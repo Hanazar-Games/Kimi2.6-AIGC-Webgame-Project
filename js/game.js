@@ -312,6 +312,7 @@ const ACHIEVEMENTS = {
   grazer: { name: 'Grazer', desc: 'Graze 100 bullets', unlocked: false },
   survivor: { name: 'Survivor', desc: 'Reach Wave 10', unlocked: false },
   boss_slayer: { name: 'Boss Slayer', desc: 'Defeat a Boss', unlocked: false },
+  elite_slayer: { name: 'Elite Slayer', desc: 'Defeat an Elite Boss', unlocked: false },
   untouchable: { name: 'Untouchable', desc: 'Clear Wave 5 without taking damage', unlocked: false },
 };
 let noDamageWaves = 0;
@@ -546,7 +547,7 @@ function spawnEnemy(type) {
   else if (side === 1) { x = W + 20; y = rand(30, H * 0.6); }
   else { x = -20; y = rand(30, H * 0.6); }
 
-  const isElite = type !== 'boss' && type !== 'swarmer' && Math.random() < 0.08;
+  const isElite = type !== 'swarmer' && Math.random() < (type === 'boss' ? 0.15 : 0.08);
 
   const base = {
     x, y, vx: 0, vy: 0,
@@ -595,7 +596,7 @@ function spawnEnemy(type) {
   } else if (type === 'boss') {
     base.hp = base.maxHp = Math.floor((350 + wave * 60) * diffMult);
     base.radius = 38;
-    base.color = '#ff3333';
+    base.color = isElite ? '#ffaa00' : '#ff3333';
     base.speed = 0.8;
     base.shootInterval = Math.floor(18 / spdMult);
     base.score = 5000;
@@ -890,7 +891,7 @@ function updateEnemies(timeScale = 1) {
         e.introTimer -= timeScale;
         e.y += (e.targetY - e.y) * 0.03 * timeScale;
         if (e.introTimer <= 0) {
-          spawnFloatingText(W / 2, H / 2 - 50, 'BOSS ENGAGED!', '#ff3333');
+          spawnFloatingText(W / 2, H / 2 - 50, e.elite ? 'ELITE BOSS ENGAGED!' : 'BOSS ENGAGED!', e.elite ? '#ffaa00' : '#ff3333');
         }
       } else {
         e.x += e.vx * timeScale;
@@ -902,7 +903,7 @@ function updateEnemies(timeScale = 1) {
           e.shootInterval = Math.floor(e.shootInterval * 0.6);
           e.vx *= 1.5;
           e.color = '#ff00aa';
-          spawnFloatingText(e.x, e.y - 40, 'ENRAGED!', '#ff00aa');
+          spawnFloatingText(e.x, e.y - 50, e.elite ? 'ELITE ENRAGED!' : 'ENRAGED!', e.elite ? '#ffaa00' : '#ff00aa');
           shake = Math.max(shake, 10);
           sfxHurt();
         }
@@ -948,22 +949,28 @@ function updateEnemies(timeScale = 1) {
         e.aimTimer = 20;
       } else if (e.type === 'boss') {
         const mode = (Math.floor(e.phase / 180) % 3);
+        const elite = e.elite;
         if (mode === 0) {
           const base = e.phase * 0.08;
-          for (let k = 0; k < 6; k++) {
-            const a = base + (Math.PI * 2 / 6) * k;
-            spawnBullet(e.x, e.y, a, 3, '#ff3333', true, 5);
+          const count = elite ? 8 : 6;
+          const spd = elite ? 3.6 : 3;
+          for (let k = 0; k < count; k++) {
+            const a = base + (Math.PI * 2 / count) * k;
+            spawnBullet(e.x, e.y, a, spd, elite ? '#ff8800' : '#ff3333', true, 5);
           }
         } else if (mode === 1) {
           const a = angleTo(e, player);
-          for (let k = -2; k <= 2; k++) {
-            spawnBullet(e.x, e.y, a + k * 0.15, 3.5, '#ff5533', true, 4);
+          const spread = elite ? 3 : 2;
+          const spd = elite ? 4.2 : 3.5;
+          for (let k = -spread; k <= spread; k++) {
+            spawnBullet(e.x, e.y, a + k * 0.12, spd, elite ? '#ffaa33' : '#ff5533', true, 4);
           }
         } else {
-          const count = 12;
+          const count = elite ? 16 : 12;
+          const spd = elite ? 3.2 : 2.5;
           const a0 = rand(0, Math.PI * 2);
           for (let k = 0; k < count; k++) {
-            spawnBullet(e.x, e.y, a0 + (Math.PI * 2 / count) * k, 2.5, '#ff7777', true, 4);
+            spawnBullet(e.x, e.y, a0 + (Math.PI * 2 / count) * k, spd, elite ? '#ffcc66' : '#ff7777', true, 4);
           }
         }
         e.shootTimer = e.shootInterval;
@@ -1071,7 +1078,10 @@ function checkCollisions() {
           // drop powerup chance
           if (Math.random() < 0.12) spawnPowerup(e.x, e.y);
           unlockAchievement('first_blood');
-          if (e.type === 'boss') unlockAchievement('boss_slayer');
+          if (e.type === 'boss') {
+            unlockAchievement('boss_slayer');
+            if (e.elite) unlockAchievement('elite_slayer');
+          }
           stats.kills++;
           enemies.splice(j, 1);
         } else {
@@ -1303,10 +1313,17 @@ function drawEnemies() {
       ctx.lineTo(28, -10);
       ctx.closePath();
       ctx.fill();
-      ctx.fillStyle = '#ffaa00';
+      ctx.fillStyle = e.elite ? '#ffee88' : '#ffaa00';
       ctx.beginPath();
-      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.arc(0, 0, e.elite ? 14 : 10, 0, Math.PI * 2);
       ctx.fill();
+      // elite crown
+      if (e.elite) {
+        ctx.fillStyle = '#ffee88';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('👑', 0, -e.radius - 10);
+      }
     } else if (e.type === 'swarmer') {
       ctx.fillStyle = e.color;
       ctx.beginPath();
