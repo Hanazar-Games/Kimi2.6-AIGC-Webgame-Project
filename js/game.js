@@ -2366,6 +2366,13 @@ function drawUI() {
   }
   const practiceInd = document.getElementById('practice-indicator');
   if (practiceInd) practiceInd.style.display = practiceMode ? 'inline' : 'none';
+  const diffInd = document.getElementById('difficulty-indicator');
+  if (diffInd) {
+    const diffNames = { 1: 'EASY', 2: 'NORMAL', 3: 'HARD', 4: 'NIGHTMARE' };
+    const diffColors = { 1: '#44ff88', 2: '#aabbdd', 3: '#ff8844', 4: '#ff4444' };
+    diffInd.textContent = diffNames[difficulty] || 'NORMAL';
+    diffInd.style.color = diffColors[difficulty] || '#aabbdd';
+  }
   const grazeEl = document.getElementById('graze');
   if (grazeEl) {
     grazeEl.textContent = `GRAZE: ${grazeCount}`;
