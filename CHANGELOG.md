@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.36.0] - 2026-05-13
+
+### Added
+- Visual shockwave ring effect on enemy death
+- Expanding ring matching enemy color
+- 20-frame lifetime with smooth fade-out
+- Layered behind floating text
+
 ## [1.35.0] - 2026-05-13
 
 ### Added
