@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.46.0] - 2026-05-13
+
+### Added
+- Medic enemy type
+- Heals nearby enemies (+5 HP every 90 frames)
+- Green heal particles and +HEAL floating text
+- Pulse ring indicator when ready to heal
+- Spawns from wave 9 onwards
+- New 'Medic Down' achievement
+
 ## [1.45.0] - 2026-05-13
 
 ### Added
