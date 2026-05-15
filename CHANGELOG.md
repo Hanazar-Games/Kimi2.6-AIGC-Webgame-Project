@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.18.0] - 2026-05-13
+
+### Added
+- Boss phase 2 enrage mechanic — triggers at 50% HP
+- Faster shooting and movement when enraged
+- Color shift to pink/magenta with announcement
+
 ## [1.17.0] - 2026-05-13
 
 ### Added
