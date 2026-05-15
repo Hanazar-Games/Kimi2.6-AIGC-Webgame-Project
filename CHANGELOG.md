@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.49.0] - 2026-05-13
+
+### Added
+- Score multiplier display on HUD
+- Shows current combo multiplier next to score
+- Format: SCORE: 12,345 (x1.5)
+
 ## [1.48.0] - 2026-05-13
 
 ### Added
