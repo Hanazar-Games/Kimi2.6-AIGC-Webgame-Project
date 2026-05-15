@@ -2382,7 +2382,10 @@ function drawUI() {
   const hpPct = Math.max(0, player.hp) / player.maxHp * 100;
   document.getElementById('health-fill').style.width = hpPct + '%';
   const bombEl = document.getElementById('bomb-count');
-  if (bombEl) bombEl.textContent = `BOMB: ${player.bombs}`;
+  if (bombEl) {
+    bombEl.textContent = `BOMB: ${player.bombs}`;
+    bombEl.style.color = bombCooldown > 0 ? '#556688' : '#ff8844';
+  }
   const dashEl = document.getElementById('dash-status');
   if (dashEl) {
     if (dashing > 0) {
