@@ -632,6 +632,7 @@ function bomberExplode(e) {
         sfxPowerup();
       } else {
         player.hp = 0;
+        deathSlowMo = 90;
         state = STATE.GAMEOVER;
         if (score > highScore) { highScore = score; saveHighScore(); }
         stats.totalGraze += grazeCount;
@@ -2145,6 +2146,7 @@ function drawWaveBorder() {
 }
 
 let lowHPTimer = 0;
+let deathSlowMo = 0;
 function drawLowHPWarning() {
   const hpRatio = player.hp / player.maxHp;
   if (hpRatio < 0.3 && player.hp > 0) {
@@ -2477,6 +2479,7 @@ function resetGame() {
   hitstop = 0;
   waveFlash = 0;
   timeStopTimer = 0;
+  deathSlowMo = 0;
 
   score = 0;
   wave = 1;
@@ -2724,7 +2727,7 @@ function loop(timestamp) {
   drawStars();
   drawNebulae();
 
-  const timeScale = slowMo > 0 ? 0.4 : 1.0;
+  const timeScale = deathSlowMo > 0 ? 0.15 : (slowMo > 0 ? 0.4 : 1.0);
   // frame skip for 30fps mode
   if (targetFPS === 30) {
     skipFrame = !skipFrame;
@@ -2783,6 +2786,10 @@ function loop(timestamp) {
       return;
     }
     if (slowMo > 0) slowMo -= timeScale;
+    if (deathSlowMo > 0) {
+      deathSlowMo -= 1;
+      if (deathSlowMo <= 0) deathSlowMo = 0;
+    }
     if (timeStopTimer > 0) timeStopTimer -= timeScale;
     stats.totalTime += dt / 1000;
     updatePlayer();
