@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.23.0] - 2026-05-13
+
+### Added
+- Combo milestone rewards system
+- Combo 25: +1 HP recovery
+- Combo 50: +2 HP + 1 bomb
+- Combo 100: Full HP + 2 bombs
+- Three new achievements: Combo Apprentice, Combo Master, Combo God
+
 ## [1.22.0] - 2026-05-13
 
 ### Added
