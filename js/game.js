@@ -248,6 +248,7 @@ let masterVolume = 1.0;
 let showFPS = true;
 let waveFlash = 0;
 let timeStopTimer = 0;
+let magnetTimer = 0;
 let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
@@ -672,6 +673,7 @@ function spawnPowerup(x, y) {
   if (roll < 0.15) type = 'power';
   else if (roll < 0.25) type = 'shield';
   else if (roll < 0.30) type = 'timestop';
+  else if (roll < 0.35) type = 'magnet';
   powerups.push({
     x, y,
     vx: rand(-0.5, 0.5),
@@ -1516,8 +1518,21 @@ function updateBullets(arr, timeScale = 1) {
 
 /* ---------- Power-up Logic ---------- */
 function updatePowerups(timeScale = 1) {
+  if (magnetTimer > 0) magnetTimer -= timeScale;
   for (let i = powerups.length - 1; i >= 0; i--) {
     const p = powerups[i];
+    // magnet attraction
+    if (magnetTimer > 0) {
+      const d = dist(p, player);
+      if (d > 20 && d < 250) {
+        const a = angleTo(p, player);
+        const pull = 3.5 * (1 - d / 250);
+        p.vx += Math.cos(a) * pull * 0.1;
+        p.vy += Math.sin(a) * pull * 0.1;
+        p.vx *= 0.92;
+        p.vy *= 0.92;
+      }
+    }
     p.x += p.vx * timeScale;
     p.y += p.vy * timeScale;
     p.angle += 0.04 * timeScale;
@@ -1545,6 +1560,10 @@ function updatePowerups(timeScale = 1) {
         timeStopTimer = 180;
         spawnFloatingText(player.x, player.y - 20, 'TIME STOP!', '#ff88ff');
         sfxUpgrade();
+      } else if (p.type === 'magnet') {
+        magnetTimer = 300;
+        spawnFloatingText(player.x, player.y - 20, 'MAGNET!', '#ffaa44');
+        sfxPowerup();
       }
       powerups.splice(i, 1);
     }
@@ -2159,6 +2178,7 @@ function drawPowerups() {
     if (p.type === 'power') { color = '#ffcc44'; label = 'P'; }
     if (p.type === 'shield') { color = '#44aaff'; label = 'S'; }
     if (p.type === 'timestop') { color = '#ff88ff'; label = 'T'; }
+    if (p.type === 'magnet') { color = '#ffaa44'; label = 'M'; }
     ctx.shadowColor = color;
     ctx.fillStyle = color;
     ctx.beginPath();
@@ -2519,6 +2539,16 @@ function drawUI() {
     bombEl.textContent = `BOMB: ${player.bombs}`;
     bombEl.style.color = bombCooldown > 0 ? '#556688' : '#ff8844';
   }
+  const magnetEl = document.getElementById('magnet-status');
+  if (magnetEl) {
+    if (magnetTimer > 0) {
+      magnetEl.textContent = `MAGNET: ${Math.ceil(magnetTimer / 60)}s`;
+      magnetEl.style.display = 'inline';
+    } else {
+      magnetEl.textContent = '';
+      magnetEl.style.display = 'none';
+    }
+  }
   const dashEl = document.getElementById('dash-status');
   if (dashEl) {
     if (dashing > 0) {
@@ -2696,6 +2726,7 @@ function resetGame() {
   hitstop = 0;
   waveFlash = 0;
   timeStopTimer = 0;
+  magnetTimer = 0;
   deathSlowMo = 0;
 
   score = 0;

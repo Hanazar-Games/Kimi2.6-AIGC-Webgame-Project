@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.60.0] - 2026-05-13
+
+### Added
+- Magnet power-up
+  - Orange 'M' item, 5% drop rate from enemies
+  - 5-second duration, attracts all nearby power-ups to player
+  - Attraction range: 250px, strength scales with distance
+  - HUD timer shows remaining duration
+  - Plays power-up SFX on pickup
+
 ## [1.59.1] - 2026-05-13
 
 ### Fixed
