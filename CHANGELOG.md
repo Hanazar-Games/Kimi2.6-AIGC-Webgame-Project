@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.27.0] - 2026-05-13
+
+### Added
+- Enemy hit flash effect — white overlay when hit by player bullets
+- 4-frame duration with fade-out for clear hit feedback
+- Applies to all enemy types including Bosses
+
 ## [1.26.0] - 2026-05-13
 
 ### Added
