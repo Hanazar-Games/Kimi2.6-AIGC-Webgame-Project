@@ -2120,10 +2120,18 @@ function drawDangerZone() {
 
 function drawDamageFlash() {
   if (damageFlash > 0) {
+    const alpha = (damageFlash / 15) * 0.3;
     ctx.save();
-    ctx.globalAlpha = (damageFlash / 15) * 0.3;
+    ctx.globalAlpha = alpha;
     ctx.fillStyle = '#ff0000';
     ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    // red border flash
+    ctx.save();
+    ctx.globalAlpha = alpha * 1.5;
+    ctx.strokeStyle = '#ff4444';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(2, 2, W - 4, H - 4);
     ctx.restore();
   }
 }
