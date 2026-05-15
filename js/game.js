@@ -241,6 +241,7 @@ let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
+let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid'
 const THEMES = [
   { name: 'CYAN', player: '#88ddff', bullet: '#44ffaa', glow: '#44ddff', engine: '#44aaff' },
   { name: 'RED', player: '#ff8888', bullet: '#ff4444', glow: '#ff6666', engine: '#ff3333' },
@@ -853,24 +854,46 @@ function updatePlayer() {
   player.shootCooldown--;
   const shooting = isDown(' ') || isDown('j') || touchShootBtn;
   if (shooting && player.shootCooldown <= 0) {
-    player.shootCooldown = 6;
-    const bSpeed = 10;
     const pl = player.powerLevel;
-    spawnBullet(player.x, player.y - 10, -Math.PI / 2, bSpeed, '#44ffaa');
-    if (pl >= 2) {
-      spawnBullet(player.x - 6, player.y - 6, -Math.PI / 2 - 0.08, bSpeed, '#44ffaa');
-      spawnBullet(player.x + 6, player.y - 6, -Math.PI / 2 + 0.08, bSpeed, '#44ffaa');
-    }
-    if (pl >= 3) {
-      spawnBullet(player.x - 14, player.y - 2, -Math.PI / 2 - 0.22, bSpeed * 0.95, '#66ffcc');
-      spawnBullet(player.x + 14, player.y - 2, -Math.PI / 2 + 0.22, bSpeed * 0.95, '#66ffcc');
-    }
-    if (pl >= 4) {
-      spawnBullet(player.x, player.y - 14, -Math.PI / 2, bSpeed * 1.1, '#aaffee');
-    }
-    if (pl >= 5) {
-      spawnBullet(player.x - 20, player.y + 2, -Math.PI / 2 - 0.35, bSpeed * 0.9, '#88ffdd');
-      spawnBullet(player.x + 20, player.y + 2, -Math.PI / 2 + 0.35, bSpeed * 0.9, '#88ffdd');
+    const bSpeed = 10;
+    const baseAngle = -Math.PI / 2;
+    if (weaponType === 'rapid') {
+      player.shootCooldown = 3;
+      spawnBullet(player.x, player.y - 10, baseAngle, bSpeed, '#44ffaa');
+      if (pl >= 3) {
+        spawnBullet(player.x - 8, player.y - 6, baseAngle - 0.12, bSpeed, '#66ffcc');
+        spawnBullet(player.x + 8, player.y - 6, baseAngle + 0.12, bSpeed, '#66ffcc');
+      }
+      if (pl >= 5) {
+        spawnBullet(player.x, player.y - 14, baseAngle, bSpeed * 1.1, '#aaffee');
+      }
+    } else if (weaponType === 'spread') {
+      player.shootCooldown = 8;
+      const count = 3 + pl;
+      const spread = 0.15 + pl * 0.06;
+      for (let k = 0; k < count; k++) {
+        const a = baseAngle - spread / 2 + (spread / (count - 1)) * k;
+        spawnBullet(player.x, player.y - 10, a, bSpeed * (0.9 + Math.random() * 0.15), '#44ffaa');
+      }
+    } else {
+      // balanced
+      player.shootCooldown = 6;
+      spawnBullet(player.x, player.y - 10, baseAngle, bSpeed, '#44ffaa');
+      if (pl >= 2) {
+        spawnBullet(player.x - 6, player.y - 6, baseAngle - 0.08, bSpeed, '#44ffaa');
+        spawnBullet(player.x + 6, player.y - 6, baseAngle + 0.08, bSpeed, '#44ffaa');
+      }
+      if (pl >= 3) {
+        spawnBullet(player.x - 14, player.y - 2, baseAngle - 0.22, bSpeed * 0.95, '#66ffcc');
+        spawnBullet(player.x + 14, player.y - 2, baseAngle + 0.22, bSpeed * 0.95, '#66ffcc');
+      }
+      if (pl >= 4) {
+        spawnBullet(player.x, player.y - 14, baseAngle, bSpeed * 1.1, '#aaffee');
+      }
+      if (pl >= 5) {
+        spawnBullet(player.x - 20, player.y + 2, baseAngle - 0.35, bSpeed * 0.9, '#88ffdd');
+        spawnBullet(player.x + 20, player.y + 2, baseAngle + 0.35, bSpeed * 0.9, '#88ffdd');
+      }
     }
     sfxShoot();
   }
@@ -1905,6 +1928,28 @@ document.querySelectorAll('#difficulty-select .diff-btn').forEach(btn => {
     difficulty = parseInt(btn.dataset.diff, 10);
   });
 });
+
+/* ---------- Weapon Selection ---------- */
+document.querySelectorAll('#weapon-select .weapon-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#weapon-select .weapon-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    weaponType = btn.dataset.weapon;
+    try { localStorage.setItem('stellar_defense_weapon', weaponType); } catch (e) {}
+  });
+});
+function loadWeapon() {
+  try {
+    const v = localStorage.getItem('stellar_defense_weapon');
+    if (v && ['balanced', 'spread', 'rapid'].includes(v)) {
+      weaponType = v;
+      document.querySelectorAll('#weapon-select .weapon-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.weapon === v);
+      });
+    }
+  } catch (e) {}
+}
+loadWeapon();
 
 /* ---------- Music Toggle ---------- */
 const musicToggleBtn = document.getElementById('music-toggle');

@@ -184,6 +184,29 @@ button:active {
   box-shadow: 0 0 16px rgba(60, 130, 255, 0.5);
 }
 
+.weapon-btn {
+  padding: 6px 14px;
+  font-size: 11px;
+  margin: 0 3px;
+  background: rgba(60, 100, 200, 0.2);
+  border: 1px solid rgba(100, 150, 255, 0.25);
+  color: #aabbdd;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.weapon-btn:hover {
+  box-shadow: 0 0 10px rgba(80, 140, 255, 0.25);
+}
+
+.weapon-btn.active {
+  background: linear-gradient(180deg, #44aa88 0%, #226644 100%);
+  border-color: rgba(80, 200, 150, 0.5);
+  box-shadow: 0 0 12px rgba(60, 180, 120, 0.4);
+  color: #ffffff;
+}
+
 #final-score, #final-wave {
   font-size: 20px;
   color: #ccddee;
