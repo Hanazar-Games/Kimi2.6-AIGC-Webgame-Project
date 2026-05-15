@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.0] - 2026-05-13
+
+### Added
+- Wave Theme system
+  - Every 3rd non-boss wave gets a special theme
+  - 5 themes: SWARM (pink), ASSAULT (orange), FORTRESS (teal), SNIPER (magenta), DIVIDE (blue)
+  - Theme waves heavily bias spawn rates toward themed enemy types
+  - Theme name displayed below wave number with unique color
+  - Adds strategic variety and preparation incentive
+
 ## [1.62.2] - 2026-05-13
 
 ### Improved

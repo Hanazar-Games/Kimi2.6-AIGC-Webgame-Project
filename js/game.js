@@ -249,6 +249,7 @@ let colorTheme = 0;
 let masterVolume = 1.0;
 let showFPS = true;
 let waveFlash = 0;
+let waveTheme = null;
 let timeStopTimer = 0;
 let magnetTimer = 0;
 let targetFPS = 60;
@@ -1024,6 +1025,14 @@ function startWave() {
   spawnTimer = 0;
   warnings.length = 0;
   damageTakenThisWave = false;
+  // wave theme (every 3rd non-boss wave)
+  waveTheme = null;
+  if (wave % 5 !== 0 && wave % 3 === 0 && wave >= 3) {
+    const themes = ['SWARM', 'ASSAULT', 'FORTRESS', 'SNIPER', 'DIVIDE'];
+    waveTheme = themes[Math.floor(Math.random() * themes.length)];
+    const themeColors = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
+    spawnFloatingText(W / 2, H / 2 + 30, `${waveTheme} WAVE!`, themeColors[waveTheme] || '#ffcc44');
+  }
   sfxWaveStart();
   spawnFloatingText(W / 2, H / 2, `WAVE ${wave}`, '#44aaff');
   checkAchievements();
@@ -1081,15 +1090,33 @@ function waveLogic() {
       spawnTimer = Math.max(18, 55 - wave * 3);
       const roll = Math.random();
       let type = 'drone';
-      if (wave >= 2 && roll < 0.20) type = 'swarmer';
-      if (wave >= 3 && roll < 0.28) type = 'hunter';
-      if (wave >= 4 && roll < 0.12) type = 'sniper';
-      if (wave >= 5 && roll < 0.18) type = 'tank';
-      if (wave >= 6 && roll < 0.25) type = 'splitter';
-      if (wave >= 7 && roll < 0.30) type = 'bomber';
-      if (wave >= 8 && roll < 0.22) type = 'shielder';
-      if (wave >= 9 && roll < 0.28) type = 'medic';
-      if (wave >= 10 && roll < 0.20) type = 'divider';
+      // theme-based spawn bias
+      if (waveTheme === 'SWARM') {
+        if (wave >= 2 && roll < 0.45) type = 'swarmer';
+        else if (wave >= 6 && roll < 0.70) type = 'splitter';
+      } else if (waveTheme === 'ASSAULT') {
+        if (wave >= 3 && roll < 0.35) type = 'hunter';
+        else if (wave >= 7 && roll < 0.60) type = 'bomber';
+      } else if (waveTheme === 'FORTRESS') {
+        if (wave >= 5 && roll < 0.30) type = 'tank';
+        else if (wave >= 8 && roll < 0.55) type = 'shielder';
+      } else if (waveTheme === 'SNIPER') {
+        if (wave >= 4 && roll < 0.30) type = 'sniper';
+        else if (wave >= 9 && roll < 0.50) type = 'medic';
+      } else if (waveTheme === 'DIVIDE') {
+        if (wave >= 10 && roll < 0.45) type = 'divider';
+      } else {
+        // normal spawn rates
+        if (wave >= 2 && roll < 0.20) type = 'swarmer';
+        if (wave >= 3 && roll < 0.28) type = 'hunter';
+        if (wave >= 4 && roll < 0.12) type = 'sniper';
+        if (wave >= 5 && roll < 0.18) type = 'tank';
+        if (wave >= 6 && roll < 0.25) type = 'splitter';
+        if (wave >= 7 && roll < 0.30) type = 'bomber';
+        if (wave >= 8 && roll < 0.22) type = 'shielder';
+        if (wave >= 9 && roll < 0.28) type = 'medic';
+        if (wave >= 10 && roll < 0.20) type = 'divider';
+      }
       spawnEnemy(type);
       enemiesToSpawn--;
     }
@@ -2836,6 +2863,7 @@ function resetGame() {
   damageFlash = 0;
   hitstop = 0;
   waveFlash = 0;
+  waveTheme = null;
   timeStopTimer = 0;
   magnetTimer = 0;
   deathSlowMo = 0;
