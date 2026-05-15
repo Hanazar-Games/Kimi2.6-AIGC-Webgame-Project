@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.55.0] - 2026-05-13
+
+### Added
+- Player hit particle effects
+- Blue particles burst from player on all damage sources
+- Respects particle density setting
+
 ## [1.54.0] - 2026-05-13
 
 ### Added
