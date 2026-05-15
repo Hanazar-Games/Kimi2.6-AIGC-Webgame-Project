@@ -320,7 +320,7 @@ loadStats();
 /* ---------- Achievements ---------- */
 const ACHIEVEMENTS = {
   first_blood: { name: 'First Blood', desc: 'Destroy your first enemy', unlocked: false },
-  combo_master: { name: 'Combo Master', desc: 'Reach a 25x combo', unlocked: false },
+  combo_master: { name: 'Combo Master (Legacy)', desc: 'Reach a 25x combo', unlocked: false },
   grazer: { name: 'Grazer', desc: 'Graze 100 bullets', unlocked: false },
   survivor: { name: 'Survivor', desc: 'Reach Wave 10', unlocked: false },
   boss_slayer: { name: 'Boss Slayer', desc: 'Defeat a Boss', unlocked: false },
@@ -332,9 +332,16 @@ const ACHIEVEMENTS = {
   combo_50: { name: 'Combo Master', desc: 'Reach a 50x combo', unlocked: false },
   combo_100: { name: 'Combo God', desc: 'Reach a 100x combo', unlocked: false },
   untouchable: { name: 'Untouchable', desc: 'Clear Wave 5 without taking damage', unlocked: false },
+  weapon_master: { name: 'Weapon Master', desc: 'Use all 3 weapons in one run', unlocked: false },
+  bomb_saver: { name: 'Bomb Saver', desc: 'Clear a wave without using bombs', unlocked: false },
+  graze_king: { name: 'Graze King', desc: 'Graze 200 bullets in one run', unlocked: false },
+  marathon: { name: 'Marathon', desc: 'Reach Wave 20', unlocked: false },
+  millionaire: { name: 'Millionaire', desc: 'Score 1,000,000 points', unlocked: false },
 };
 let noDamageWaves = 0;
 let damageTakenThisWave = false;
+let usedWeapons = new Set();
+let bombsUsedThisWave = 0;
 
 function loadAchievements() {
   try {
@@ -773,8 +780,17 @@ let enemiesToSpawn = 0;
 let spawnTimer = 0;
 let bossSpawned = false;
 
+function checkWaveAchievements() {
+  if (usedWeapons.size >= 3) unlockAchievement('weapon_master');
+  if (bombsUsedThisWave === 0 && wave > 1) unlockAchievement('bomb_saver');
+  if (grazeCount >= 200) unlockAchievement('graze_king');
+  if (wave >= 20) unlockAchievement('marathon');
+  if (score >= 1000000) unlockAchievement('millionaire');
+}
+
 function startWave() {
   waveFlash = 20;
+  bombsUsedThisWave = 0;
   // check no-damage streak for Untouchable achievement
   if (wave > 1 && !damageTakenThisWave) {
     noDamageWaves++;
@@ -806,6 +822,7 @@ function startWave() {
 
 function useBomb() {
   player.bombs--;
+  bombsUsedThisWave++;
   bombCooldown = 30;
   bombAnim = 40;
   shake = 20;
@@ -869,10 +886,12 @@ function waveLogic() {
       bossSpawned = true;
     } else {
       wave++;
+      checkWaveAchievements();
       startWave();
     }
   } else if (bossSpawned && enemies.length === 0) {
     wave++;
+    checkWaveAchievements();
     startWave();
   }
 }
@@ -1004,6 +1023,7 @@ function updatePlayer() {
         spawnBullet(player.x + 20, player.y + 2, baseAngle + 0.35, bSpeed * 0.9, '#88ffdd');
       }
     }
+    usedWeapons.add(weaponType);
     sfxShoot();
   }
 
@@ -2177,6 +2197,8 @@ function resetGame() {
   encounterText = null;
   encounterTimer = 0;
   bossFirstEncounter = { alpha: false, beta: false };
+  usedWeapons.clear();
+  bombsUsedThisWave = 0;
   gameStartTime = Date.now();
   comboGuard = true;
   tutorialActive = !tutorialDismissed;
