@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.28.0] - 2026-05-13
+
+### Added
+- 5 new achievements:
+  - Weapon Master: use all 3 weapons in one run
+  - Bomb Saver: clear a wave without using bombs
+  - Graze King: graze 200 bullets in one run
+  - Marathon: reach Wave 20
+  - Millionaire: score 1,000,000 points
+
 ## [1.27.0] - 2026-05-13
 
 ### Added
