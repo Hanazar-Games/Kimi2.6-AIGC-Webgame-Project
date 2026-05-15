@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.52.0] - 2026-05-13
+
+### Added
+- Wave progress percentage on HUD
+- Shows current wave completion percentage
+- Format: WAVE: 3 (45%)
+
 ## [1.51.0] - 2026-05-13
 
 ### Added
