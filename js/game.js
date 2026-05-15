@@ -1992,6 +1992,7 @@ function drawWaveBorder() {
   ctx.restore();
 }
 
+let lowHPTimer = 0;
 function drawLowHPWarning() {
   const hpRatio = player.hp / player.maxHp;
   if (hpRatio < 0.3 && player.hp > 0) {
@@ -2007,6 +2008,14 @@ function drawLowHPWarning() {
     ctx.textAlign = 'center';
     ctx.fillText('LOW HP WARNING', W / 2, H / 2 + 60);
     ctx.restore();
+    // heartbeat sound
+    lowHPTimer++;
+    if (lowHPTimer >= 60) {
+      lowHPTimer = 0;
+      playTone(120, 'sine', 0.12, 0.08);
+    }
+  } else {
+    lowHPTimer = 0;
   }
 }
 
