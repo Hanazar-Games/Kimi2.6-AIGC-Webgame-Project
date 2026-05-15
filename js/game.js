@@ -344,6 +344,7 @@ const ACHIEVEMENTS = {
   millionaire: { name: 'Millionaire', desc: 'Score 1,000,000 points', unlocked: false },
   piercing_shot: { name: 'Piercing Shot', desc: 'Hit 3 enemies with one laser', unlocked: false },
   boss_hunter: { name: 'Boss Hunter', desc: 'Defeat 5 Bosses', unlocked: false },
+  nightmare_survivor: { name: 'Nightmare Survivor', desc: 'Reach Wave 10 on Nightmare', unlocked: false },
 };
 let noDamageWaves = 0;
 let damageTakenThisWave = false;
@@ -687,7 +688,8 @@ function spawnEnemy(type) {
   else if (side === 1) { x = W + 20; y = rand(30, H * 0.6); }
   else { x = -20; y = rand(30, H * 0.6); }
 
-  const isElite = type !== 'swarmer' && Math.random() < (type === 'boss' ? 0.15 : 0.08);
+  const eliteRate = difficulty === 4 ? 0.15 : 0.08;
+  const isElite = type !== 'swarmer' && Math.random() < (type === 'boss' ? 0.15 : eliteRate);
 
   const base = {
     x, y, vx: 0, vy: 0,
@@ -703,8 +705,8 @@ function spawnEnemy(type) {
     hitFlash: 0,
   };
 
-  const diffMult = practiceMode ? 0.5 : (difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : 1.0);
-  const spdMult = practiceMode ? 0.6 : (difficulty === 1 ? 0.75 : difficulty === 3 ? 1.25 : 1.0);
+  const diffMult = practiceMode ? 0.5 : (difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : difficulty === 4 ? 2.0 : 1.0);
+  const spdMult = practiceMode ? 0.6 : (difficulty === 1 ? 0.75 : difficulty === 3 ? 1.25 : difficulty === 4 ? 1.75 : 1.0);
   if (type === 'drone') {
     base.hp = base.maxHp = Math.floor((14 + wave * 2) * diffMult);
     base.radius = 12;
@@ -838,6 +840,7 @@ function checkWaveAchievements() {
   if (grazeCount >= 200) unlockAchievement('graze_king');
   if (wave >= 20) unlockAchievement('marathon');
   if (score >= 1000000) unlockAchievement('millionaire');
+  if (difficulty === 4 && wave >= 10) unlockAchievement('nightmare_survivor');
 }
 
 function startWave() {
@@ -2450,12 +2453,13 @@ function resetGame() {
   player.y = H - 80;
   player.vx = 0;
   player.vy = 0;
+  player.maxHp = difficulty === 4 ? 1 : 100;
   player.hp = player.maxHp;
   player.invincible = 0;
   player.angle = -Math.PI / 2;
   player.shootCooldown = 0;
   player.powerLevel = 1;
-  player.bombs = difficulty === 1 ? 5 : difficulty === 3 ? 2 : 3;
+  player.bombs = difficulty === 1 ? 5 : difficulty === 3 ? 2 : difficulty === 4 ? 1 : 3;
 
   bullets.length = 0;
   enemyBullets.length = 0;
