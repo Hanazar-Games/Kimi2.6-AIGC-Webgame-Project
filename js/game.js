@@ -315,6 +315,7 @@ const ACHIEVEMENTS = {
   boss_slayer: { name: 'Boss Slayer', desc: 'Defeat a Boss', unlocked: false },
   elite_slayer: { name: 'Elite Slayer', desc: 'Defeat an Elite Boss', unlocked: false },
   splitter_down: { name: 'Splitter Down', desc: 'Destroy a Splitter enemy', unlocked: false },
+  bomber_down: { name: 'Bomber Down', desc: 'Destroy a Bomber enemy', unlocked: false },
   untouchable: { name: 'Untouchable', desc: 'Clear Wave 5 without taking damage', unlocked: false },
 };
 let noDamageWaves = 0;
@@ -542,6 +543,39 @@ function spawnPowerup(x, y) {
 }
 
 /* ---------- Enemy Factory ---------- */
+function bomberExplode(e) {
+  const radius = 50;
+  spawnExplosion(e.x, e.y, '#ff5522', 25, true);
+  spawnFloatingText(e.x, e.y - 20, 'BOOM!', '#ff5522');
+  shake = Math.max(shake, 8);
+  if (player.invincible <= 0 && dist(e, player) < radius + player.radius) {
+    player.hp -= practiceMode ? 0 : 12;
+    player.invincible = 60;
+    damageFlash = 10;
+    shake = Math.max(shake, 12);
+    damageTakenThisWave = true;
+    sfxHurt();
+    if (player.hp <= 0) {
+      if (combo >= 10 && comboGuard) {
+        comboGuard = false;
+        player.hp = 1;
+        combo = 0;
+        comboTimer = 0;
+        player.invincible = 120;
+        spawnFloatingText(player.x, player.y - 30, 'COMBO GUARD!', '#ff44ff');
+        sfxPowerup();
+      } else {
+        player.hp = 0;
+        state = STATE.GAMEOVER;
+        if (score > highScore) { highScore = score; saveHighScore(); }
+        stats.totalGraze += grazeCount;
+        updateStats(true);
+        showGameOver();
+      }
+    }
+  }
+}
+
 function splitEnemy(x, y, elite) {
   const count = Math.floor(rand(2, 4));
   for (let k = 0; k < count; k++) {
@@ -646,6 +680,13 @@ function spawnEnemy(type) {
     base.speed = rand(0.5, 1.0) * spdMult;
     base.shootInterval = Math.floor(120 / spdMult);
     base.score = 350;
+  } else if (type === 'bomber') {
+    base.hp = base.maxHp = Math.floor((10 + wave * 2) * diffMult);
+    base.radius = 10;
+    base.color = '#ff5522';
+    base.speed = rand(4.0, 5.5) * spdMult;
+    base.shootInterval = 99999;
+    base.score = 150;
   }
 
   if (base.elite) {
@@ -751,6 +792,7 @@ function waveLogic() {
       if (wave >= 4 && roll < 0.12) type = 'sniper';
       if (wave >= 5 && roll < 0.18) type = 'tank';
       if (wave >= 6 && roll < 0.35) type = 'splitter';
+      if (wave >= 7 && roll < 0.42) type = 'bomber';
       spawnEnemy(type);
       enemiesToSpawn--;
     }
@@ -978,6 +1020,12 @@ function updateEnemies(timeScale = 1) {
       if (e.vy > e.speed) e.vy = e.speed;
       e.x += Math.sin(e.phase * 0.02) * 0.6 * timeScale;
       e.y += e.vy * timeScale;
+    } else if (e.type === 'bomber') {
+      const a = angleTo(e, player);
+      e.vx = Math.cos(a) * e.speed;
+      e.vy = Math.sin(a) * e.speed;
+      e.x += e.vx * timeScale;
+      e.y += e.vy * timeScale;
     }
 
     // bounds
@@ -1153,6 +1201,10 @@ function checkCollisions() {
             splitEnemy(e.x, e.y, e.elite);
             unlockAchievement('splitter_down');
           }
+          if (e.type === 'bomber') {
+            bomberExplode(e);
+            unlockAchievement('bomber_down');
+          }
           stats.kills++;
           enemies.splice(j, 1);
         } else {
@@ -1237,6 +1289,7 @@ function checkCollisions() {
         if (e.hp <= 0) {
           spawnExplosion(e.x, e.y, e.color, 20);
           if (e.type === 'splitter') splitEnemy(e.x, e.y, e.elite);
+          if (e.type === 'bomber') bomberExplode(e);
           enemies.splice(j, 1);
         }
         if (player.hp <= 0) {
@@ -1424,6 +1477,27 @@ function drawEnemies() {
       ctx.beginPath();
       ctx.arc(0, -2, 5, 0, Math.PI * 2);
       ctx.fill();
+    } else if (e.type === 'bomber') {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -10);
+      ctx.lineTo(-8, 4);
+      ctx.lineTo(0, 10);
+      ctx.lineTo(8, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#ffaa66';
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fill();
+      // blink warning
+      if (Math.floor(e.phase / 10) % 2 === 0) {
+        ctx.strokeStyle = '#ff3300';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius + 3, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     } else if (e.type === 'sniper') {
       ctx.fillStyle = e.color;
       ctx.beginPath();
