@@ -2654,7 +2654,13 @@ function loop(timestamp) {
 
   if (state === STATE.PAUSED) {
     ctx.save();
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    ctx.fillRect(0, 0, W, H);
+    // vignette effect
+    const vg = ctx.createRadialGradient(W / 2, H / 2, W * 0.3, W / 2, H / 2, W * 0.8);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.4)');
+    ctx.fillStyle = vg;
     ctx.fillRect(0, 0, W, H);
     ctx.restore();
   }
