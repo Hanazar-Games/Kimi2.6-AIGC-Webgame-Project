@@ -1912,12 +1912,36 @@ function drawWarnings() {
 
 function drawDangerZone() {
   const dangerY = H - 100;
+  // always draw faint danger line
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 60, 60, 0.3)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([8, 8]);
+  ctx.beginPath();
+  ctx.moveTo(0, dangerY);
+  ctx.lineTo(W, dangerY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+  // player in danger zone
   if (player.y > dangerY) {
     const intensity = (player.y - dangerY) / 100;
     ctx.save();
     ctx.globalAlpha = intensity * 0.25;
     ctx.fillStyle = '#ff0000';
     ctx.fillRect(0, dangerY, W, H - dangerY);
+    ctx.restore();
+  }
+  // enemies approaching bottom
+  const enemiesInDanger = enemies.filter(e => e.y > dangerY && e.type !== 'boss');
+  if (enemiesInDanger.length > 0) {
+    const pulse = Math.abs(Math.sin(Date.now() * 0.008)) * 0.5 + 0.5;
+    ctx.save();
+    ctx.globalAlpha = pulse * 0.6;
+    ctx.fillStyle = '#ff4444';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('⚠ ENEMIES APPROACHING BOTTOM', W / 2, H - 16);
     ctx.restore();
   }
 }
