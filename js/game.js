@@ -1801,10 +1801,17 @@ function drawBullets(arr) {
     ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
     ctx.fill();
     // trail
-    ctx.globalAlpha = 0.3;
+    const trailLen = Math.min(18, Math.hypot(b.vx, b.vy) * 2.5);
+    const tx = b.x - (b.vx / Math.hypot(b.vx, b.vy || 1)) * trailLen;
+    const ty = b.y - (b.vy / Math.hypot(b.vx, b.vy || 1)) * trailLen;
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = b.color;
+    ctx.lineWidth = b.radius * 1.8;
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.arc(b.x - b.vx * 2, b.y - b.vy * 2, b.radius * 0.7, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(b.x, b.y);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
     ctx.restore();
   }
 }
