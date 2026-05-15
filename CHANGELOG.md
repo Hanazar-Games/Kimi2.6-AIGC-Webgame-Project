@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.42.0] - 2026-05-13
+
+### Added
+- Engine exhaust particle trail
+- Particles emit from ship rear while moving
+- Color matches current theme
+
 ## [1.41.0] - 2026-05-13
 
 ### Added
