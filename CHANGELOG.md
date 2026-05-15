@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.54.0] - 2026-05-13
+
+### Added
+- Color-coded FPS indicator
+- Green: 55+ FPS, Yellow: 30-54 FPS, Red: <30 FPS
+- Helps identify performance issues at a glance
+
 ## [1.53.0] - 2026-05-13
 
 ### Added
