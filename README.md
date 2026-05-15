@@ -22,14 +22,18 @@ Touch devices: drag left side to move, tap right side to shoot, middle area for 
 ## Features
 
 ### Combat
-- **6 enemy types** with unique AI & bullet patterns
+- **9 enemy types** with unique AI & bullet patterns
   - **Drone** — basic swarm unit
   - **Hunter** — actively tracks the player
   - **Tank** — heavy armor, shotgun spread shots
   - **Swarmer** — fast, weak kamikaze units (wave 2+)
   - **Sniper** — high-speed aimed bullets from wave 4
-  - **Boss** — appears every 5 waves with rotating attack phases
-- **Elite variant system** — 8% chance for enhanced enemies with boosted stats
+  - **Splitter** — splits into Swarmers on death (wave 6+)
+  - **Bomber** — rams player and explodes on death (wave 7+)
+  - **Shielder** — regenerating energy shield (wave 8+)
+  - **Boss** — 2 variants (Alpha/Beta) appearing every 5 waves
+- **Elite variant system** — 8% chance for standard enemies, 15% for Bosses
+- **Weapon selection** — Balanced, Spread, Rapid (each with unique SFX)
 - **Dash system** — quick burst of speed with invincibility frames
 - **Bomb system** — classic danmaku panic button; clears bullets, damages enemies, slow-motion
 - **Combo Guard** — death save when combo >= 10 (one use per run)
@@ -41,8 +45,8 @@ Touch devices: drag left side to move, tap right side to shoot, middle area for 
 - **Combo scoring** — chain kills for bonus multipliers; milestones at 10/25/50/100
 - **Wave clear bonuses** — rewards based on remaining HP; extra for perfect no-damage waves
 - **Local leaderboard** — top 5 scores with medals, persisted via `localStorage`
-- **Achievements** — 6 unlockable achievements
-- **Stats tracking** — total games, kills, best wave, total graze
+- **Achievements** — 18 unlockable achievements
+- **Stats tracking** — games, kills, best wave, time, combo, bosses, weapon usage
 - **Local high score** — persisted via `localStorage`
 - **URL score sharing** — share your results by copying the URL after game over
 
