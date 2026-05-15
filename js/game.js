@@ -332,6 +332,7 @@ const ACHIEVEMENTS = {
   splitter_down: { name: 'Splitter Down', desc: 'Destroy a Splitter enemy', unlocked: false },
   bomber_down: { name: 'Bomber Down', desc: 'Destroy a Bomber enemy', unlocked: false },
   shield_breaker: { name: 'Shield Breaker', desc: 'Destroy a Shielder enemy', unlocked: false },
+  medic_down: { name: 'Medic Down', desc: 'Destroy a Medic enemy', unlocked: false },
   combo_25: { name: 'Combo Apprentice', desc: 'Reach a 25x combo', unlocked: false },
   combo_50: { name: 'Combo Master', desc: 'Reach a 50x combo', unlocked: false },
   combo_100: { name: 'Combo God', desc: 'Reach a 100x combo', unlocked: false },
@@ -675,6 +676,7 @@ const ENEMY_HINTS = {
   splitter: 'Splits into Swarmers on death!',
   bomber: 'Rams at you — explodes on death!',
   shielder: 'Has regenerating shield — break it fast!',
+  medic: 'Heals nearby enemies — take it out first!',
 };
 let bossFirstEncounter = { alpha: false, beta: false };
 
@@ -783,6 +785,14 @@ function spawnEnemy(type) {
     base.shield = Math.floor((15 + wave * 2) * diffMult);
     base.maxShield = base.shield;
     base.shieldRegenTimer = 0;
+  } else if (type === 'medic') {
+    base.hp = base.maxHp = Math.floor((18 + wave * 2) * diffMult);
+    base.radius = 14;
+    base.color = '#44ff88';
+    base.speed = rand(1.0, 1.6) * spdMult;
+    base.shootInterval = 90;
+    base.score = 300;
+    base.healTimer = 0;
   }
 
   if (base.elite) {
@@ -907,7 +917,7 @@ function waveLogic() {
       if (side === 0) { wx = rand(30, W - 30); wy = 8; wa = Math.PI / 2; }
       else if (side === 1) { wx = W - 8; wy = rand(30, H * 0.6); wa = Math.PI; }
       else { wx = 8; wy = rand(30, H * 0.6); wa = 0; }
-      const warnColor = type === 'bomber' ? '#ff4444' : type === 'shielder' ? '#44ddaa' : type === 'splitter' ? '#cc44ff' : '#ffcc44';
+      const warnColor = type === 'bomber' ? '#ff4444' : type === 'shielder' ? '#44ddaa' : type === 'medic' ? '#44ff88' : type === 'splitter' ? '#cc44ff' : '#ffcc44';
       warnings.push({ x: wx, y: wy, angle: wa, life: 45, color: warnColor });
     }
     if (spawnTimer <= 0) {
@@ -921,6 +931,7 @@ function waveLogic() {
       if (wave >= 6 && roll < 0.25) type = 'splitter';
       if (wave >= 7 && roll < 0.30) type = 'bomber';
       if (wave >= 8 && roll < 0.22) type = 'shielder';
+      if (wave >= 9 && roll < 0.28) type = 'medic';
       spawnEnemy(type);
       enemiesToSpawn--;
     }
@@ -1195,6 +1206,34 @@ function updateEnemies(timeScale = 1) {
           e.shieldRegenTimer = 30;
         }
       }
+    } else if (e.type === 'medic') {
+      e.vy += 0.012 * timeScale;
+      if (e.vy > e.speed) e.vy = e.speed;
+      e.x += Math.sin(e.phase * 0.01) * 0.4 * timeScale;
+      e.y += e.vy * timeScale;
+      // heal nearby enemies
+      e.healTimer -= timeScale;
+      if (e.healTimer <= 0) {
+        e.healTimer = e.shootInterval;
+        let healed = false;
+        for (const other of enemies) {
+          if (other === e || other.type === 'boss') continue;
+          if (other.hp < other.maxHp && dist(e, other) < 80) {
+            other.hp = Math.min(other.maxHp, other.hp + 5);
+            healed = true;
+            // heal particle
+            particles.push({
+              x: other.x, y: other.y,
+              vx: rand(-1, 1), vy: rand(-2, -0.5),
+              life: 20, maxLife: 20,
+              color: '#44ff88', size: 2, decay: 0.92,
+            });
+          }
+        }
+        if (healed) {
+          spawnFloatingText(e.x, e.y - 20, '+HEAL', '#44ff88');
+        }
+      }
     }
 
     // bounds
@@ -1223,7 +1262,25 @@ function updateEnemies(timeScale = 1) {
           const a = angleTo(e, player) + rand(-0.4, 0.4);
           spawnBullet(e.x, e.y, a, rand(2.5, 3.5), '#ffaa44', true, 5);
         }
-      } else if (e.type === 'sniper') {
+      } else if (e.type === 'medic') {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // white cross
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-3, -8, 6, 16);
+      ctx.fillRect(-8, -3, 16, 6);
+      // heal pulse ring
+      if (e.healTimer <= 15) {
+        const pulse = 1 - e.healTimer / 15;
+        ctx.strokeStyle = `rgba(68, 255, 136, ${pulse * 0.5})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius + 8 + pulse * 10, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    } else if (e.type === 'sniper') {
         const a = angleTo(e, player);
         spawnBullet(e.x, e.y, a, 7, '#ff88ff', true, 3);
         e.aimTimer = 20;
@@ -1434,6 +1491,7 @@ function checkCollisions() {
             unlockAchievement('bomber_down');
           }
           if (e.type === 'shielder') unlockAchievement('shield_breaker');
+          if (e.type === 'medic') unlockAchievement('medic_down');
           stats.kills++;
           enemies.splice(j, 1);
         } else {
