@@ -972,6 +972,22 @@ function updatePlayer() {
 
   if (mx !== 0 || my !== 0) {
     player.angle = Math.atan2(my, mx);
+    // engine trail particles
+    if (Math.random() < 0.5) {
+      const theme = THEMES[colorTheme];
+      const backAngle = player.angle + Math.PI;
+      particles.push({
+        x: player.x + Math.cos(backAngle) * 8 + rand(-3, 3),
+        y: player.y + Math.sin(backAngle) * 8 + rand(-3, 3),
+        vx: Math.cos(backAngle) * rand(0.5, 1.5) + rand(-0.3, 0.3),
+        vy: Math.sin(backAngle) * rand(0.5, 1.5) + rand(-0.3, 0.3),
+        life: rand(6, 14),
+        maxLife: 14,
+        color: theme.engine,
+        size: rand(1.5, 3),
+        decay: 0.9,
+      });
+    }
   }
 
   // shooting
