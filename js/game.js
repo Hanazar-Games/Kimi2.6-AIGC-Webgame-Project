@@ -897,9 +897,9 @@ function waveLogic() {
       if (wave >= 3 && roll < 0.28) type = 'hunter';
       if (wave >= 4 && roll < 0.12) type = 'sniper';
       if (wave >= 5 && roll < 0.18) type = 'tank';
-      if (wave >= 6 && roll < 0.35) type = 'splitter';
-      if (wave >= 7 && roll < 0.42) type = 'bomber';
-      if (wave >= 8 && roll < 0.48) type = 'shielder';
+      if (wave >= 6 && roll < 0.25) type = 'splitter';
+      if (wave >= 7 && roll < 0.30) type = 'bomber';
+      if (wave >= 8 && roll < 0.22) type = 'shielder';
       spawnEnemy(type);
       enemiesToSpawn--;
     }
