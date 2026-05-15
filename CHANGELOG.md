@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.29.0] - 2026-05-13
+
+### Added
+- Expanded statistics tracking:
+  - Total play time (minutes)
+  - Highest combo ever achieved
+  - Bosses defeated count
+  - Weapon usage counters
+- Updated menu stats display with 6 fields
+
 ## [1.28.0] - 2026-05-13
 
 ### Added
