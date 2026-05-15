@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.50.0] - 2026-05-13
+
+### Added
+- Perfect wave celebration effect
+- 'PERFECT WAVE!' text and golden particles on no-damage clear
+- Screen shake and particle burst
+
 ## [1.49.0] - 2026-05-13
 
 ### Added
