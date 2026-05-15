@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.26.0] - 2026-05-13
+
+### Added
+- Weapon-specific shoot sound effects
+- Balanced: original 880Hz square wave
+- Rapid: higher 1200Hz square wave (sharper, faster feel)
+- Spread: lower 600Hz sawtooth wave (heavier, scatter feel)
+
 ## [1.25.0] - 2026-05-13
 
 ### Added
