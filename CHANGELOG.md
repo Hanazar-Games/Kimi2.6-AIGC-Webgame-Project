@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.57.0] - 2026-05-13
+
+### Added
+- Bomb cooldown color indicator
+- Gray when on cooldown, orange when ready
+- Clear visual feedback for bomb availability
+
 ## [1.56.0] - 2026-05-13
 
 ### Added
