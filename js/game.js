@@ -254,6 +254,7 @@ let tutorialActive = false;
 let tutorialDismissed = false;
 let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser'
 let encounteredTypes = new Set();
+let persistentEncountered = new Set();
 let encounterText = null;
 let encounterTimer = 0;
 const THEMES = [
@@ -363,6 +364,20 @@ function loadAchievements() {
     }
   } catch (e) {}
 }
+function loadPersistentEncountered() {
+  try {
+    const v = localStorage.getItem('stellar_defense_encountered');
+    if (v) {
+      const arr = JSON.parse(v);
+      persistentEncountered = new Set(arr);
+    }
+  } catch (e) {}
+}
+function savePersistentEncountered() {
+  try {
+    localStorage.setItem('stellar_defense_encountered', JSON.stringify([...persistentEncountered]));
+  } catch (e) {}
+}
 function saveAchievements() {
   try {
     const obj = {};
@@ -414,6 +429,39 @@ function updateAchievementUI() {
     list.appendChild(el);
   }
 }
+const ENEMY_LOG_DATA = [
+  { type: 'drone', name: 'Drone', color: '#ff6666' },
+  { type: 'swarmer', name: 'Swarmer', color: '#ff55aa' },
+  { type: 'hunter', name: 'Hunter', color: '#ff8844' },
+  { type: 'sniper', name: 'Sniper', color: '#ff44ff' },
+  { type: 'tank', name: 'Tank', color: '#ffcc44' },
+  { type: 'splitter', name: 'Splitter', color: '#cc44ff' },
+  { type: 'bomber', name: 'Bomber', color: '#ff5522' },
+  { type: 'shielder', name: 'Shielder', color: '#44ddaa' },
+  { type: 'medic', name: 'Medic', color: '#44ff88' },
+  { type: 'divider', name: 'Divider', color: '#4466ff' },
+  { type: 'boss', name: 'Boss', color: '#ff3333' },
+];
+function updateEnemyLogUI() {
+  const list = document.getElementById('enemy-log-list');
+  if (!list) return;
+  list.innerHTML = '';
+  for (const entry of ENEMY_LOG_DATA) {
+    const discovered = persistentEncountered.has(entry.type);
+    const el = document.createElement('div');
+    el.style.cssText = `
+      padding: 3px 8px; border-radius: 4px; font-size: 10px;
+      border: 1px solid ${discovered ? entry.color : '#334455'};
+      color: ${discovered ? entry.color : '#334455'};
+      background: ${discovered ? entry.color + '15' : 'transparent'};
+      opacity: ${discovered ? 1 : 0.6};
+      cursor: ${discovered ? 'help' : 'default'};
+    `;
+    el.textContent = discovered ? entry.name : '???';
+    if (discovered) el.title = ENEMY_HINTS[entry.type];
+    list.appendChild(el);
+  }
+}
 function updateLeaderboardUI(highlightIndex = -1) {
   const ids = ['leaderboard-list', 'leaderboard-menu-list'];
   for (const id of ids) {
@@ -435,6 +483,7 @@ function updateLeaderboardUI(highlightIndex = -1) {
   }
 }
 loadAchievements();
+loadPersistentEncountered();
 
 /* ---------- Entities ---------- */
 const player = {
@@ -873,6 +922,10 @@ function spawnEnemy(type) {
   // first encounter hint
   if (!encounteredTypes.has(type)) {
     encounteredTypes.add(type);
+    if (!persistentEncountered.has(type)) {
+      persistentEncountered.add(type);
+      savePersistentEncountered();
+    }
     let hint = ENEMY_HINTS[type];
     if (type === 'boss') {
       const bt = base.bossType;
@@ -2482,6 +2535,7 @@ function showMenu() {
   const el = document.getElementById('menu-highscore');
   if (el) el.textContent = `High Score: ${highScore.toLocaleString()}`;
   updateAchievementUI();
+  updateEnemyLogUI();
   updateLeaderboardUI();
   const sg = document.getElementById('stat-games');
   const sk = document.getElementById('stat-kills');
@@ -2776,10 +2830,12 @@ if (resetDataBtn) {
         localStorage.removeItem('stellar_defense_achievements');
         localStorage.removeItem('stellar_defense_stats');
         localStorage.removeItem('stellar_defense_leaderboard');
+        localStorage.removeItem('stellar_defense_encountered');
       } catch (e) {}
       highScore = 0;
       stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0 } };
       leaderboard = [];
+      persistentEncountered = new Set();
       for (const k in ACHIEVEMENTS) ACHIEVEMENTS[k].unlocked = false;
       showMenu();
     }

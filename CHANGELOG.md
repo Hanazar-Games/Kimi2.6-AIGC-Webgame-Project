@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.59.0] - 2026-05-13
+
+### Added
+- Enemy Log (Bestiary) in main menu
+  - Tracks all enemy types encountered across runs (persistent)
+  - Discovered enemies shown with color-coded name and tooltip description
+  - Undiscovered enemies shown as "???" in muted gray
+  - Cleared when resetting all data
+
 ## [1.58.0] - 2026-05-13
 
 ### Added
