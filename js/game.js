@@ -43,7 +43,15 @@ function playTone(freq, type, duration, vol = 0.08) {
   o.stop(audioCtx.currentTime + duration);
 }
 
-function sfxShoot() { playTone(880, 'square', 0.08, 0.04); }
+function sfxShoot() {
+  if (weaponType === 'rapid') {
+    playTone(1200, 'square', 0.06, 0.03);
+  } else if (weaponType === 'spread') {
+    playTone(600, 'sawtooth', 0.1, 0.05);
+  } else {
+    playTone(880, 'square', 0.08, 0.04);
+  }
+}
 function sfxEnemyShoot() { playTone(220, 'sawtooth', 0.1, 0.03); }
 function sfxHit() { playTone(150, 'sawtooth', 0.15, 0.06); }
 function sfxExplosion() {
