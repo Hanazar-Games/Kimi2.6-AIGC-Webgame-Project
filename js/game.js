@@ -2300,7 +2300,9 @@ function drawBossUI() {
 function drawUI() {
   const mult = (1 + combo * 0.1).toFixed(1);
   document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()} (x${mult})`;
-  document.getElementById('wave').textContent = `WAVE: ${wave}`;
+  const totalSpawned = enemiesToSpawn + enemies.length;
+  const waveProgress = totalSpawned > 0 ? Math.floor(((totalSpawned - enemiesToSpawn) / totalSpawned) * 100) : 0;
+  document.getElementById('wave').textContent = `WAVE: ${wave} (${waveProgress}%)`;
   const timerEl = document.getElementById('timer');
   if (timerEl && gameStartTime > 0) {
     const sec = Math.floor((Date.now() - gameStartTime) / 1000);
