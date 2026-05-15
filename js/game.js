@@ -541,6 +541,25 @@ function spawnExplosion(x, y, color, count = 12, shockwave = false) {
   }
 }
 
+function spawnPlayerHitParticles() {
+  const densityMult = particleDensity === 0 ? 0.5 : particleDensity === 1 ? 0.8 : 1.0;
+  const count = Math.floor(10 * densityMult);
+  for (let i = 0; i < count; i++) {
+    const a = rand(0, Math.PI * 2);
+    const s = rand(2, 5);
+    particles.push({
+      x: player.x, y: player.y,
+      vx: Math.cos(a) * s,
+      vy: Math.sin(a) * s,
+      life: rand(15, 30),
+      maxLife: 30,
+      color: '#aaddff',
+      size: rand(2, 4),
+      decay: 0.92,
+    });
+  }
+}
+
 function spawnHitSparks(x, y, color = '#ffaa44') {
   const densityMult = particleDensity === 0 ? 0.4 : particleDensity === 1 ? 0.7 : 1.0;
   const maxNew = Math.max(0, 300 - particles.length);
@@ -620,6 +639,7 @@ function bomberExplode(e) {
     damageFlash = 10;
     shake = Math.max(shake, 12);
     damageTakenThisWave = true;
+    spawnPlayerHitParticles();
     sfxHurt();
     if (player.hp <= 0) {
       if (combo >= 10 && comboGuard) {
@@ -1558,6 +1578,7 @@ function checkCollisions() {
         damageFlash = 15;
         damageTakenThisWave = true;
         spawnExplosion(player.x, player.y, '#44aaff', 16);
+        spawnPlayerHitParticles();
         sfxHurt();
         if (player.hp <= 0) {
           if (combo >= 10 && comboGuard) {
@@ -1593,6 +1614,7 @@ function checkCollisions() {
         shake = 14;
         damageFlash = 15;
         damageTakenThisWave = true;
+        spawnPlayerHitParticles();
         e.hp -= 20;
         spawnExplosion((player.x + e.x) / 2, (player.y + e.y) / 2, '#ff4444', 18);
         sfxHurt();
