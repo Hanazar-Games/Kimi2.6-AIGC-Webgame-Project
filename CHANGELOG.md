@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.33.0] - 2026-05-13
+
+### Added
+- Color-coded spawn warnings by enemy type
+- Bomber: red, Shielder: cyan, Splitter: purple, Standard: yellow
+- Warning arrows now have glow effects
+
 ## [1.32.0] - 2026-05-13
 
 ### Added
