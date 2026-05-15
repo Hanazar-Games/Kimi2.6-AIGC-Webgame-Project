@@ -2130,6 +2130,13 @@ function showGameOver() {
     const s = (sec % 60).toString().padStart(2, '0');
     ftEl.textContent = `Time: ${m}:${s}`;
   }
+  const fcEl = document.getElementById('final-combo');
+  if (fcEl) fcEl.textContent = `Best Combo: ${combo}`;
+  const fwEl = document.getElementById('final-weapon');
+  if (fwEl) {
+    const wname = weaponType.charAt(0).toUpperCase() + weaponType.slice(1);
+    fwEl.textContent = `Weapon: ${wname}`;
+  }
   if (!practiceMode) {
     const oldRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);
     addToLeaderboard(score, wave);
