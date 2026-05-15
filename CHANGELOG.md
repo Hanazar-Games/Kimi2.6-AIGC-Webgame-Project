@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.19.0] - 2026-05-13
+
+### Added
+- Elite Boss variant — 15% spawn chance with golden crown icon
+- Enhanced attack patterns: more bullets, faster bullet speed, brighter colors
+- 'ELITE BOSS ENGAGED!' and 'ELITE ENRAGED!' announcements
+- New 'Elite Slayer' achievement
+- Splitter enemy type — purple hexagon that splits into 2-3 Swarmers on death
+- Spawns from wave 6 with spreading bullet attack
+- New 'Splitter Down' achievement
+
 ## [1.18.0] - 2026-05-13
 
 ### Added
