@@ -295,7 +295,7 @@ function addToLeaderboard(score, wave) {
 loadLeaderboard();
 
 /* ---------- Stats ---------- */
-let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0 };
+let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0 } };
 function loadStats() {
   try {
     const v = localStorage.getItem('stellar_defense_stats');
@@ -313,6 +313,7 @@ function updateStats(onDeath = false) {
     stats.deaths++;
   }
   stats.bestWave = Math.max(stats.bestWave, wave);
+  stats.highestCombo = Math.max(stats.highestCombo, combo);
   saveStats();
 }
 loadStats();
@@ -1024,6 +1025,7 @@ function updatePlayer() {
       }
     }
     usedWeapons.add(weaponType);
+    stats.weaponUses[weaponType] = (stats.weaponUses[weaponType] || 0) + 1;
     sfxShoot();
   }
 
@@ -1334,6 +1336,7 @@ function checkCollisions() {
           if (e.type === 'boss') {
             unlockAchievement('boss_slayer');
             if (e.elite) unlockAchievement('elite_slayer');
+            stats.bossesDefeated++;
           }
           if (e.type === 'splitter') {
             splitEnemy(e.x, e.y, e.elite);
@@ -2056,9 +2059,15 @@ function showMenu() {
   const sg = document.getElementById('stat-games');
   const sk = document.getElementById('stat-kills');
   const sb = document.getElementById('stat-bestwave');
+  const st = document.getElementById('stat-time');
+  const sc = document.getElementById('stat-combo');
+  const sbs = document.getElementById('stat-bosses');
   if (sg) sg.textContent = `Games: ${stats.games}`;
   if (sk) sk.textContent = `Kills: ${stats.kills}`;
   if (sb) sb.textContent = `Best Wave: ${stats.bestWave}`;
+  if (st) st.textContent = `Time: ${Math.floor(stats.totalTime / 60)}m`;
+  if (sc) sc.textContent = `Best Combo: ${stats.highestCombo}`;
+  if (sbs) sbs.textContent = `Bosses: ${stats.bossesDefeated}`;
 }
 
 function hideScreens() {
@@ -2332,7 +2341,7 @@ if (resetDataBtn) {
         localStorage.removeItem('stellar_defense_leaderboard');
       } catch (e) {}
       highScore = 0;
-      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0 };
+      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0 } };
       leaderboard = [];
       for (const k in ACHIEVEMENTS) ACHIEVEMENTS[k].unlocked = false;
       showMenu();
@@ -2483,6 +2492,7 @@ function loop(timestamp) {
     }
     if (slowMo > 0) slowMo -= timeScale;
     if (timeStopTimer > 0) timeStopTimer -= timeScale;
+    stats.totalTime += dt / 1000;
     updatePlayer();
     if (timeStopTimer <= 0) {
       updateEnemies(timeScale);
