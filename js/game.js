@@ -2022,11 +2022,17 @@ function drawBombEffect() {
 
 function drawTexts() {
   for (const t of texts) {
+    const progress = 1 - t.life / t.maxLife;
+    const scale = 1 + Math.sin(progress * Math.PI) * 0.3;
     ctx.globalAlpha = t.life / t.maxLife;
     ctx.fillStyle = t.color;
     ctx.font = 'bold 16px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(t.txt, t.x, t.y);
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.scale(scale, scale);
+    ctx.fillText(t.txt, 0, 0);
+    ctx.restore();
   }
   ctx.globalAlpha = 1;
   ctx.textAlign = 'start';
