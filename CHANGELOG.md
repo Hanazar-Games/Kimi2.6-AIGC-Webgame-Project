@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.39.0] - 2026-05-13
+
+### Added
+- Low HP heartbeat sound effect
+- Subtle 120Hz pulse when HP below 30%
+- Enhances tension during critical health situations
+
 ## [1.38.0] - 2026-05-13
 
 ### Added
