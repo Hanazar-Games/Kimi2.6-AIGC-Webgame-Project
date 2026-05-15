@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.22.0] - 2026-05-13
+
+### Added
+- Shielder enemy type — teal enemy with regenerating energy shield
+- Shield absorbs all damage while active, breaks after sustained fire
+- Shield regenerates after 3-second pause with visual ring indicator
+- Spawns from wave 8 onwards
+- New 'Shield Breaker' achievement
+
 ## [1.21.0] - 2026-05-13
 
 ### Added
