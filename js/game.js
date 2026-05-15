@@ -882,7 +882,8 @@ function waveLogic() {
       if (side === 0) { wx = rand(30, W - 30); wy = 8; wa = Math.PI / 2; }
       else if (side === 1) { wx = W - 8; wy = rand(30, H * 0.6); wa = Math.PI; }
       else { wx = 8; wy = rand(30, H * 0.6); wa = 0; }
-      warnings.push({ x: wx, y: wy, angle: wa, life: 45 });
+      const warnColor = type === 'bomber' ? '#ff4444' : type === 'shielder' ? '#44ddaa' : type === 'splitter' ? '#cc44ff' : '#ffcc44';
+      warnings.push({ x: wx, y: wy, angle: wa, life: 45, color: warnColor });
     }
     if (spawnTimer <= 0) {
       spawnTimer = Math.max(18, 55 - wave * 3);
@@ -1890,7 +1891,9 @@ function drawWarnings() {
     ctx.translate(w.x, w.y);
     ctx.rotate(w.angle);
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = '#ff4444';
+    ctx.fillStyle = w.color || '#ffcc44';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = w.color || '#ffcc44';
     ctx.beginPath();
     ctx.moveTo(0, -8);
     ctx.lineTo(6, 4);
