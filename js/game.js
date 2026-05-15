@@ -259,6 +259,7 @@ let tutorialDismissed = false;
 let asteroids = [];
 let practiceMode = false;
 let autoFire = false;
+let planets = [];
 let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser', 'ricochet'
 let encounteredTypes = new Set();
 let persistentEncountered = new Set();
@@ -580,6 +581,36 @@ function initStars() {
       rotation: rand(0, Math.PI * 2),
       rotSpeed: rand(-0.003, 0.003),
       color: `rgba(${Math.floor(rand(40, 70))}, ${Math.floor(rand(35, 60))}, ${Math.floor(rand(45, 75))}, ${rand(0.15, 0.35)})`,
+    });
+  }
+  // background planets
+  planets = [];
+  const planetCount = particleDensity === 0 ? 1 : 2;
+  const planetColors = [
+    { base: '#1a2040', highlight: '#2a4070', shadow: '#0a1020' },
+    { base: '#301818', highlight: '#603030', shadow: '#180808' },
+    { base: '#182818', highlight: '#284828', shadow: '#081008' },
+  ];
+  for (let i = 0; i < planetCount; i++) {
+    const radius = rand(120, 280);
+    const stripes = [];
+    const stripeCount = Math.floor(rand(3, 6));
+    for (let s = 0; s < stripeCount; s++) {
+      stripes.push({
+        yOffset: rand(-radius * 0.6, radius * 0.6),
+        height: rand(10, 30),
+        alpha: rand(0.03, 0.08),
+      });
+    }
+    planets.push({
+      x: rand(0, W),
+      y: rand(-radius * 0.3, H * 0.5),
+      vx: rand(-0.02, 0.02),
+      vy: rand(-0.005, 0.005),
+      radius,
+      color: planetColors[i % 3],
+      stripes,
+      craters: Math.floor(rand(2, 5)),
     });
   }
 }
@@ -1930,6 +1961,47 @@ function drawNebulae() {
     if (n.y > H + n.radius) { n.y = -n.radius; n.x = rand(0, W); }
   }
 }
+function updatePlanets(timeScale = 1) {
+  for (const p of planets) {
+    p.x += p.vx * timeScale;
+    p.y += p.vy * timeScale;
+    if (p.x < -p.radius * 2) p.x = W + p.radius * 2;
+    if (p.x > W + p.radius * 2) p.x = -p.radius * 2;
+    if (p.y < -p.radius * 2) p.y = H + p.radius * 2;
+    if (p.y > H + p.radius * 2) p.y = -p.radius * 2;
+  }
+}
+function drawPlanets() {
+  for (const p of planets) {
+    ctx.save();
+    ctx.globalAlpha = 0.12;
+    // planet body
+    const g = ctx.createRadialGradient(p.x - p.radius * 0.2, p.y - p.radius * 0.2, 0, p.x, p.y, p.radius);
+    g.addColorStop(0, p.color.highlight);
+    g.addColorStop(0.6, p.color.base);
+    g.addColorStop(1, p.color.shadow);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    ctx.fill();
+    // stripes
+    for (const s of p.stripes) {
+      ctx.fillStyle = `rgba(0,0,0,${s.alpha})`;
+      ctx.fillRect(p.x - p.radius, p.y + s.yOffset - s.height / 2, p.radius * 2, s.height);
+    }
+    // craters
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = '#000';
+    for (let c = 0; c < p.craters; c++) {
+      const ca = (c / p.craters) * Math.PI * 2 + p.radius * 0.1;
+      const cr = p.radius * 0.5 + Math.sin(ca * 3) * p.radius * 0.2;
+      ctx.beginPath();
+      ctx.arc(p.x + Math.cos(ca) * cr, p.y + Math.sin(ca) * cr, rand(8, 18), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
 function updateAsteroids(timeScale = 1) {
   for (const a of asteroids) {
     a.x += a.vx * timeScale;
@@ -3150,6 +3222,7 @@ function loop(timestamp) {
     if (shake < 0.5) shake = 0;
   }
 
+  drawPlanets();
   drawStars();
   drawNebulae();
   drawAsteroids();
@@ -3159,6 +3232,8 @@ function loop(timestamp) {
   if (targetFPS === 30) {
     skipFrame = !skipFrame;
     if (skipFrame) {
+      drawPlanets();
+      drawPlanets();
       drawStars();
       drawNebulae();
       drawAsteroids();
@@ -3229,6 +3304,7 @@ function loop(timestamp) {
       updatePowerups(timeScale);
       checkCollisions();
     }
+    updatePlanets(timeScale);
     updateAsteroids(timeScale);
     updateParticles();
     updateShockwaves(timeScale);

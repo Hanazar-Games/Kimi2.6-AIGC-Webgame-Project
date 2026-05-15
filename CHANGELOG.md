@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.3] - 2026-05-13
+
+### Added
+- Background planets
+  - 1-2 massive planets rendered at the deepest layer
+  - Radial gradient with highlight, base, and shadow tones
+  - Subtle atmospheric stripes and crater details
+  - Extremely slow drift for parallax depth
+  - Low opacity (0.12) to avoid gameplay interference
+  - Respects particle density setting (1-2 planets)
+
 ## [1.63.2] - 2026-05-13
 
 ### Added
