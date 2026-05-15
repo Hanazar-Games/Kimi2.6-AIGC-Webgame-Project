@@ -343,6 +343,7 @@ const ACHIEVEMENTS = {
   marathon: { name: 'Marathon', desc: 'Reach Wave 20', unlocked: false },
   millionaire: { name: 'Millionaire', desc: 'Score 1,000,000 points', unlocked: false },
   piercing_shot: { name: 'Piercing Shot', desc: 'Hit 3 enemies with one laser', unlocked: false },
+  divider_down: { name: 'Divider Down', desc: 'Destroy a Divider enemy', unlocked: false },
   boss_hunter: { name: 'Boss Hunter', desc: 'Defeat 5 Bosses', unlocked: false },
   nightmare_survivor: { name: 'Nightmare Survivor', desc: 'Reach Wave 10 on Nightmare', unlocked: false },
 };
@@ -663,6 +664,38 @@ function bomberExplode(e) {
   }
 }
 
+function splitDivider(e) {
+  if (e.splitCount >= e.maxSplits) return;
+  const newRadius = e.radius * 0.7;
+  const newHp = Math.max(1, Math.floor(e.hp / 2));
+  const colors = ['#4466ff', '#6688ff', '#88aaff'];
+  for (let k = -1; k <= 2; k += 2) {
+    const child = {
+      x: e.x + k * newRadius,
+      y: e.y,
+      vx: k * 1.5,
+      vy: e.vy,
+      hp: newHp,
+      maxHp: newHp,
+      radius: newRadius,
+      color: colors[Math.min(e.splitCount + 1, 2)],
+      speed: e.speed * 1.2,
+      shootInterval: 99999,
+      type: 'divider',
+      angle: 0,
+      phase: e.phase + k * 50,
+      elite: e.elite,
+      score: Math.floor(e.score * 1.2),
+      splitCount: e.splitCount + 1,
+      maxSplits: e.maxSplits,
+      hitFlash: 0,
+    };
+    enemies.push(child);
+  }
+  spawnFloatingText(e.x, e.y, 'DIVIDE!', '#88aaff');
+  spawnExplosion(e.x, e.y, e.color, 12, true);
+}
+
 function splitEnemy(x, y, elite) {
   const count = Math.floor(rand(2, 4));
   for (let k = 0; k < count; k++) {
@@ -699,6 +732,7 @@ const ENEMY_HINTS = {
   bomber: 'Rams at you — explodes on death!',
   shielder: 'Has regenerating shield — break it fast!',
   medic: 'Heals nearby enemies — take it out first!',
+  divider: 'Splits when hit — destroy all parts!',
 };
 let bossFirstEncounter = { alpha: false, beta: false };
 
@@ -816,6 +850,15 @@ function spawnEnemy(type) {
     base.shootInterval = 90;
     base.score = 300;
     base.healTimer = 0;
+  } else if (type === 'divider') {
+    base.hp = base.maxHp = Math.floor((40 + wave * 5) * diffMult);
+    base.radius = 22;
+    base.color = '#4466ff';
+    base.speed = rand(0.4, 0.8) * spdMult;
+    base.shootInterval = 99999;
+    base.score = 400;
+    base.splitCount = 0;
+    base.maxSplits = 2;
   }
 
   if (base.elite) {
@@ -941,7 +984,7 @@ function waveLogic() {
       if (side === 0) { wx = rand(30, W - 30); wy = 8; wa = Math.PI / 2; }
       else if (side === 1) { wx = W - 8; wy = rand(30, H * 0.6); wa = Math.PI; }
       else { wx = 8; wy = rand(30, H * 0.6); wa = 0; }
-      const warnColor = type === 'bomber' ? '#ff4444' : type === 'shielder' ? '#44ddaa' : type === 'medic' ? '#44ff88' : type === 'splitter' ? '#cc44ff' : '#ffcc44';
+      const warnColor = type === 'bomber' ? '#ff4444' : type === 'shielder' ? '#44ddaa' : type === 'medic' ? '#44ff88' : type === 'splitter' ? '#cc44ff' : type === 'divider' ? '#4466ff' : '#ffcc44';
       warnings.push({ x: wx, y: wy, angle: wa, life: 45, color: warnColor });
     }
     if (spawnTimer <= 0) {
@@ -956,6 +999,7 @@ function waveLogic() {
       if (wave >= 7 && roll < 0.30) type = 'bomber';
       if (wave >= 8 && roll < 0.22) type = 'shielder';
       if (wave >= 9 && roll < 0.28) type = 'medic';
+      if (wave >= 10 && roll < 0.20) type = 'divider';
       spawnEnemy(type);
       enemiesToSpawn--;
     }
@@ -1277,6 +1321,11 @@ function updateEnemies(timeScale = 1) {
           spawnFloatingText(e.x, e.y - 20, '+HEAL', '#44ff88');
         }
       }
+    } else if (e.type === 'divider') {
+      e.vy += 0.01 * timeScale;
+      if (e.vy > e.speed) e.vy = e.speed;
+      e.x += Math.sin(e.phase * 0.02 + e.splitCount) * 0.8 * timeScale;
+      e.y += e.vy * timeScale;
     }
 
     // bounds
@@ -1321,6 +1370,24 @@ function updateEnemies(timeScale = 1) {
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.arc(0, 0, e.radius + 8 + pulse * 10, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    } else if (e.type === 'divider') {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // inner pattern
+      ctx.fillStyle = '#88aaff';
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      // split count indicator
+      if (e.splitCount > 0) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius + 4, 0, Math.PI * 2);
         ctx.stroke();
       }
     } else if (e.type === 'sniper') {
@@ -1451,6 +1518,12 @@ function checkCollisions() {
         } else {
           e.hp -= dmg;
         }
+        // divider split logic
+        if (e.type === 'divider' && e.splitCount < e.maxSplits && e.hp > 0 && Math.random() < 0.25) {
+          splitDivider(e);
+          enemies.splice(j, 1);
+          continue;
+        }
         // knockback
         const kbAngle = Math.atan2(b.vy, b.vx);
         const kbForce = 0.8;
@@ -1535,6 +1608,7 @@ function checkCollisions() {
           }
           if (e.type === 'shielder') unlockAchievement('shield_breaker');
           if (e.type === 'medic') unlockAchievement('medic_down');
+          if (e.type === 'divider') unlockAchievement('divider_down');
           stats.kills++;
           enemies.splice(j, 1);
         } else {

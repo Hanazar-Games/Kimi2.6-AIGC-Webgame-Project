@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.58.0] - 2026-05-13
+
+### Added
+- New enemy type: Divider
+  - Large blue enemy that splits when hit (up to 2 splits)
+  - Each split creates 2 smaller, faster children
+  - Children have higher score value (+20% per generation)
+  - Appears starting from Wave 10
+  - 25% split chance per hit
+- Divider-related achievement: "Divider Down"
+- Unique visual: diamond shape with inner cross, glows by split generation
+- Warning indicator colored blue for Divider spawns
+
 ## [1.57.0] - 2026-05-13
 
 ### Added
