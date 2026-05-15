@@ -317,6 +317,9 @@ const ACHIEVEMENTS = {
   splitter_down: { name: 'Splitter Down', desc: 'Destroy a Splitter enemy', unlocked: false },
   bomber_down: { name: 'Bomber Down', desc: 'Destroy a Bomber enemy', unlocked: false },
   shield_breaker: { name: 'Shield Breaker', desc: 'Destroy a Shielder enemy', unlocked: false },
+  combo_25: { name: 'Combo Apprentice', desc: 'Reach a 25x combo', unlocked: false },
+  combo_50: { name: 'Combo Master', desc: 'Reach a 50x combo', unlocked: false },
+  combo_100: { name: 'Combo God', desc: 'Reach a 100x combo', unlocked: false },
   untouchable: { name: 'Untouchable', desc: 'Clear Wave 5 without taking damage', unlocked: false },
 };
 let noDamageWaves = 0;
@@ -1206,7 +1209,7 @@ function checkCollisions() {
             spawnFloatingText(W / 2, H / 2 - 40, `COMBO x${combo}!`, '#ff44ff');
             shake = Math.max(shake, 6);
             const milestoneCount = particleDensity === 0 ? 12 : particleDensity === 1 ? 20 : 30;
-          for (let k = 0; k < milestoneCount; k++) {
+            for (let k = 0; k < milestoneCount; k++) {
               const a = rand(0, Math.PI * 2);
               const s = rand(2, 6);
               particles.push({
@@ -1219,6 +1222,27 @@ function checkCollisions() {
                 size: rand(2, 4),
                 decay: 0.95,
               });
+            }
+            // combo milestone rewards
+            if (combo === 25) {
+              player.hp = Math.min(player.maxHp, player.hp + 1);
+              spawnFloatingText(player.x, player.y - 40, '+1 HP', '#44ff88');
+            }
+            if (combo === 50) {
+              player.hp = Math.min(player.maxHp, player.hp + 2);
+              player.bombs = Math.min(5, player.bombs + 1);
+              spawnFloatingText(player.x, player.y - 40, '+2 HP + BOMB', '#44ff88');
+              sfxPowerup();
+            }
+            if (combo === 25) unlockAchievement('combo_25');
+            if (combo === 50) unlockAchievement('combo_50');
+            if (combo === 100) {
+              unlockAchievement('combo_100');
+              player.hp = player.maxHp;
+              player.bombs = Math.min(5, player.bombs + 2);
+              spawnFloatingText(player.x, player.y - 50, 'MAX HP + 2 BOMBS!', '#ffee44');
+              shake = Math.max(shake, 12);
+              sfxPowerup();
             }
           }
           spawnExplosion(e.x, e.y, e.color, 20, true);
