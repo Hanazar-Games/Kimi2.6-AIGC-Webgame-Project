@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.4';
+const VERSION = 'v1.84.5';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -2610,6 +2610,27 @@ function updatePlayer() {
         spawnBullet(player.x - 20, player.y + 2, baseAngle - 0.35, bSpeed * 0.9, '#88ffdd');
         spawnBullet(player.x + 20, player.y + 2, baseAngle + 0.35, bSpeed * 0.9, '#88ffdd');
       }
+    }
+    // Muzzle flash particles
+    const muzzleColors = {
+      balanced: '#44ffaa', rapid: '#aaffee', spread: '#88ffaa',
+      laser: '#ff66ff', ricochet: '#ffcc66', homing: '#ff66cc', explosive: '#ff8844',
+    };
+    const muzzleColor = muzzleColors[weaponType] || '#44ffaa';
+    const mfCount = particleDensity === 0 ? 2 : particleDensity === 1 ? 3 : 4;
+    for (let k = 0; k < mfCount; k++) {
+      const a = baseAngle + rand(-0.3, 0.3);
+      const s = rand(0.5, 2);
+      particles.push({
+        x: player.x, y: player.y - 12,
+        vx: Math.cos(a) * s,
+        vy: Math.sin(a) * s,
+        life: rand(4, 10),
+        maxLife: 10,
+        color: muzzleColor,
+        size: rand(1, 2.5),
+        decay: 0.85,
+      });
     }
     usedWeapons.add(weaponType);
     stats.weaponUses[weaponType] = (stats.weaponUses[weaponType] || 0) + 1;
@@ -4441,6 +4462,36 @@ function drawDamageFlash() {
     ctx.shadowColor = '#ff0000';
     ctx.shadowBlur = 12 * pulse;
     ctx.strokeRect(4, 4, W - 8, H - 8);
+    ctx.restore();
+  }
+}
+
+function drawDeathEffect() {
+  if (deathSlowMo > 0) {
+    const t = deathSlowMo / 90;
+    ctx.save();
+    // Darken screen
+    ctx.globalAlpha = (1 - t) * 0.5;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, W, H);
+    // Red vignette
+    const vg = ctx.createRadialGradient(W / 2, H / 2, W * 0.2, W / 2, H / 2, W * 0.9);
+    vg.addColorStop(0, 'rgba(255,0,0,0)');
+    vg.addColorStop(1, `rgba(150,0,0,${(1 - t) * 0.4})`);
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
+    // Mission Failed text
+    if (deathSlowMo < 60) {
+      const textAlpha = Math.min(1, (60 - deathSlowMo) / 30);
+      ctx.globalAlpha = textAlpha;
+      ctx.fillStyle = '#ff4444';
+      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 20;
+      ctx.font = 'bold 36px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('MISSION FAILED', W / 2, H / 2);
+    }
     ctx.restore();
   }
 }
@@ -6752,6 +6803,7 @@ function loop(timestamp) {
   drawWarnings();
   drawDangerZone();
   drawDamageFlash();
+  drawDeathEffect();
   drawPickupFlash();
   drawDamageIndicators();
   drawLowHPWarning();
