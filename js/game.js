@@ -393,6 +393,21 @@ function sfxResume() {
     o.stop(t + i * 0.06 + 0.15);
   }
 }
+function sfxShutter() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  o.type = 'square';
+  o.frequency.setValueAtTime(3000, t);
+  o.frequency.exponentialRampToValueAtTime(100, t + 0.06);
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.035 * masterVolume, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  o.start(t);
+  o.stop(t + 0.1);
+}
 function sfxWeaponSwitch() {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
@@ -4960,6 +4975,7 @@ if (resetDataBtn) {
 
 /* ---------- Screenshot ---------- */
 function takeScreenshot() {
+  sfxShutter();
   ctx.save();
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.fillRect(W - 420, H - 30, 415, 24);
@@ -4967,7 +4983,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.77.1 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.77.2 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
