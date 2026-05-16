@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.83.7';
+const VERSION = 'v1.83.8';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -6133,6 +6133,33 @@ function loop(timestamp) {
   } else if (isDown('w') && state === STATE.PLAYING && weaponInfoTimer > 0) {
     keys['w'] = false;
     weaponInfoTimer = 0;
+  }
+
+  // Quick weapon cycle (Q)
+  if (isDown('q') && state === STATE.PLAYING) {
+    keys['q'] = false;
+    const weaponList = ['balanced', 'spread', 'rapid', 'laser', 'ricochet', 'homing', 'explosive'];
+    const idx = weaponList.indexOf(weaponType);
+    weaponType = weaponList[(idx + 1) % weaponList.length];
+    weaponInfoTimer = 180;
+    sfxWeaponSwitch();
+  }
+
+  // Direct weapon selection (1-7)
+  if (state === STATE.PLAYING && !rewardSelectActive) {
+    const weaponList = ['balanced', 'spread', 'rapid', 'laser', 'ricochet', 'homing', 'explosive'];
+    for (let n = 0; n < weaponList.length; n++) {
+      const key = String(n + 1);
+      if (isDown(key)) {
+        keys[key] = false;
+        if (weaponType !== weaponList[n]) {
+          weaponType = weaponList[n];
+          weaponInfoTimer = 180;
+          sfxWeaponSwitch();
+        }
+        break;
+      }
+    }
   }
 
   // Stats panel shortcut
