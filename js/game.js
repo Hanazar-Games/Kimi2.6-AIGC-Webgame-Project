@@ -1068,6 +1068,7 @@ let noDamageWaves = 0;
 let totalPerfectWaves = 0;
 let bossesDefeatedThisRun = 0;
 let recordBrokenThisRun = false;
+let volumeDisplayTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4691,6 +4692,25 @@ function drawUI() {
   if (activeNotification && state === STATE.PLAYING) {
     drawAchievementNotification();
   }
+  // Volume indicator overlay
+  if (volumeDisplayTimer > 0) {
+    volumeDisplayTimer--;
+    const alpha = Math.min(1, volumeDisplayTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const vx = W - 120;
+    const vy = H - 40;
+    ctx.fillStyle = 'rgba(20, 30, 60, 0.85)';
+    ctx.fillRect(vx, vy, 110, 22);
+    ctx.strokeStyle = 'rgba(100, 150, 255, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(vx, vy, 110, 22);
+    ctx.fillStyle = '#aaccff';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`VOL: ${volumeLabels[volumeIndex]}`, vx + 6, vy + 15);
+    ctx.restore();
+  }
 }
 
 function drawAchievementNotification() {
@@ -5093,6 +5113,7 @@ function resetGame() {
   totalPerfectWaves = 0;
   bossesDefeatedThisRun = 0;
   recordBrokenThisRun = false;
+  volumeDisplayTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5338,7 +5359,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.79.2 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.79.3 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5429,6 +5450,22 @@ function loop(timestamp) {
         break;
       }
     }
+  }
+
+  // Volume shortcuts
+  if (isDown('BracketLeft')) {
+    keys['BracketLeft'] = false;
+    volumeIndex = Math.max(0, volumeIndex - 1);
+    masterVolume = volumeLevels[volumeIndex];
+    volumeDisplayTimer = 120;
+    sfxClick();
+  }
+  if (isDown('BracketRight')) {
+    keys['BracketRight'] = false;
+    volumeIndex = Math.min(3, volumeIndex + 1);
+    masterVolume = volumeLevels[volumeIndex];
+    volumeDisplayTimer = 120;
+    sfxClick();
   }
 
   // Input for pause
