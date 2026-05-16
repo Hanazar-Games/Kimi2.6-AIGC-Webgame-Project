@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.85.0';
+const VERSION = 'v1.85.1';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -4296,15 +4296,26 @@ function drawPowerups() {
 function drawTouchControls() {
   if (!('ontouchstart' in window)) return;
   ctx.save();
-  ctx.globalAlpha = 0.15;
+  const fireActive = touchShootBtn;
+  const focusActive = touchFocusBtn;
   // shoot button area hint
+  ctx.globalAlpha = fireActive ? 0.35 : 0.15;
   ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = fireActive ? '#44aaff' : 'transparent';
+  ctx.shadowBlur = fireActive ? 15 : 0;
   ctx.beginPath();
   ctx.arc(W - 60, H - 60, 35, 0, Math.PI * 2);
   ctx.fill();
+  ctx.shadowBlur = 0;
+  // focus button area hint
+  ctx.globalAlpha = focusActive ? 0.35 : 0.15;
+  ctx.shadowColor = focusActive ? '#ffaa44' : 'transparent';
+  ctx.shadowBlur = focusActive ? 15 : 0;
   ctx.beginPath();
   ctx.arc(W - 140, H - 60, 25, 0, Math.PI * 2);
   ctx.fill();
+  ctx.shadowBlur = 0;
+  // Labels
   ctx.globalAlpha = 0.4;
   ctx.fillStyle = '#000';
   ctx.font = 'bold 14px sans-serif';
@@ -6971,11 +6982,19 @@ function drawWaveClear() {
 
   const cy = H / 2 - 30;
 
+  // Background glow panel
+  const panelColor = waveClearIsBoss ? 'rgba(255,50,50,0.08)' : waveClearPerfect ? 'rgba(255,200,50,0.08)' : 'rgba(50,100,255,0.08)';
+  ctx.fillStyle = panelColor;
+  ctx.fillRect(W / 2 - 180, cy - 45, 360, waveClearPerfect ? 80 : 55);
+
   // Main text
   ctx.font = `bold ${Math.floor(28 * scale)}px monospace`;
   ctx.fillStyle = waveClearIsBoss ? '#ff4444' : '#44aaff';
   const label = waveClearIsBoss ? 'BOSS DEFEATED!' : `WAVE ${waveClearWave} CLEARED!`;
+  ctx.shadowColor = waveClearIsBoss ? '#ff0000' : '#0044ff';
+  ctx.shadowBlur = 15 * alpha;
   ctx.fillText(label, W / 2, cy);
+  ctx.shadowBlur = 0;
 
   // Glow outline
   ctx.lineWidth = 2;
@@ -6986,7 +7005,10 @@ function drawWaveClear() {
   if (waveClearPerfect) {
     ctx.font = `bold ${Math.floor(16 * scale)}px monospace`;
     ctx.fillStyle = '#ffee44';
+    ctx.shadowColor = '#ffcc00';
+    ctx.shadowBlur = 10 * alpha;
     ctx.fillText('PERFECT!', W / 2, cy + 26);
+    ctx.shadowBlur = 0;
     ctx.strokeStyle = 'rgba(255,238,68,0.3)';
     ctx.lineWidth = 1;
     ctx.strokeText('PERFECT!', W / 2, cy + 26);
