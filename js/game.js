@@ -4272,9 +4272,14 @@ function showGameOver() {
   if (fbEl) fbEl.textContent = `Bosses: ${bossesDefeatedThisRun}`;
   const fwEl = document.getElementById('final-weapon');
   if (fwEl) {
-    if (usedWeapons.size > 1) {
-      const names = [...usedWeapons].map(w => w.charAt(0).toUpperCase() + w.slice(1));
-      fwEl.textContent = `Weapons: ${names.join(', ')}`;
+    if (usedWeapons.size > 0) {
+      const lines = [...usedWeapons].map(w => {
+        const uses = stats.weaponUses[w] || 0;
+        const stars = Math.min(5, Math.floor(uses / 50));
+        const starStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+        return `${w.charAt(0).toUpperCase() + w.slice(1)} ${starStr}`;
+      });
+      fwEl.innerHTML = `Weapons:<br><span style="font-size:11px; color:#88aadd;">${lines.join(' · ')}</span>`;
     } else {
       const wname = weaponType.charAt(0).toUpperCase() + weaponType.slice(1);
       fwEl.textContent = `Weapon: ${wname}`;
@@ -4619,7 +4624,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.8 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.9 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
