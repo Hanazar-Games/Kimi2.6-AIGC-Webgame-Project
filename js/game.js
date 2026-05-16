@@ -1822,7 +1822,9 @@ function checkCollisions() {
           b.hitCount = (b.hitCount || 0) + 1;
           if (b.hitCount >= 3) unlockAchievement('piercing_shot');
         }
-        let dmg = (b.laser ? (b.damage || 10) : (5 + player.powerLevel)) * damageMult;
+        const profLevel = Math.min(5, Math.floor((stats.weaponUses[weaponType] || 0) / 50));
+        const profMult = 1 + profLevel * 0.02;
+        let dmg = (b.laser ? (b.damage || 10) : (5 + player.powerLevel)) * damageMult * profMult;
         if (e.shield > 0) {
           e.shield -= dmg;
           e.shieldRegenTimer = 90; // pause regen for 1.5s after hit

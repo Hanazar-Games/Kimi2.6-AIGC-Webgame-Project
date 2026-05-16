@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.66.4] - 2026-05-13
+
+### Added
+- Weapon proficiency now grants damage bonus
+  - Each mastery level (+1 per 50 uses) gives +2% damage
+  - Max level 5 = +10% damage for that weapon
+  - Bonus applies to bullet damage only
+  - Encourages weapon variety and long-term investment
+
 ## [1.66.3] - 2026-05-13
 
 ### Improved
