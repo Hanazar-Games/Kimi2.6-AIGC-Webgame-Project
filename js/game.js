@@ -938,6 +938,7 @@ let tutorialDismissed = false;
 let tutorialStepsShown = new Set();
 let countdownValue = 3;
 let countdownTimer = 0;
+let logoTimer = 180;
 let asteroids = [];
 let meteors = [];
 let meteorTimer = 0;
@@ -5005,7 +5006,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.83.2', W - 6, H - 6);
+  ctx.fillText('v1.83.3', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -6386,6 +6387,34 @@ function loop(timestamp) {
     drawNebulae();
     drawAsteroids();
     drawMeteors();
+    if (logoTimer > 0) {
+      logoTimer--;
+      const progress = 1 - logoTimer / 180;
+      let alpha = 1;
+      if (progress < 0.15) alpha = progress / 0.15;
+      else if (progress > 0.75) alpha = (1 - progress) / 0.25;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, W, H);
+      ctx.shadowColor = '#44aaff';
+      ctx.shadowBlur = 20 + Math.sin(Date.now() * 0.004) * 10;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 36px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('HANAZAR', W / 2, H / 2 - 20);
+      ctx.shadowColor = '#ff8844';
+      ctx.shadowBlur = 15 + Math.sin(Date.now() * 0.005) * 8;
+      ctx.fillStyle = '#aaccff';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('GAMES', W / 2, H / 2 + 18);
+      ctx.restore();
+      // skip on click or key
+      if (Object.keys(keys).some(k => keys[k]) || mouseDown) {
+        logoTimer = 0;
+      }
+    }
   }
 
   if (state === STATE.PAUSED) {
