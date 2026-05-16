@@ -4058,6 +4058,8 @@ function drawUI() {
     diffInd.textContent = diffNames[difficulty] || 'NORMAL';
     diffInd.style.color = diffColors[difficulty] || '#aabbdd';
   }
+  const killsEl = document.getElementById('kills');
+  if (killsEl) killsEl.textContent = `KILLS: ${stats.kills}`;
   const grazeEl = document.getElementById('graze');
   if (grazeEl) {
     grazeEl.textContent = `GRAZE: ${grazeCount}`;
@@ -4737,7 +4739,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.2 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.3 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
