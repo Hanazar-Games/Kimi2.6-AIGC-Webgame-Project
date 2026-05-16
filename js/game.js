@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.6';
+const VERSION = 'v1.84.7';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -1390,7 +1390,9 @@ function updateLeaderboardUI(highlightIndex = -1) {
     filtered.forEach((entry, i) => {
       const el = document.createElement('div');
       const isHighlight = leaderboardFilter === 0 ? i === highlightIndex : leaderboard.indexOf(entry) === highlightIndex;
-      el.style.cssText = `color:${isHighlight ? '#ffcc44' : '#aabbdd'}; font-size:11px; margin:2px 0; font-weight:${isHighlight ? '700' : '400'};`;
+      const rankColors = ['#ffcc44', '#aabbcc', '#cc8844'];
+      const rankBg = i < 3 ? `background:rgba(${i===0?'255,204,68':i===1?'170,187,204':'204,136,68'},0.1); border-radius:3px; padding:2px 4px;` : '';
+      el.style.cssText = `color:${isHighlight ? '#ffcc44' : (i < 3 ? rankColors[i] : '#aabbdd')}; font-size:11px; margin:2px 0; font-weight:${isHighlight ? '700' : (i < 3 ? '600' : '400')};${rankBg}`;
       const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
       const diffLabel = entry.difficulty ? `<span style="color:${diffColors[entry.difficulty] || '#aabbdd'}; font-size:9px;">${diffNames[entry.difficulty] || '?'}</span> ` : '';
       el.innerHTML = `${medal} ${diffLabel}${entry.score.toLocaleString()} (W${entry.wave})`;
@@ -5542,6 +5544,7 @@ function showMenu() {
   updateAchievementUI();
   updateEnemyLogUI();
   updateLeaderboardUI();
+  updateWeaponButtons();
   const sg = document.getElementById('stat-games');
   const sk = document.getElementById('stat-kills');
   const sb = document.getElementById('stat-bestwave');
@@ -5988,6 +5991,17 @@ const WEAPON_DESCS = {
   homing: { name: 'Homing', desc: 'Auto-tracking missiles seek the nearest enemy. Lower speed but guaranteed hits.', color: '#ff66cc' },
   explosive: { name: 'Explosive', desc: 'Heavy shells explode on impact, dealing 50% splash damage in a radius. Slower fire rate but devastating crowds.', color: '#ff6633' },
 };
+function updateWeaponButtons() {
+  document.querySelectorAll('#weapon-select .weapon-btn').forEach(btn => {
+    const w = btn.dataset.weapon;
+    const uses = stats.weaponUses[w] || 0;
+    const stars = Math.min(5, Math.floor(uses / 50));
+    const starStr = stars > 0 ? ' ' + '★'.repeat(stars) : '';
+    const baseName = w.toUpperCase();
+    btn.textContent = baseName + starStr;
+  });
+}
+
 function updateWeaponDesc() {
   const el = document.getElementById('weapon-desc');
   if (!el) return;
