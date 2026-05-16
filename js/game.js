@@ -3339,18 +3339,26 @@ function drawDangerZone() {
 
 function drawDamageFlash() {
   if (damageFlash > 0) {
-    const alpha = (damageFlash / 15) * 0.3;
+    const t = damageFlash / 15;
+    const alpha = t * 0.35;
     ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = '#ff0000';
+    // Vignette-style radial gradient from edges
+    const maxDim = Math.max(W, H);
+    const grad = ctx.createRadialGradient(W / 2, H / 2, maxDim * 0.3, W / 2, H / 2, maxDim * 0.75);
+    grad.addColorStop(0, 'rgba(255, 0, 0, 0)');
+    grad.addColorStop(0.5, `rgba(180, 0, 0, ${alpha * 0.3})`);
+    grad.addColorStop(0.85, `rgba(220, 20, 20, ${alpha * 0.7})`);
+    grad.addColorStop(1, `rgba(255, 40, 40, ${alpha})`);
+    ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
-    ctx.restore();
-    // red border flash
-    ctx.save();
-    ctx.globalAlpha = alpha * 1.5;
-    ctx.strokeStyle = '#ff4444';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(2, 2, W - 4, H - 4);
+    // Pulsing border glow
+    const pulse = 1 + Math.sin(damageFlash * 0.8) * 0.3;
+    ctx.globalAlpha = alpha * 1.8 * pulse;
+    ctx.strokeStyle = '#ff3333';
+    ctx.lineWidth = 3 * pulse;
+    ctx.shadowColor = '#ff0000';
+    ctx.shadowBlur = 12 * pulse;
+    ctx.strokeRect(4, 4, W - 8, H - 8);
     ctx.restore();
   }
 }
@@ -4284,7 +4292,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.72.6 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.72.7 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
