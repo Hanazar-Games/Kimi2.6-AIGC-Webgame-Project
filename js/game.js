@@ -312,6 +312,11 @@ function sfxEnemyDeath(type) {
       playTone(350, 'square', 0.08, 0.035);
       setTimeout(() => playTone(180, 'square', 0.1, 0.03), 60);
       break;
+    case 'phantom':
+      playTone(800, 'sine', 0.05, 0.025);
+      setTimeout(() => playTone(400, 'sine', 0.08, 0.02), 50);
+      setTimeout(() => playTone(200, 'sine', 0.1, 0.015), 100);
+      break;
     case 'boss':
       sfxExplosion();
       break;
@@ -724,6 +729,7 @@ const ACHIEVEMENTS = {
   combo_burst_master: { name: 'Combo Burst Master', desc: 'Trigger Combo Burst 3 times', unlocked: false },
   demolition_expert: { name: 'Demolition Expert', desc: 'Kill 3 enemies with one explosive shell', unlocked: false },
   explosive_destroyer: { name: 'Explosive Destroyer', desc: 'Destroy 50 enemies with Explosive shells', unlocked: false },
+  phantom_slayer: { name: 'Phantom Slayer', desc: 'Destroy a Phantom enemy', unlocked: false },
 };
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
@@ -1315,6 +1321,7 @@ const ENEMY_HINTS = {
   medic: 'Heals nearby enemies — take it out first!',
   divider: 'Splits when hit — destroy all parts!',
   mine: 'Proximity mine — explodes when you get too close!',
+  phantom: 'Cloaked enemy — phases in and out of visibility!',
 };
 let bossFirstEncounter = { alpha: false, beta: false };
 
@@ -1458,6 +1465,15 @@ function spawnEnemy(type) {
     base.score = 250;
     base.armTimer = 60; // 1 second to arm
     base.armed = false;
+  } else if (type === 'phantom') {
+    base.hp = base.maxHp = Math.floor((14 + wave * 2) * diffMult);
+    base.radius = 11;
+    base.color = '#aa66ff';
+    base.speed = rand(2.5, 3.5) * spdMult;
+    base.shootInterval = Math.floor(55 / spdMult);
+    base.score = 350;
+    base.phantomTimer = 0;
+    base.phantomVisible = true;
   }
 
   if (base.elite) {
@@ -1739,6 +1755,7 @@ function waveLogic() {
         if (wave >= 9 && roll < 0.28) type = 'medic';
         if (wave >= 10 && roll < 0.20) type = 'divider';
         if (wave >= 11 && roll < 0.15) type = 'mine';
+        if (wave >= 12 && roll < 0.18) type = 'phantom';
       }
       spawnEnemy(type);
       enemiesToSpawn--;
@@ -2147,6 +2164,21 @@ function updateEnemies(timeScale = 1) {
           continue;
         }
       }
+    } else if (e.type === 'phantom') {
+      // Phantom: fast hunter-like movement with phase in/out
+      e.phantomTimer += timeScale;
+      const cycle = e.phantomTimer % 270;
+      e.phantomVisible = cycle < 180;
+      const a = angleTo(e, player);
+      e.vx += Math.cos(a) * 0.18 * timeScale;
+      e.vy += Math.sin(a) * 0.18 * timeScale;
+      const spd = Math.hypot(e.vx, e.vy);
+      if (spd > e.speed) { e.vx = (e.vx / spd) * e.speed; e.vy = (e.vy / spd) * e.speed; }
+      e.x += Math.sin(e.phase * 0.03) * 0.5 * timeScale;
+      e.x += e.vx * timeScale;
+      e.y += e.vy * timeScale;
+      // phantom doesn't shoot while invisible
+      if (!e.phantomVisible) e.shootTimer = Math.max(e.shootTimer, 10);
     }
 
     // bounds
@@ -2398,6 +2430,7 @@ function checkCollisions() {
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
       if (e.spawnDelay > 0) continue;
+      if (e.type === 'phantom' && !e.phantomVisible) continue;
       if (dist(b, e) < e.radius + b.radius) {
         if (b.laser && b.hitTimer > 0) continue;
         if (!b.laser) bullets.splice(i, 1);
@@ -2566,6 +2599,7 @@ function checkCollisions() {
           if (e.type === 'shielder') unlockAchievement('shield_breaker');
           if (e.type === 'medic') unlockAchievement('medic_down');
           if (e.type === 'divider') unlockAchievement('divider_down');
+          if (e.type === 'phantom') unlockAchievement('phantom_slayer');
           if (b.maxBounces > 0 && b.bounces < b.maxBounces) unlockAchievement('ricochet_king');
           if (weaponType === 'homing') {
             homingKills++;
@@ -3239,6 +3273,28 @@ function drawEnemies() {
           ctx.stroke();
         }
       }
+    } else if (e.type === 'phantom') {
+      const vis = e.phantomVisible ? 1 : 0.15;
+      ctx.globalAlpha = vis;
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // Phase ring
+      const phasePulse = 0.5 + 0.5 * Math.sin(e.phase * 0.1);
+      ctx.strokeStyle = `rgba(170, 102, 255, ${0.4 * phasePulse * vis})`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius + 4 + phasePulse * 4, 0, Math.PI * 2);
+      ctx.stroke();
+      // Ghost trail effect
+      if (e.phantomVisible) {
+        ctx.fillStyle = `rgba(170, 102, 255, ${0.2 * phasePulse})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
     }
 
     // elite glow
@@ -4498,7 +4554,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.1 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.3 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
