@@ -3630,6 +3630,26 @@ function drawDangerZone() {
     ctx.fillText('⚠ ENEMIES APPROACHING BOTTOM', W / 2, H - 16);
     ctx.restore();
   }
+  // Proximity warning for bombers and armed mines
+  for (const e of enemies) {
+    if (e.spawnDelay > 0) continue;
+    if (e.type === 'bomber' || (e.type === 'mine' && e.armed)) {
+      const d = dist(e, player);
+      if (d < 120) {
+        const warnPulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.012);
+        const alpha = (1 - d / 120) * 0.5 * warnPulse;
+        ctx.save();
+        ctx.strokeStyle = `rgba(255, 60, 60, ${alpha})`;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius + 15 + warnPulse * 8, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+    }
+  }
 }
 
 function drawDamageFlash() {
@@ -4599,7 +4619,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.7 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.8 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
