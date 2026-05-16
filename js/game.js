@@ -912,6 +912,7 @@ let scoreMultBonus = 1.0;
 let scoreMultTimer = 0;
 let damageTakenThisWave = false;
 let usedWeapons = new Set();
+let masteredWeapons = new Set();
 let bombsUsedThisWave = 0;
 let portalSpawnsSeen = 0;
 let homingKills = 0;
@@ -2189,6 +2190,16 @@ function updatePlayer() {
     }
     usedWeapons.add(weaponType);
     stats.weaponUses[weaponType] = (stats.weaponUses[weaponType] || 0) + 1;
+    const newUses = stats.weaponUses[weaponType];
+    if (newUses >= 250 && !masteredWeapons.has(weaponType)) {
+      masteredWeapons.add(weaponType);
+      player.hp = Math.min(player.maxHp, player.hp + 2);
+      player.bombs = Math.min(5, player.bombs + 1);
+      spawnFloatingText(player.x, player.y - 50, `${WEAPON_DESCS[weaponType].name} MASTERED!`, '#ffee44');
+      spawnFloatingText(player.x, player.y - 30, '+2 HP + BOMB', '#44ff88');
+      shake = Math.max(shake, 10);
+      sfxPerfectWave();
+    }
     sfxShoot();
   }
 
@@ -4600,6 +4611,7 @@ function resetGame() {
   encounterTimer = 0;
   bossFirstEncounter = { alpha: false, beta: false };
   usedWeapons.clear();
+  masteredWeapons.clear();
   bombsUsedThisWave = 0;
   gameStartTime = Date.now();
   comboGuard = true;
@@ -4827,7 +4839,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.75.5 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.75.6 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
