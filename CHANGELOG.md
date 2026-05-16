@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.65.0] - 2026-05-13
+
+### Added
+- Leaderboard difficulty filter
+  - Filter buttons: ALL / E (Easy) / N (Normal) / H (Hard) / X (Nightmare)
+  - Each entry shows difficulty letter with color coding
+  - Leaderboard now stores difficulty with each entry
+  - Expanded to top 10 entries (was 5)
+  - Backward compatible with old entries (no difficulty label)
+
 ## [1.64.0] - 2026-05-13
 
 ### Added

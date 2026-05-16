@@ -294,6 +294,7 @@ loadHighScore();
 
 /* ---------- Leaderboard ---------- */
 let leaderboard = [];
+let leaderboardFilter = 0; // 0=all, 1=easy, 2=normal, 3=hard, 4=nightmare
 function loadLeaderboard() {
   try {
     const v = localStorage.getItem('stellar_defense_leaderboard');
@@ -306,9 +307,9 @@ function saveLeaderboard() {
   } catch (e) {}
 }
 function addToLeaderboard(score, wave) {
-  leaderboard.push({ score, wave, date: new Date().toLocaleDateString() });
+  leaderboard.push({ score, wave, date: new Date().toLocaleDateString(), difficulty });
   leaderboard.sort((a, b) => b.score - a.score);
-  leaderboard = leaderboard.slice(0, 5);
+  leaderboard = leaderboard.slice(0, 10);
   saveLeaderboard();
 }
 loadLeaderboard();
@@ -490,20 +491,24 @@ function updateEnemyLogUI() {
 }
 function updateLeaderboardUI(highlightIndex = -1) {
   const ids = ['leaderboard-list', 'leaderboard-menu-list'];
+  const diffNames = { 1: 'E', 2: 'N', 3: 'H', 4: 'X' };
+  const diffColors = { 1: '#44ff88', 2: '#aabbdd', 3: '#ff8844', 4: '#ff4444' };
+  const filtered = leaderboardFilter === 0 ? leaderboard : leaderboard.filter(e => e.difficulty === leaderboardFilter);
   for (const id of ids) {
     const list = document.getElementById(id);
     if (!list) continue;
     list.innerHTML = '';
-    if (leaderboard.length === 0) {
+    if (filtered.length === 0) {
       list.innerHTML = '<div style="color:#556688; font-size:11px;">No scores yet</div>';
       continue;
     }
-    leaderboard.forEach((entry, i) => {
+    filtered.forEach((entry, i) => {
       const el = document.createElement('div');
-      const isHighlight = i === highlightIndex;
+      const isHighlight = leaderboardFilter === 0 ? i === highlightIndex : leaderboard.indexOf(entry) === highlightIndex;
       el.style.cssText = `color:${isHighlight ? '#ffcc44' : '#aabbdd'}; font-size:11px; margin:2px 0; font-weight:${isHighlight ? '700' : '400'};`;
       const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`;
-      el.textContent = `${medal} ${entry.score.toLocaleString()} (W${entry.wave})`;
+      const diffLabel = entry.difficulty ? `<span style="color:${diffColors[entry.difficulty] || '#aabbdd'}; font-size:9px;">${diffNames[entry.difficulty] || '?'}</span> ` : '';
+      el.innerHTML = `${medal} ${diffLabel}${entry.score.toLocaleString()} (W${entry.wave})`;
       list.appendChild(el);
     });
   }
@@ -3498,6 +3503,16 @@ function setSharedScore(score, wave) {
   url.searchParams.set('wave', wave);
   window.history.replaceState({}, '', url);
 }
+
+/* ---------- Leaderboard Filter ---------- */
+document.querySelectorAll('.lb-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lb-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    leaderboardFilter = parseInt(btn.dataset.filter, 10);
+    updateLeaderboardUI();
+  });
+});
 
 /* ---------- Start ---------- */
 initStars();
