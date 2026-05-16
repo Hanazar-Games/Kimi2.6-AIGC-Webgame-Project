@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.9] - 2026-05-13
+
+### Added
+- Boss presence screen edge effect
+  - Subtle radial gradient glow around screen edges during boss fights
+  - Blue for Beta Boss, red for Alpha Boss
+  - Intensity increases as boss HP drops below 50%
+  - Gentle pulsing animation for living atmosphere
+  - Makes boss fights feel more threatening and distinct
+
 ## [1.68.8] - 2026-05-13
 
 ### Improved

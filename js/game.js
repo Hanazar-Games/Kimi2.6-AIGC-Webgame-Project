@@ -3089,6 +3089,18 @@ function drawTexts() {
 function drawBossUI() {
   const boss = enemies.find(e => e.type === 'boss');
   if (!boss || boss.introTimer > 0) return;
+  // Boss presence screen edge effect
+  const isBeta = boss.bossType === 'beta';
+  const bossPct = boss.hp / boss.maxHp;
+  const edgeAlpha = bossPct > 0.5 ? 0.08 : 0.15;
+  const pulse = 1 + 0.1 * Math.sin(Date.now() * 0.003);
+  ctx.save();
+  const edgeGradient = ctx.createRadialGradient(W / 2, H / 2, W * 0.35, W / 2, H / 2, W * 0.75);
+  edgeGradient.addColorStop(0, 'rgba(0,0,0,0)');
+  edgeGradient.addColorStop(1, isBeta ? `rgba(50,100,255,${edgeAlpha * pulse})` : `rgba(255,50,50,${edgeAlpha * pulse})`);
+  ctx.fillStyle = edgeGradient;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
   const bw = W * 0.6;
   const bh = 10;
   const bx = (W - bw) / 2;
