@@ -1078,6 +1078,7 @@ let fpsDisplayTimer = 0;
 let fullscreenDisplayTimer = 0;
 let helpOverlayTimer = 0;
 let weaponInfoTimer = 0;
+let statsPanelTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4933,7 +4934,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.81.8', W - 6, H - 6);
+  ctx.fillText('v1.81.9', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -4978,6 +4979,42 @@ function drawUI() {
       ctx.font = '10px sans-serif';
       ctx.fillText(`${uses} uses · +${Math.floor(stars * 2)}% damage`, W / 2, H / 2 + 50);
     }
+    ctx.restore();
+  }
+  // Stats panel overlay
+  if (statsPanelTimer > 0) {
+    statsPanelTimer--;
+    const alpha = Math.min(1, statsPanelTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.92;
+    ctx.fillStyle = 'rgba(10, 15, 30, 0.9)';
+    ctx.fillRect(W / 2 - 130, H / 2 - 160, 260, 320);
+    ctx.strokeStyle = 'rgba(100, 150, 255, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W / 2 - 130, H / 2 - 160, 260, 320);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#aaccff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('RUN STATISTICS', W / 2, H / 2 - 135);
+    ctx.font = '12px sans-serif';
+    const lines = [
+      `Score: ${score.toLocaleString()}`,
+      `Wave: ${wave}`,
+      `Kills: ${stats.kills}`,
+      `Combo: x${combo}`,
+      `Graze: ${grazeCount}`,
+      `Perfect Waves: ${totalPerfectWaves}`,
+      `Bosses Defeated: ${bossesDefeatedThisRun}`,
+      `Achievements: ${achievementsThisRun}`,
+      `Weapon: ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)}`,
+      `Difficulty: ${['Easy', 'Normal', 'Hard', 'Nightmare'][difficulty - 1] || 'Normal'}`,
+    ];
+    lines.forEach((line, i) => {
+      const color = line.includes('Score') ? '#ffcc44' : line.includes('Perfect') ? '#ffee88' : '#aabbdd';
+      ctx.fillStyle = color;
+      ctx.fillText(line, W / 2, H / 2 - 105 + i * 18);
+    });
     ctx.restore();
   }
 }
@@ -5392,6 +5429,7 @@ function resetGame() {
   fullscreenDisplayTimer = 0;
   helpOverlayTimer = 0;
   weaponInfoTimer = 0;
+  statsPanelTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5799,6 +5837,16 @@ function loop(timestamp) {
   } else if (isDown('w') && state === STATE.PLAYING && weaponInfoTimer > 0) {
     keys['w'] = false;
     weaponInfoTimer = 0;
+  }
+
+  // Stats panel shortcut
+  if (isDown('Tab') && state === STATE.PLAYING && statsPanelTimer <= 0) {
+    keys['Tab'] = false;
+    statsPanelTimer = 300; // 5 seconds
+    sfxClick();
+  } else if (isDown('Tab') && state === STATE.PLAYING && statsPanelTimer > 0) {
+    keys['Tab'] = false;
+    statsPanelTimer = 0;
   }
 
   // FPS display toggle shortcut
