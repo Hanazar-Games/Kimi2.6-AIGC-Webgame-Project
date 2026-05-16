@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.3';
+const VERSION = 'v1.84.4';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -5730,6 +5730,15 @@ function showGameOver() {
       frEl.style.display = 'none';
     }
   }
+  const faEl = document.getElementById('final-achievements');
+  if (faEl) {
+    if (achievementsThisRun > 0) {
+      faEl.style.display = 'block';
+      faEl.textContent = `🏆 Achievements Unlocked: ${achievementsThisRun}`;
+    } else {
+      faEl.style.display = 'none';
+    }
+  }
   if (!practiceMode) {
     const oldRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);
     addToLeaderboard(score, wave);
@@ -6640,6 +6649,16 @@ function loop(timestamp) {
         logoTimer = 0;
       }
     }
+    // Subtle CRT scanline effect on menu
+    ctx.save();
+    ctx.globalAlpha = 0.03;
+    ctx.fillStyle = '#000000';
+    const scanlineSpacing = 4;
+    const scanlineOffset = (Date.now() / 50) % scanlineSpacing;
+    for (let y = scanlineOffset; y < H; y += scanlineSpacing) {
+      ctx.fillRect(0, y, W, 1);
+    }
+    ctx.restore();
   }
 
   if (state === STATE.PAUSED) {
