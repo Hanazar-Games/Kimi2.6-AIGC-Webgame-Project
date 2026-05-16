@@ -677,6 +677,25 @@ function sfxUpgrade() {
   playTone(784, 'sine', 0.15, 0.07);
   playTone(1047, 'sine', 0.2, 0.07);
 }
+function sfxScoreMilestone(milestone) {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const notes = milestone >= 10000 ? [523, 659, 784, 1047] : milestone >= 5000 ? [523, 659, 784] : [523, 659];
+  const vol = milestone >= 10000 ? 0.05 : milestone >= 5000 ? 0.04 : 0.03;
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.07);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(vol * masterVolume, t + i * 0.07);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.18);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.07);
+    o.stop(t + i * 0.07 + 0.22);
+  }
+  spawnFloatingText(W / 2, H / 3, `SCORE ${milestone.toLocaleString()}!`, '#ffcc44');
+}
 function sfxBombThrow() {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
@@ -1027,6 +1046,7 @@ let damageTakenThisWave = false;
 let usedWeapons = new Set();
 let masteredWeapons = new Set();
 let bombsUsedThisWave = 0;
+let lastScoreMilestone = 0;
 let portalSpawnsSeen = 0;
 let homingKills = 0;
 let overdriveKills = 0;
@@ -4750,6 +4770,7 @@ function resetGame() {
   magnetTimer = 0;
   deathSlowMo = 0;
   portalSpawnsSeen = 0;
+  lastScoreMilestone = 0;
   homingKills = 0;
   overdriveKills = 0;
   eliteWavesSurvived = 0;
@@ -5014,7 +5035,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.77.4 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.77.5 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5076,6 +5097,18 @@ function loop(timestamp) {
     }
     frameCount = 0;
     fpsTime = timestamp;
+  }
+
+  // Score milestone check
+  if (state === STATE.PLAYING) {
+    const milestones = [1000, 5000, 10000, 25000, 50000, 100000, 250000, 500000, 1000000];
+    for (const m of milestones) {
+      if (score >= m && lastScoreMilestone < m) {
+        lastScoreMilestone = m;
+        sfxScoreMilestone(m);
+        break;
+      }
+    }
   }
 
   // Input for pause
