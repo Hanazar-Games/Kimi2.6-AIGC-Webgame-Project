@@ -3112,6 +3112,19 @@ function showGameOver() {
       fwEl.textContent = `Weapon: ${wname}`;
     }
   }
+  const frEl = document.getElementById('final-rewards');
+  if (frEl) {
+    const rewards = [];
+    if (damageMult > 1) rewards.push(`Dmg x${damageMult.toFixed(1)}`);
+    if (speedMultBonus > 1) rewards.push(`Spd x${speedMultBonus.toFixed(1)}`);
+    if (scoreMultBonus > 1) rewards.push(`Score x${scoreMultBonus.toFixed(2)}`);
+    if (rewards.length) {
+      frEl.style.display = 'block';
+      frEl.textContent = `Rewards: ${rewards.join(' · ')}`;
+    } else {
+      frEl.style.display = 'none';
+    }
+  }
   if (!practiceMode) {
     const oldRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);
     addToLeaderboard(score, wave);

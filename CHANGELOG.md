@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.66.2] - 2026-05-13
+
+### Improved
+- Game Over screen shows accumulated rewards
+  - Displays Damage/Speed/Score multipliers from the run
+  - Hidden if no rewards were collected
+  - Gives players a sense of power progression
+
 ## [1.66.1] - 2026-05-13
 
 ### Improved
