@@ -605,6 +605,8 @@ let dashCooldown = 0;
 let dashing = 0;
 let damageFlash = 0;
 let comboBurstFlash = 0;
+let waveAlertTimer = 0;
+let waveAlertType = null; // 'elite' or 'boss'
 let gameStartTime = 0;
 let comboGuard = true;
 let comboScale = 1;
@@ -1546,11 +1548,17 @@ function checkWaveAchievements() {
 function startWave() {
   waveFlash = 20;
   bombsUsedThisWave = 0;
-  eliteWave = (wave % 10 === 0) && (wave % 5 !== 0);
+  eliteWave = (wave % 10 === 0) && (wave > 0);
   if (eliteWave) {
     spawnFloatingText(W / 2, H / 2 - 50, 'ELITE WAVE!', '#ffaa00');
     shake = Math.max(shake, 6);
     sfxHurt();
+    waveAlertTimer = 90;
+    waveAlertType = 'elite';
+  }
+  if (wave % 5 === 0) {
+    waveAlertTimer = 120;
+    waveAlertType = 'boss';
   }
   // check no-damage streak for Untouchable achievement
   if (wave > 1 && !damageTakenThisWave) {
@@ -4312,6 +4320,8 @@ function resetGame() {
   damageFlash = 0;
   hitstop = 0;
   waveFlash = 0;
+  waveAlertTimer = 0;
+  waveAlertType = null;
   waveTheme = null;
   timeStopTimer = 0;
   magnetTimer = 0;
@@ -4573,7 +4583,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.4 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.5 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -4866,6 +4876,22 @@ function loop(timestamp) {
     ctx.fillRect(0, 0, W, H);
     ctx.restore();
     comboBurstFlash--;
+  }
+  // Wave alert border pulse
+  if (waveAlertTimer > 0) {
+    ctx.save();
+    const alertProgress = 1 - waveAlertTimer / (waveAlertType === 'boss' ? 120 : 90);
+    const pulse = 0.5 + 0.5 * Math.sin(waveAlertTimer * 0.2);
+    const alpha = (1 - alertProgress) * 0.4 * pulse;
+    const color = waveAlertType === 'boss' ? '#3366ff' : '#ff3333';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3 + pulse * 3;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 15 * pulse;
+    ctx.globalAlpha = alpha;
+    ctx.strokeRect(6, 6, W - 12, H - 12);
+    ctx.restore();
+    waveAlertTimer--;
   }
   if (tutorialActive) drawTutorialHint();
   if (encounterText && encounterTimer > 0) {
