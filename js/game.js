@@ -376,6 +376,11 @@ const ACHIEVEMENTS = {
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
 let bossesDefeatedThisRun = 0;
+let rewardSelectActive = false;
+let rewardOptions = [];
+let damageMult = 1.0;
+let speedMultBonus = 1.0;
+let scoreMultBonus = 1.0;
 let damageTakenThisWave = false;
 let usedWeapons = new Set();
 let bombsUsedThisWave = 0;
@@ -1063,7 +1068,7 @@ function startWave() {
     if (noDamageWaves >= 5) unlockAchievement('untouchable');
     if (waveTheme) unlockAchievement('theme_survivor');
     const perfectBonus = 500 + wave * 100;
-    score += perfectBonus;
+    score += Math.floor(perfectBonus * scoreMultBonus);
     spawnFloatingText(W / 2, H / 2 + 30, `PERFECT! +${perfectBonus}`, '#ffcc44');
     sfxPowerup();
   } else if (damageTakenThisWave) {
@@ -1071,9 +1076,16 @@ function startWave() {
     // wave clear bonus based on remaining HP
     const hpBonus = Math.floor((player.hp / player.maxHp) * (100 + wave * 20));
     if (hpBonus > 0) {
-      score += hpBonus;
+      score += Math.floor(hpBonus * scoreMultBonus);
       spawnFloatingText(W / 2, H / 2 + 30, `Wave Clear +${hpBonus}`, '#44aaff');
     }
+  }
+  // reward selection after 3 perfect waves
+  if (noDamageWaves >= 3 && !rewardSelectActive) {
+    rewardSelectActive = true;
+    generateRewardOptions();
+    spawnFloatingText(W / 2, H / 2 - 30, 'CHOOSE YOUR REWARD!', '#ffee44');
+    shake = Math.max(shake, 4);
   }
   waveTimer = 0;
   bossSpawned = false;
@@ -1090,11 +1102,99 @@ function startWave() {
     const themeColors = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
     spawnFloatingText(W / 2, H / 2 + 30, `${waveTheme} WAVE!`, themeColors[waveTheme] || '#ffcc44');
   }
-  sfxWaveStart();
-  spawnFloatingText(W / 2, H / 2, `WAVE ${wave}`, '#44aaff');
+  if (!rewardSelectActive) {
+    sfxWaveStart();
+    spawnFloatingText(W / 2, H / 2, `WAVE ${wave}`, '#44aaff');
+  }
   checkAchievements();
 }
 
+function generateRewardOptions() {
+  const pool = [
+    { id: 'damage', name: '+10% Damage', desc: 'Bullet damage up', color: '#ff4444', apply: () => { damageMult += 0.1; } },
+    { id: 'speed', name: '+10% Speed', desc: 'Movement faster', color: '#44aaff', apply: () => { speedMultBonus += 0.1; } },
+    { id: 'hp', name: '+20 HP', desc: 'Max HP + heal', color: '#44ff88', apply: () => { player.maxHp += 20; player.hp = Math.min(player.maxHp, player.hp + 20); } },
+    { id: 'bomb', name: '+1 Bomb', desc: 'Extra bomb', color: '#ff8844', apply: () => { player.bombs = Math.min(5, player.bombs + 1); } },
+    { id: 'score', name: '+5% Score', desc: 'Score multiplier', color: '#ffcc44', apply: () => { scoreMultBonus += 0.05; } },
+  ];
+  rewardOptions = [];
+  const used = new Set();
+  while (rewardOptions.length < 3 && used.size < pool.length) {
+    const r = pool[Math.floor(Math.random() * pool.length)];
+    if (!used.has(r.id)) {
+      used.add(r.id);
+      rewardOptions.push(r);
+    }
+  }
+}
+function applyReward(idx) {
+  if (idx >= 0 && idx < rewardOptions.length) {
+    const r = rewardOptions[idx];
+    r.apply();
+    spawnFloatingText(W / 2, H / 2 + 80, r.name, r.color);
+    sfxPowerup();
+    shake = Math.max(shake, 6);
+    // milestone particles
+    const count = particleDensity === 0 ? 15 : particleDensity === 1 ? 25 : 35;
+    for (let k = 0; k < count; k++) {
+      const a = rand(0, Math.PI * 2);
+      const s = rand(2, 6);
+      particles.push({
+        x: W / 2, y: H / 2 + 80,
+        vx: Math.cos(a) * s,
+        vy: Math.sin(a) * s,
+        life: rand(30, 60),
+        maxLife: 60,
+        color: r.color,
+        size: rand(2, 4),
+        decay: 0.95,
+      });
+    }
+  }
+  rewardSelectActive = false;
+  rewardOptions = [];
+  noDamageWaves = 0; // reset streak after reward
+}
+function drawRewardSelect() {
+  if (!rewardSelectActive) return;
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#ffee44';
+  ctx.font = 'bold 20px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('CHOOSE YOUR REWARD', W / 2, H / 2 - 100);
+  ctx.font = '14px sans-serif';
+  ctx.fillStyle = '#aabbdd';
+  ctx.fillText('Press 1, 2, or 3', W / 2, H / 2 - 75);
+  const cardW = 140;
+  const cardH = 100;
+  const gap = 20;
+  const startX = (W - (cardW * 3 + gap * 2)) / 2;
+  rewardOptions.forEach((r, i) => {
+    const x = startX + i * (cardW + gap);
+    const y = H / 2 - 30;
+    // card bg
+    ctx.fillStyle = 'rgba(20,30,50,0.85)';
+    ctx.fillRect(x, y, cardW, cardH);
+    ctx.strokeStyle = r.color;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, cardW, cardH);
+    // number
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(`${i + 1}`, x + cardW / 2, y + 28);
+    // name
+    ctx.fillStyle = r.color;
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(r.name, x + cardW / 2, y + 55);
+    // desc
+    ctx.fillStyle = '#8899bb';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(r.desc, x + cardW / 2, y + 75);
+  });
+  ctx.restore();
+}
 function useBomb() {
   player.bombs--;
   bombsUsedThisWave++;
@@ -1112,11 +1212,11 @@ function useBomb() {
   // damage enemies
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
-    e.hp -= 40;
+    e.hp -= 40 * damageMult;
     spawnHitSparks(e.x, e.y, e.color);
     if (e.hp <= 0) {
       const pts = Math.floor(e.score * (1 + combo * 0.1));
-      score += pts;
+      score += Math.floor(pts * scoreMultBonus);
       combo++;
       comboTimer = 180;
       comboScale = 1.4;
@@ -1215,7 +1315,7 @@ function waveLogic() {
 /* ---------- Player Logic ---------- */
 function updatePlayer() {
   const focus = isDown('shift') || touchFocusBtn;
-  const speed = focus ? player.focusSpeed : player.speed;
+  const speed = (focus ? player.focusSpeed : player.speed) * speedMultBonus;
 
   let mx = 0, my = 0;
   if (isDown('a') || isDown('arrowleft')) mx -= 1;
@@ -1722,7 +1822,7 @@ function checkCollisions() {
           b.hitCount = (b.hitCount || 0) + 1;
           if (b.hitCount >= 3) unlockAchievement('piercing_shot');
         }
-        let dmg = b.laser ? (b.damage || 10) : (5 + player.powerLevel);
+        let dmg = (b.laser ? (b.damage || 10) : (5 + player.powerLevel)) * damageMult;
         if (e.shield > 0) {
           e.shield -= dmg;
           e.shieldRegenTimer = 90; // pause regen for 1.5s after hit
@@ -1751,7 +1851,7 @@ function checkCollisions() {
         hitstop = 3;
         if (e.hp <= 0) {
           const pts = Math.floor(e.score * (1 + combo * 0.1));
-          score += pts;
+          score += Math.floor(pts * scoreMultBonus);
           combo++;
           comboTimer = 180;
           if (combo === 10 || combo === 25 || combo === 50 || combo === 100) {
@@ -3074,6 +3174,11 @@ function resetGame() {
   noDamageWaves = 0;
   totalPerfectWaves = 0;
   bossesDefeatedThisRun = 0;
+  rewardSelectActive = false;
+  rewardOptions = [];
+  damageMult = 1.0;
+  speedMultBonus = 1.0;
+  scoreMultBonus = 1.0;
   damageTakenThisWave = false;
   musicBeat = 0;
   if (audioCtx) musicNextTime = audioCtx.currentTime;
@@ -3333,6 +3438,12 @@ function loop(timestamp) {
     state = STATE.PLAYING;
     hideScreens();
   }
+  // Reward selection input
+  if (rewardSelectActive && state === STATE.PLAYING) {
+    if (isDown('1')) { keys['1'] = false; applyReward(0); }
+    if (isDown('2')) { keys['2'] = false; applyReward(1); }
+    if (isDown('3')) { keys['3'] = false; applyReward(2); }
+  }
   // Return to menu from game over
   if (isDown('escape') && state === STATE.GAMEOVER) {
     keys['escape'] = false;
@@ -3394,6 +3505,34 @@ function loop(timestamp) {
   }
 
   if (state === STATE.PLAYING) {
+    if (rewardSelectActive) {
+      drawStars();
+      drawNebulae();
+      drawPlanets();
+      drawAsteroids();
+      drawPlayer();
+      drawEnemies();
+      drawBullets(bullets);
+      drawBullets(enemyBullets);
+      drawPowerups();
+      drawTouchControls();
+      drawParticles();
+      drawShockwaves();
+      drawTexts();
+      drawWaveBorder();
+      drawWarnings();
+      drawDangerZone();
+      drawDamageFlash();
+      drawLowHPWarning();
+      drawBossWarning();
+      if (bombAnim > 0) drawBombEffect();
+      drawBossUI();
+      drawRewardSelect();
+      ctx.restore();
+      drawUI();
+      requestAnimationFrame(loop);
+      return;
+    }
     if (hitstop > 0) {
       hitstop -= timeScale;
       drawStars();
@@ -3451,7 +3590,7 @@ function loop(timestamp) {
     if (encounterTimer > 0) encounterTimer -= timeScale;
     // combo sustain bonus
     if (combo >= 10 && state === STATE.PLAYING) {
-      score += Math.floor(combo * 0.05 * timeScale);
+      score += Math.floor(combo * 0.05 * timeScale * scoreMultBonus);
     }
   }
 

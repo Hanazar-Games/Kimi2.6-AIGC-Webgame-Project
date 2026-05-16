@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.66.0] - 2026-05-13
+
+### Added
+- Wave Reward Selection system
+  - Triggered after 3 consecutive no-damage waves
+  - 3 random rewards to choose from (press 1/2/3)
+  - 5 reward types: +10% Damage, +10% Speed, +20 HP, +1 Bomb, +5% Score
+  - Rewards stack and persist for the entire run
+  - Visual card selection interface with color-coded options
+  - Golden particle celebration on selection
+  - Resets perfect streak after reward (prevents infinite stacking)
+
 ## [1.65.2] - 2026-05-13
 
 ### Improved
