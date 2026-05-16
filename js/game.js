@@ -718,6 +718,7 @@ let damageFlash = 0;
 let comboBurstFlash = 0;
 let waveAlertTimer = 0;
 let waveAlertType = null; // 'elite' or 'boss'
+let comboGuardFlash = 0;
 let gameStartTime = 0;
 let comboGuard = true;
 let comboScale = 1;
@@ -1328,6 +1329,7 @@ function bomberExplode(e) {
         comboTimer = 0;
         player.invincible = 120;
         spawnFloatingText(player.x, player.y - 30, 'COMBO GUARD!', '#ff44ff');
+        comboGuardFlash = 60;
         sfxPowerup();
       } else {
         player.hp = 0;
@@ -1369,6 +1371,7 @@ function mineExplode(e) {
         comboTimer = 0;
         player.invincible = 120;
         spawnFloatingText(player.x, player.y - 30, 'COMBO GUARD!', '#ff44ff');
+        comboGuardFlash = 60;
         sfxPowerup();
       } else {
         player.hp = 0;
@@ -2820,6 +2823,7 @@ function checkCollisions() {
             comboTimer = 0;
             player.invincible = 120;
             spawnFloatingText(player.x, player.y - 30, 'COMBO GUARD!', '#ff44ff');
+            comboGuardFlash = 60;
             sfxPowerup();
           } else {
             player.hp = 0;
@@ -2906,6 +2910,7 @@ function playerDeathEffect() {
             comboTimer = 0;
             player.invincible = 120;
             spawnFloatingText(player.x, player.y - 30, 'COMBO GUARD!', '#ff44ff');
+            comboGuardFlash = 60;
             sfxPowerup();
           } else {
             player.hp = 0;
@@ -3767,6 +3772,21 @@ function drawDangerZone() {
   }
 }
 
+function drawComboGuardFlash() {
+  if (comboGuardFlash > 0) {
+    const t = comboGuardFlash / 60;
+    const pulse = 0.5 + 0.5 * Math.sin(comboGuardFlash * 0.3);
+    const alpha = t * 0.35 * pulse;
+    ctx.save();
+    ctx.strokeStyle = `rgba(255, 68, 255, ${alpha})`;
+    ctx.lineWidth = 3 + pulse * 4;
+    ctx.shadowColor = '#ff44ff';
+    ctx.shadowBlur = 15 * pulse;
+    ctx.strokeRect(8, 8, W - 16, H - 16);
+    ctx.restore();
+    comboGuardFlash--;
+  }
+}
 function drawDamageFlash() {
   if (damageFlash > 0) {
     const t = damageFlash / 15;
@@ -4479,6 +4499,7 @@ function resetGame() {
   waveFlash = 0;
   waveAlertTimer = 0;
   waveAlertType = null;
+  comboGuardFlash = 0;
   waveTheme = null;
   timeStopTimer = 0;
   magnetTimer = 0;
@@ -4741,7 +4762,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.4 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.5 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -4875,6 +4896,7 @@ function loop(timestamp) {
       drawWaveBorder();
       drawWarnings();
       drawDangerZone();
+      drawComboGuardFlash();
       drawDamageFlash();
       drawLowHPWarning();
       drawBossWarning();
@@ -4906,6 +4928,7 @@ function loop(timestamp) {
       drawWaveBorder();
       drawWarnings();
       drawDangerZone();
+      drawComboGuardFlash();
       drawDamageFlash();
       drawLowHPWarning();
       drawBossWarning();
@@ -4935,6 +4958,7 @@ function loop(timestamp) {
       drawWaveBorder();
       drawWarnings();
       drawDangerZone();
+      drawComboGuardFlash();
       drawDamageFlash();
       drawLowHPWarning();
       drawBossWarning();
