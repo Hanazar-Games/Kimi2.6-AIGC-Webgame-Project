@@ -2768,6 +2768,10 @@ function checkCollisions() {
           enemyKillsLog[e.type] = (enemyKillsLog[e.type] || 0) + 1;
           stats.kills++;
           if (stats.kills >= 100) unlockAchievement('century');
+          if ([50, 100, 200, 500].includes(stats.kills)) {
+            spawnFloatingText(W / 2, H / 2 - 60, `KILL MILESTONE: ${stats.kills}!`, '#ffee44');
+            shake = Math.max(shake, 8);
+          }
           enemies.splice(j, 1);
         } else {
           sfxHit();
@@ -4762,7 +4766,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.5 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.6 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
