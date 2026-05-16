@@ -770,6 +770,8 @@ let comboBurstFlash = 0;
 let waveAlertTimer = 0;
 let waveAlertType = null; // 'elite' or 'boss'
 let comboGuardFlash = 0;
+let comboFlash = 0;
+let comboFlashColor = '#ffffff';
 let gameStartTime = 0;
 let comboGuard = true;
 let comboScale = 1;
@@ -1898,6 +1900,8 @@ function useBomb() {
       sfxComboChime(combo);
       comboTimer = 180;
       comboScale = 1.4;
+      comboFlash = 15;
+      comboFlashColor = combo >= 30 ? '#ffcc44' : combo >= 16 ? '#ff4444' : combo >= 6 ? '#ff8844' : '#ffffff';
       spawnExplosion(e.x, e.y, e.color, 20);
       spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
       if (Math.random() < 0.15) spawnPowerup(e.x, e.y);
@@ -2706,6 +2710,8 @@ function checkCollisions() {
           combo++;
           sfxComboChime(combo);
           comboTimer = 180;
+          comboFlash = 15;
+          comboFlashColor = combo >= 30 ? '#ffcc44' : combo >= 16 ? '#ff4444' : combo >= 6 ? '#ff8844' : '#ffffff';
           if (combo === 10 || combo === 25 || combo === 50 || combo === 100) {
             spawnFloatingText(W / 2, H / 2 - 40, `COMBO x${combo}!`, '#ff44ff');
             sfxComboMilestone(combo);
@@ -3879,6 +3885,17 @@ function drawComboGuardFlash() {
     comboGuardFlash--;
   }
 }
+function drawComboFlash() {
+  if (comboFlash > 0) {
+    const alpha = (comboFlash / 15) * 0.15;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = comboFlashColor;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    comboFlash--;
+  }
+}
 function drawDamageFlash() {
   if (damageFlash > 0) {
     const t = damageFlash / 15;
@@ -4622,6 +4639,7 @@ function resetGame() {
   waveAlertTimer = 0;
   waveAlertType = null;
   comboGuardFlash = 0;
+  comboFlash = 0;
   waveTheme = null;
   timeStopTimer = 0;
   magnetTimer = 0;
@@ -4890,7 +4908,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.76.6 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.76.7 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5025,6 +5043,7 @@ function loop(timestamp) {
       drawWarnings();
       drawDangerZone();
       drawComboGuardFlash();
+      drawComboFlash();
       drawDamageFlash();
       drawLowHPWarning();
       drawBossWarning();
@@ -5057,6 +5076,7 @@ function loop(timestamp) {
       drawWarnings();
       drawDangerZone();
       drawComboGuardFlash();
+      drawComboFlash();
       drawDamageFlash();
       drawLowHPWarning();
       drawBossWarning();
@@ -5087,6 +5107,7 @@ function loop(timestamp) {
       drawWarnings();
       drawDangerZone();
       drawComboGuardFlash();
+      drawComboFlash();
       drawDamageFlash();
       drawLowHPWarning();
       drawBossWarning();
