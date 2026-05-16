@@ -4159,6 +4159,11 @@ function drawUI() {
   }
   const killsEl = document.getElementById('kills');
   if (killsEl) killsEl.textContent = `KILLS: ${stats.kills}`;
+  const scoreMultEl = document.getElementById('score-mult');
+  if (scoreMultEl) {
+    scoreMultEl.textContent = `x${scoreMultBonus.toFixed(1)}`;
+    scoreMultEl.style.display = scoreMultBonus > 1 ? 'inline' : 'none';
+  }
   const grazeEl = document.getElementById('graze');
   if (grazeEl) {
     grazeEl.textContent = `GRAZE: ${grazeCount}`;
@@ -4863,7 +4868,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.76.0 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.76.1 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
