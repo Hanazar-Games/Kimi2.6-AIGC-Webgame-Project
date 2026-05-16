@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.2';
+const VERSION = 'v1.84.3';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -5583,6 +5583,12 @@ function showPause() {
   if (pb) pb.textContent = bossesDefeatedThisRun;
   const pWeapon = document.getElementById('pause-weapon');
   if (pWeapon) pWeapon.textContent = weaponType.charAt(0).toUpperCase() + weaponType.slice(1);
+  const pWeaponStars = document.getElementById('pause-weapon-stars');
+  if (pWeaponStars) {
+    const uses = stats.weaponUses[weaponType] || 0;
+    const level = Math.min(5, Math.floor(uses / 50));
+    pWeaponStars.textContent = '★'.repeat(level) + '☆'.repeat(5 - level);
+  }
   const pDiff = document.getElementById('pause-diff');
   if (pDiff) {
     const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
@@ -6659,6 +6665,19 @@ function loop(timestamp) {
     ctx.globalAlpha = (waveFlash / 20) * 0.15;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    // Wave number burst
+    const burstScale = 1 + (waveFlash / 20) * 1.5;
+    const burstAlpha = (waveFlash / 20) * 0.6;
+    ctx.save();
+    ctx.globalAlpha = burstAlpha;
+    ctx.fillStyle = '#44aaff';
+    ctx.shadowColor = '#44aaff';
+    ctx.shadowBlur = 20;
+    ctx.font = `bold ${Math.floor(48 * burstScale)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`WAVE ${wave}`, W / 2, H / 2);
     ctx.restore();
     waveFlash--;
   }
