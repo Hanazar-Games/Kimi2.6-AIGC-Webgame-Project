@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.65.2] - 2026-05-13
+
+### Improved
+- Enhanced Time Stop visual effect
+  - Darker purple screen overlay
+  - Double border: outer pulsing + inner subtle
+  - Clock icon with countdown hand at top center
+  - Hand rotates as time stop duration decreases
+  - More immersive "time frozen" atmosphere
+
 ## [1.65.1] - 2026-05-13
 
 ### Added

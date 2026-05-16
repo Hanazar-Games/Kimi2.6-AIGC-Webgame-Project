@@ -2578,12 +2578,31 @@ function drawTutorialHint() {
 function drawTimeStopEffect() {
   if (timeStopTimer > 0) {
     const pulse = 0.2 + Math.sin(Date.now() * 0.02) * 0.15;
+    const pct = timeStopTimer / 180;
     ctx.save();
-    ctx.strokeStyle = `rgba(255,136,255,${pulse})`;
-    ctx.lineWidth = 4;
-    ctx.strokeRect(4, 4, W - 8, H - 8);
-    ctx.fillStyle = `rgba(200,100,255,${pulse * 0.15})`;
+    // dark purple overlay
+    ctx.fillStyle = `rgba(60,20,80,${0.25 + pulse * 0.15})`;
     ctx.fillRect(0, 0, W, H);
+    // pulsing border
+    ctx.strokeStyle = `rgba(255,136,255,${pulse})`;
+    ctx.lineWidth = 4 + pulse * 3;
+    ctx.strokeRect(4, 4, W - 8, H - 8);
+    // inner border
+    ctx.strokeStyle = `rgba(200,100,255,${pulse * 0.5})`;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(12, 12, W - 24, H - 24);
+    // clock icon at top center
+    ctx.translate(W / 2, 30);
+    ctx.strokeStyle = `rgba(255,200,255,${0.6 + pulse * 0.3})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, Math.PI * 2);
+    ctx.stroke();
+    const handAngle = -Math.PI / 2 + (1 - pct) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(Math.cos(handAngle) * 10, Math.sin(handAngle) * 10);
+    ctx.stroke();
     ctx.restore();
   }
 }
