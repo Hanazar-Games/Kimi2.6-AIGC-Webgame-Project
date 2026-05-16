@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.9';
+const VERSION = 'v1.85.0';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -5089,14 +5089,22 @@ function drawUI() {
     const vx = W - 120;
     const vy = H - 40;
     ctx.fillStyle = 'rgba(20, 30, 60, 0.85)';
-    ctx.fillRect(vx, vy, 110, 22);
+    ctx.fillRect(vx, vy, 110, 26);
     ctx.strokeStyle = 'rgba(100, 150, 255, 0.5)';
     ctx.lineWidth = 1;
-    ctx.strokeRect(vx, vy, 110, 22);
+    ctx.strokeRect(vx, vy, 110, 26);
     ctx.fillStyle = '#aaccff';
     ctx.font = '11px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText(`VOL: ${volumeLabels[volumeIndex]}`, vx + 6, vy + 15);
+    ctx.fillText(`VOL: ${volumeLabels[volumeIndex]}`, vx + 6, vy + 13);
+    // Volume bar
+    const barWidth = 90;
+    const barHeight = 4;
+    const barProgress = (volumeIndex / (volumeLabels.length - 1));
+    ctx.fillStyle = 'rgba(100,150,255,0.2)';
+    ctx.fillRect(vx + 6, vy + 18, barWidth, barHeight);
+    ctx.fillStyle = '#44aaff';
+    ctx.fillRect(vx + 6, vy + 18, barWidth * barProgress, barHeight);
     ctx.restore();
   }
   // Particle density indicator overlay
