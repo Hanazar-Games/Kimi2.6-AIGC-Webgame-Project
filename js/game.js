@@ -3426,6 +3426,12 @@ function showPause() {
       pRewards.style.display = 'none';
     }
   }
+  const pEnemies = document.getElementById('pause-enemies');
+  if (pEnemies) pEnemies.textContent = enemies.length + enemiesToSpawn;
+  const pStreak = document.getElementById('pause-streak');
+  if (pStreak) pStreak.textContent = noDamageWaves;
+  const pBosses = document.getElementById('pause-bosses');
+  if (pBosses) pBosses.textContent = bossesDefeatedThisRun;
 }
 
 function animateGameOverStats() {

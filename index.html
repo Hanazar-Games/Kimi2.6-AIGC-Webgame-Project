@@ -106,7 +106,7 @@
         <div id="enemy-log-list" style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center;"></div>
       </div>
       <div id="game-tip" style="margin-top:8px; padding:6px 10px; background:rgba(30,50,80,0.4); border-radius:4px; font-size:11px; color:#88aadd; max-width:320px; min-height:20px;"></div>
-      <p style="color:#556688; font-size:10px; margin-top:10px;">v1.69.1 — Built with vanilla JS</p>
+      <p style="color:#556688; font-size:10px; margin-top:10px;">v1.69.2 — Built with vanilla JS</p>
     </div>
     <div id="pause-screen" class="screen">
       <h2>PAUSED</h2>
@@ -129,6 +129,11 @@
         </p>
         <p id="pause-rewards" style="color:#88aadd; font-size:12px; display:none;">
           Rewards: <span style="color:#ffcc44;">—</span>
+        </p>
+        <p style="color:#88aadd; font-size:12px; margin-top:6px; border-top:1px solid #334466; padding-top:6px;">
+          Enemies: <span id="pause-enemies" style="color:#ffaa88;">0</span> · 
+          Streak: <span id="pause-streak" style="color:#ffcc44;">0</span> · 
+          Bosses: <span id="pause-bosses" style="color:#ff8888;">0</span>
         </p>
       </div>
       <button id="resume-btn">RESUME</button>

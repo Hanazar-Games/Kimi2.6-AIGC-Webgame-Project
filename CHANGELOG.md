@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.69.2] - 2026-05-13
+
+### Improved
+- Enhanced pause screen statistics
+  - Added remaining enemies count (alive + to spawn)
+  - Added current perfect wave streak
+  - Added bosses defeated this run
+  - Gives players better situational awareness when paused
+
 ## [1.69.1] - 2026-05-13
 
 ### Added
