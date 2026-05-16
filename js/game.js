@@ -1909,9 +1909,13 @@ function checkCollisions() {
           enemies.splice(j, 1);
           continue;
         }
-        // knockback
+        // knockback scaled by enemy type and damage
         const kbAngle = Math.atan2(b.vy, b.vx);
-        const kbForce = 0.8;
+        let kbMult = 1.0;
+        if (e.type === 'swarmer' || e.type === 'bomber') kbMult = 1.3;
+        else if (e.type === 'tank' || e.type === 'shielder' || e.type === 'divider') kbMult = 0.4;
+        else if (e.type === 'boss') kbMult = 0.15;
+        const kbForce = (0.5 + dmg * 0.06) * kbMult;
         e.vx += Math.cos(kbAngle) * kbForce;
         e.vy += Math.sin(kbAngle) * kbForce;
         spawnDamageNumber(e.x, e.y - e.radius - 5, dmg);

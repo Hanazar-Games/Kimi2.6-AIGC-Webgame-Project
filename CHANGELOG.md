@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.2] - 2026-05-13
+
+### Improved
+- Knockback system enhanced
+  - Knockback now scales with damage dealt
+  - Enemy-type resistance: swarmer/bomber 1.3x, normal 1.0x, tank/shielder/divider 0.4x, boss 0.15x
+  - Formula: (0.5 + dmg * 0.06) * resistance
+  - Makes weapon choice and power level feel more impactful
+
 ## [1.68.1] - 2026-05-13
 
 ### Added
