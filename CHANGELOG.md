@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.65.1] - 2026-05-13
+
+### Added
+- Combo Burst at x100 combo
+  - Clears all enemy bullets on screen
+  - Deals 25 damage to all non-Boss enemies
+  - Golden hit sparks and slow-motion effect
+  - Massive reward for reaching the ultimate combo milestone
+
 ## [1.65.0] - 2026-05-13
 
 ### Added

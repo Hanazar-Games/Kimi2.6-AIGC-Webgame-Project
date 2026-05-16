@@ -1792,6 +1792,19 @@ function checkCollisions() {
               spawnFloatingText(player.x, player.y - 50, 'MAX HP + 2 BOMBS!', '#ffee44');
               shake = Math.max(shake, 12);
               sfxPowerup();
+              // combo burst: clear bullets and damage all enemies
+              spawnFloatingText(W / 2, H / 2 + 50, 'COMBO BURST!', '#ffee44');
+              for (const b of enemyBullets) {
+                spawnExplosion(b.x, b.y, '#ffee88', 3);
+              }
+              enemyBullets.length = 0;
+              for (const e of enemies) {
+                if (e.type === 'boss') continue;
+                e.hp -= 25;
+                e.hitFlash = 6;
+                spawnHitSparks(e.x, e.y, '#ffee44');
+              }
+              slowMo = 30;
             }
           }
           spawnExplosion(e.x, e.y, e.color, 20, true);
