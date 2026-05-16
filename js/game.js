@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.85.4';
+const VERSION = 'v1.85.5';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -5842,6 +5842,8 @@ function showGameOver() {
   if (fpEl) fpEl.textContent = `Perfect Waves: ${totalPerfectWaves}`;
   const fbEl = document.getElementById('final-bosses');
   if (fbEl) fbEl.textContent = `Bosses: ${bossesDefeatedThisRun}`;
+  const fdEl = document.getElementById('final-damage');
+  if (fdEl) fdEl.textContent = `Damage: ${Math.floor(totalDamageDealt).toLocaleString()}`;
   const fwEl = document.getElementById('final-weapon');
   if (fwEl) {
     if (usedWeapons.size > 0) {
@@ -6814,6 +6816,13 @@ function loop(timestamp) {
     for (let y = scanlineOffset; y < H; y += scanlineSpacing) {
       ctx.fillRect(0, y, W, 1);
     }
+    ctx.restore();
+    // Difficulty tint on menu background
+    const diffTints = { 1: 'rgba(60,255,130,0.02)', 2: 'rgba(100,150,255,0.02)', 3: 'rgba(255,130,60,0.02)', 4: 'rgba(255,60,60,0.03)' };
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = diffTints[difficulty] || 'rgba(0,0,0,0)';
+    ctx.fillRect(0, 0, W, H);
     ctx.restore();
   }
 
