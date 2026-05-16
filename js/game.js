@@ -488,6 +488,24 @@ function sfxMilestone() {
     o.stop(t + i * 0.06 + 0.2);
   }
 }
+function sfxComboMilestone(combo) {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const baseFreq = combo === 100 ? 523 : combo === 50 ? 440 : combo === 25 ? 349 : 262;
+  const notes = [baseFreq, baseFreq * 1.25, baseFreq * 1.5, baseFreq * 2];
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.07);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.05 * masterVolume, t + i * 0.07);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.07 + 0.2);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.07);
+    o.stop(t + i * 0.07 + 0.25);
+  }
+}
 function sfxHurt() { playTone(120, 'sawtooth', 0.25, 0.08); }
 function sfxWaveStart() {
   playTone(440, 'square', 0.15, 0.05);
@@ -2664,6 +2682,7 @@ function checkCollisions() {
           comboTimer = 180;
           if (combo === 10 || combo === 25 || combo === 50 || combo === 100) {
             spawnFloatingText(W / 2, H / 2 - 40, `COMBO x${combo}!`, '#ff44ff');
+            sfxComboMilestone(combo);
             shake = Math.max(shake, 6);
             shakeDirX = 0;
             shakeDirY = -1;
@@ -4808,7 +4827,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.75.3 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.75.4 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
