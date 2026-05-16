@@ -3568,13 +3568,36 @@ function resetGame() {
 }
 
 /* ---------- Difficulty Selection ---------- */
+const DIFFICULTY_COLORS = {
+  1: { bg: 'linear-gradient(180deg, #44ff88 0%, #22aa44 100%)', shadow: 'rgba(60, 255, 130, 0.5)', border: 'rgba(80, 255, 150, 0.5)' },
+  2: { bg: 'linear-gradient(180deg, #4488ff 0%, #2244aa 100%)', shadow: 'rgba(60, 130, 255, 0.5)', border: 'rgba(100, 150, 255, 0.5)' },
+  3: { bg: 'linear-gradient(180deg, #ff8844 0%, #aa4422 100%)', shadow: 'rgba(255, 130, 60, 0.5)', border: 'rgba(255, 150, 80, 0.5)' },
+  4: { bg: 'linear-gradient(180deg, #ff4444 0%, #aa2222 100%)', shadow: 'rgba(255, 60, 60, 0.6)', border: 'rgba(255, 100, 100, 0.5)' },
+};
+function updateDifficultyStyles() {
+  document.querySelectorAll('#difficulty-select .diff-btn').forEach(b => {
+    const d = parseInt(b.dataset.diff, 10);
+    const colors = DIFFICULTY_COLORS[d];
+    if (b.classList.contains('active')) {
+      b.style.background = colors.bg;
+      b.style.boxShadow = `0 0 16px ${colors.shadow}`;
+      b.style.borderColor = colors.border;
+    } else {
+      b.style.background = '';
+      b.style.boxShadow = '';
+      b.style.borderColor = '';
+    }
+  });
+}
 document.querySelectorAll('#difficulty-select .diff-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#difficulty-select .diff-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     difficulty = parseInt(btn.dataset.diff, 10);
+    updateDifficultyStyles();
   });
 });
+updateDifficultyStyles();
 
 /* ---------- Weapon Selection ---------- */
 const WEAPON_DESCS = {

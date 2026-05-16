@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.69.0] - 2026-05-13
+
+### Improved
+- Difficulty selection visual feedback
+  - Each difficulty now has unique active button color
+  - Easy = green, Normal = blue, Hard = orange, Nightmare = red
+  - Dynamic box-shadow glow matching difficulty color
+  - Border color updates to match selection
+  - Makes difficulty choice more visually impactful
+
 ## [1.68.9] - 2026-05-13
 
 ### Added
