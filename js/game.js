@@ -185,6 +185,38 @@ function sfxShoot() {
     o2.stop(t + 0.08);
   }
 }
+function sfxPortalOpen() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  // Main drone: sweeping frequency up
+  const o1 = audioCtx.createOscillator();
+  o1.type = 'sine';
+  o1.frequency.setValueAtTime(80, t);
+  o1.frequency.exponentialRampToValueAtTime(400, t + 0.25);
+  // Overtone for sci-fi texture
+  const o2 = audioCtx.createOscillator();
+  o2.type = 'sawtooth';
+  o2.frequency.setValueAtTime(160, t);
+  o2.frequency.exponentialRampToValueAtTime(800, t + 0.25);
+  // Lowpass filter to soften
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(600, t);
+  filter.frequency.exponentialRampToValueAtTime(2000, t + 0.2);
+  // Gain envelope
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.06 * masterVolume, t + 0.08);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+  o1.connect(filter);
+  o2.connect(filter);
+  filter.connect(g);
+  g.connect(audioCtx.destination);
+  o1.start(t);
+  o2.start(t);
+  o1.stop(t + 0.4);
+  o2.stop(t + 0.4);
+}
 function sfxEnemyShoot() { playTone(220, 'sawtooth', 0.1, 0.03); }
 function sfxHit() { playTone(150, 'sawtooth', 0.15, 0.06); }
 function sfxExplosion() {
@@ -1148,6 +1180,7 @@ function spawnEnemy(type) {
     hitFlash: 0,
     spawnDelay: type === 'boss' ? 0 : 30,
   };
+  if (type !== 'boss') sfxPortalOpen();
 
   const diffMult = practiceMode ? 0.5 : (difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : difficulty === 4 ? 2.0 : 1.0);
   const spdMult = practiceMode ? 0.6 : (difficulty === 1 ? 0.75 : difficulty === 3 ? 1.25 : difficulty === 4 ? 1.75 : 1.0);
@@ -4251,7 +4284,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.72.5 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.72.6 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
