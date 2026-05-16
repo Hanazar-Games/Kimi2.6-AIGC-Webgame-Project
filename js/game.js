@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3 };
+const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 let state = STATE.MENU;
 let score = 0;
 let highScore = 0;
@@ -934,6 +934,8 @@ let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
 let tutorialStepsShown = new Set();
+let countdownValue = 3;
+let countdownTimer = 0;
 let asteroids = [];
 let meteors = [];
 let meteorTimer = 0;
@@ -1252,7 +1254,29 @@ function unlockAchievement(key) {
     spawnFloatingText(W / 2, H / 2 - 60, `Achievement: ${a.name}`, '#ffcc44');
     spawnFloatingText(W / 2, H / 2 - 40, a.desc, '#ffee88');
     shake = Math.max(shake, 8);
-    if (state === STATE.PLAYING) {
+    if (state === STATE.COUNTDOWN) {
+    countdownTimer--;
+    if (countdownTimer <= 0) {
+      countdownValue--;
+      if (countdownValue > 0) {
+        countdownTimer = 60;
+        playTone(600 + countdownValue * 200, 'sine', 0.12, 0.1);
+      } else if (countdownValue === 0) {
+        countdownTimer = 45;
+        playTone(1200, 'square', 0.15, 0.12);
+        // GO!
+      } else {
+        startWave();
+        state = STATE.PLAYING;
+      }
+    }
+    updatePlanets(timeScale);
+    updateAsteroids(timeScale);
+    updateMeteors(timeScale);
+    updateParticles();
+  }
+
+  if (state === STATE.PLAYING) {
       achievementNotifications.push({ name: a.name, desc: a.desc });
     }
     for (let k = 0; k < 20; k++) {
@@ -4375,8 +4399,19 @@ function drawLowHPWarning() {
   const hpRatio = player.hp / player.maxHp;
   if (hpRatio < 0.3 && player.hp > 0) {
     const flash = Math.abs(Math.sin(Date.now() * 0.008)) * 0.3 + 0.1;
+    // Screen-edge vignette (red glow from edges)
     ctx.save();
-    ctx.globalAlpha = flash;
+    const vg = ctx.createRadialGradient(W / 2, H / 2, W * 0.25, W / 2, H / 2, W * 0.9);
+    const vigAlpha = flash * 0.7;
+    vg.addColorStop(0, 'rgba(255,0,0,0)');
+    vg.addColorStop(0.6, `rgba(200,0,0,${vigAlpha * 0.3})`);
+    vg.addColorStop(1, `rgba(150,0,0,${vigAlpha})`);
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    // Subtle full-screen red tint
+    ctx.save();
+    ctx.globalAlpha = flash * 0.25;
     ctx.fillStyle = '#ff0000';
     ctx.fillRect(0, 0, W, H);
     ctx.restore();
@@ -4944,7 +4979,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.82.4', W - 6, H - 6);
+  ctx.fillText('v1.83.0', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -5609,9 +5644,10 @@ function resetGame() {
   tutorialActive = !tutorialDismissed;
   tutorialDismissed = true;
   tutorialStepsShown.clear();
+  countdownValue = 3;
+  countdownTimer = 0;
 
   initStars();
-  startWave();
 }
 
 /* ---------- Difficulty Selection ---------- */
@@ -5858,7 +5894,9 @@ document.addEventListener('click', (e) => {
 document.getElementById('start-btn').addEventListener('click', () => {
   ensureAudio();
   resetGame();
-  state = STATE.PLAYING;
+  countdownValue = 3;
+  countdownTimer = 60;
+  state = STATE.COUNTDOWN;
   hideScreens();
 });
 
@@ -5869,7 +5907,9 @@ document.getElementById('resume-btn').addEventListener('click', () => {
 
 document.getElementById('restart-btn').addEventListener('click', () => {
   resetGame();
-  state = STATE.PLAYING;
+  countdownValue = 3;
+  countdownTimer = 60;
+  state = STATE.COUNTDOWN;
   hideScreens();
 });
 
@@ -6378,6 +6418,7 @@ function loop(timestamp) {
 
   ctx.restore();
 
+  drawCountdown();
   drawWaveClear();
   drawUI();
   drawTutorial();
@@ -6415,6 +6456,32 @@ function drawTutorial() {
     tutorialStepsShown.add(wave);
   }
 }
+function drawCountdown() {
+  if (state !== STATE.COUNTDOWN) return;
+  const progress = countdownValue > 0 ? 1 - countdownTimer / 60 : 1 - countdownTimer / 45;
+  const scale = 1 + Math.sin(progress * Math.PI) * 0.4;
+  const alpha = countdownValue > 0 ? 1 : Math.min(1, countdownTimer / 15);
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  if (countdownValue > 0) {
+    const color = countdownValue === 3 ? '#ff4444' : countdownValue === 2 ? '#ffaa44' : '#44ff88';
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 20;
+    ctx.font = `bold ${Math.floor(80 * scale)}px sans-serif`;
+    ctx.fillText(String(countdownValue), W / 2, H / 2);
+  } else {
+    ctx.fillStyle = '#44ff88';
+    ctx.shadowColor = '#44ff88';
+    ctx.shadowBlur = 25;
+    ctx.font = `bold ${Math.floor(90 * scale)}px sans-serif`;
+    ctx.fillText('GO!', W / 2, H / 2);
+  }
+  ctx.restore();
+}
+
 function drawWaveClear() {
   if (waveClearTimer <= 0) return;
   const t = waveClearTimer;
