@@ -1123,6 +1123,33 @@ function saveAchievements() {
     localStorage.setItem('stellar_defense_achievements', JSON.stringify(obj));
   } catch (e) {}
 }
+function sfxEliteKill() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  // Metallic clang: two sharp tones
+  const o1 = audioCtx.createOscillator();
+  o1.type = 'triangle';
+  o1.frequency.setValueAtTime(600, t);
+  o1.frequency.exponentialRampToValueAtTime(300, t + 0.15);
+  const g1 = audioCtx.createGain();
+  g1.gain.setValueAtTime(0.05 * masterVolume, t);
+  g1.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  o1.connect(g1);
+  g1.connect(audioCtx.destination);
+  o1.start(t);
+  o1.stop(t + 0.2);
+  const o2 = audioCtx.createOscillator();
+  o2.type = 'square';
+  o2.frequency.setValueAtTime(900, t);
+  o2.frequency.exponentialRampToValueAtTime(450, t + 0.1);
+  const g2 = audioCtx.createGain();
+  g2.gain.setValueAtTime(0.02 * masterVolume, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+  o2.connect(g2);
+  g2.connect(audioCtx.destination);
+  o2.start(t);
+  o2.stop(t + 0.15);
+}
 function sfxBossDefeat() {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
@@ -2975,6 +3002,7 @@ function checkCollisions() {
             scoreMultBonus += 0.1;
             scoreMultTimer = 300; // 5 seconds
             spawnFloatingText(W / 2, H / 2 - 80, 'ELITE KILL BONUS! +0.1x SCORE', '#ffee44');
+            sfxEliteKill();
           }
           spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
           sfxEnemyDeath(e.type);
@@ -5141,7 +5169,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.0 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.78.1 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
