@@ -4311,6 +4311,10 @@ function showPause() {
     const s = (sec % 60).toString().padStart(2, '0');
     pt.textContent = `${m}:${s}`;
   }
+  const pp = document.getElementById('pause-perfect');
+  if (pp) pp.textContent = totalPerfectWaves;
+  const pb = document.getElementById('pause-bosses');
+  if (pb) pb.textContent = bossesDefeatedThisRun;
   const pWeapon = document.getElementById('pause-weapon');
   if (pWeapon) pWeapon.textContent = weaponType.charAt(0).toUpperCase() + weaponType.slice(1);
   const pDiff = document.getElementById('pause-diff');
@@ -4766,7 +4770,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.6 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.7 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
