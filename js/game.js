@@ -729,7 +729,7 @@ const ACHIEVEMENTS = {
   combo_50: { name: 'Combo Master', desc: 'Reach a 50x combo', unlocked: false },
   combo_100: { name: 'Combo God', desc: 'Reach a 100x combo', unlocked: false },
   untouchable: { name: 'Untouchable', desc: 'Clear Wave 5 without taking damage', unlocked: false },
-  weapon_master: { name: 'Weapon Master', desc: 'Use all 5 weapons in one run', unlocked: false },
+  weapon_master: { name: 'Weapon Master', desc: 'Use all 7 weapons in one run', unlocked: false },
   bomb_saver: { name: 'Bomb Saver', desc: 'Clear a wave without using bombs', unlocked: false },
   graze_king: { name: 'Graze King', desc: 'Graze 200 bullets in one run', unlocked: false },
   marathon: { name: 'Marathon', desc: 'Reach Wave 20', unlocked: false },
@@ -749,6 +749,8 @@ const ACHIEVEMENTS = {
   demolition_expert: { name: 'Demolition Expert', desc: 'Kill 3 enemies with one explosive shell', unlocked: false },
   explosive_destroyer: { name: 'Explosive Destroyer', desc: 'Destroy 50 enemies with Explosive shells', unlocked: false },
   phantom_slayer: { name: 'Phantom Slayer', desc: 'Destroy a Phantom enemy', unlocked: false },
+  phantom_hunter: { name: 'Phantom Hunter', desc: 'Destroy 10 Phantom enemies', unlocked: false },
+  chain_reaction: { name: 'Chain Reaction', desc: 'Kill 5 enemies with one explosive shell', unlocked: false },
 };
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
@@ -769,6 +771,7 @@ let eliteWavesSurvived = 0;
 let comboBurstsTriggered = 0;
 let explosiveBestMultiKill = 0;
 let explosiveKills = 0;
+let phantomKills = 0;
 
 function loadAchievements() {
   try {
@@ -1537,7 +1540,7 @@ let spawnTimer = 0;
 let bossSpawned = false;
 
 function checkWaveAchievements() {
-  if (usedWeapons.size >= 5) unlockAchievement('weapon_master');
+  if (usedWeapons.size >= 7) unlockAchievement('weapon_master');
   if (bombsUsedThisWave === 0 && wave > 1) unlockAchievement('bomb_saver');
   if (grazeCount >= 200) unlockAchievement('graze_king');
   if (wave >= 20) unlockAchievement('marathon');
@@ -2594,6 +2597,7 @@ function checkCollisions() {
             const totalKills = explosiveKillsThisHit + 1; // +1 for primary target
             if (totalKills > explosiveBestMultiKill) explosiveBestMultiKill = totalKills;
             if (totalKills >= 3) unlockAchievement('demolition_expert');
+            if (totalKills >= 5) unlockAchievement('chain_reaction');
           }
           // drop powerup chance
           if (Math.random() < 0.12) spawnPowerup(e.x, e.y);
@@ -2626,7 +2630,11 @@ function checkCollisions() {
           if (e.type === 'shielder') unlockAchievement('shield_breaker');
           if (e.type === 'medic') unlockAchievement('medic_down');
           if (e.type === 'divider') unlockAchievement('divider_down');
-          if (e.type === 'phantom') unlockAchievement('phantom_slayer');
+          if (e.type === 'phantom') {
+            unlockAchievement('phantom_slayer');
+            phantomKills++;
+            if (phantomKills >= 10) unlockAchievement('phantom_hunter');
+          }
           if (b.maxBounces > 0 && b.bounces < b.maxBounces) unlockAchievement('ricochet_king');
           if (weaponType === 'homing') {
             homingKills++;
@@ -4333,6 +4341,7 @@ function resetGame() {
   comboBurstsTriggered = 0;
   explosiveBestMultiKill = 0;
   explosiveKills = 0;
+  phantomKills = 0;
 
   score = 0;
   wave = 1;
@@ -4583,7 +4592,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.5 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.6 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
