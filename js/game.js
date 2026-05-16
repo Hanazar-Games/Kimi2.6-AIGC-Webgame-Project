@@ -1556,9 +1556,12 @@ function spawnFloatingText(x, y, txt, color) {
   texts.push({ x, y, txt, color, life: 45, maxLife: 45, vy: -2.2, size: 16, baseScale: 1.5 });
 }
 function spawnDamageNumber(x, y, dmg) {
-  if (particleDensity === 0) return;
-  const color = dmg >= 15 ? '#ffee44' : dmg >= 8 ? '#ffffff' : '#aabbcc';
-  texts.push({ x, y, txt: Math.ceil(dmg).toString(), color, life: 25, maxLife: 25, vy: -1.8, size: 12, baseScale: 1.3 });
+  const isCrit = dmg >= 20;
+  const color = isCrit ? '#ff4444' : dmg >= 15 ? '#ffee44' : dmg >= 8 ? '#ffffff' : '#aabbcc';
+  const size = isCrit ? 16 : 12;
+  const baseScale = isCrit ? 1.6 : 1.2;
+  const vx = rand(-0.5, 0.5);
+  texts.push({ x: x + rand(-8, 8), y, txt: Math.ceil(dmg).toString(), color, life: 30, maxLife: 30, vy: -2, vx, size, baseScale });
 }
 
 /* ---------- Bullet Factory ---------- */
@@ -5335,7 +5338,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.79.1 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.79.2 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
