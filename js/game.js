@@ -1080,6 +1080,7 @@ let helpOverlayTimer = 0;
 let weaponInfoTimer = 0;
 let statsPanelTimer = 0;
 let achievementListTimer = 0;
+let enemyLogTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4935,7 +4936,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.82.0', W - 6, H - 6);
+  ctx.fillText('v1.82.1', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -5053,6 +5054,35 @@ function drawUI() {
       ctx.textAlign = 'center';
       ctx.fillText(`... and ${unlocked.length - 12} more`, W / 2, H / 2 - 90 + 12 * 18 + 10);
     }
+    ctx.restore();
+  }
+  // Enemy log overlay
+  if (enemyLogTimer > 0) {
+    enemyLogTimer--;
+    const alpha = Math.min(1, enemyLogTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.92;
+    ctx.fillStyle = 'rgba(10, 15, 30, 0.9)';
+    ctx.fillRect(W / 2 - 150, H / 2 - 160, 300, 320);
+    ctx.strokeStyle = 'rgba(100, 150, 255, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W / 2 - 150, H / 2 - 160, 300, 320);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#aaccff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ENEMY LOG', W / 2, H / 2 - 135);
+    ctx.font = '11px sans-serif';
+    ENEMY_LOG_DATA.forEach((entry, i) => {
+      const discovered = persistentEncountered.has(entry.type);
+      const kills = enemyKillsLog[entry.type] || 0;
+      const y = H / 2 - 110 + i * 20;
+      ctx.fillStyle = discovered ? entry.color : '#334455';
+      ctx.textAlign = 'left';
+      ctx.fillText(discovered ? entry.name : '???', W / 2 - 130, y);
+      ctx.textAlign = 'right';
+      ctx.fillText(discovered ? `${kills} kills` : '—', W / 2 + 130, y);
+    });
     ctx.restore();
   }
 }
@@ -5469,6 +5499,7 @@ function resetGame() {
   weaponInfoTimer = 0;
   statsPanelTimer = 0;
   achievementListTimer = 0;
+  enemyLogTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5896,6 +5927,16 @@ function loop(timestamp) {
   } else if (isDown('l') && state === STATE.PLAYING && achievementListTimer > 0) {
     keys['l'] = false;
     achievementListTimer = 0;
+  }
+
+  // Enemy log shortcut
+  if (isDown('e') && state === STATE.PLAYING && enemyLogTimer <= 0) {
+    keys['e'] = false;
+    enemyLogTimer = 300; // 5 seconds
+    sfxClick();
+  } else if (isDown('e') && state === STATE.PLAYING && enemyLogTimer > 0) {
+    keys['e'] = false;
+    enemyLogTimer = 0;
   }
 
   // FPS display toggle shortcut
