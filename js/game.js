@@ -4587,6 +4587,19 @@ function drawUI() {
     diffInd.textContent = diffNames[difficulty] || 'NORMAL';
     diffInd.style.color = diffColors[difficulty] || '#aabbdd';
   }
+  const weaponInd = document.getElementById('weapon-indicator');
+  if (weaponInd) {
+    const weaponNames = {
+      balanced: 'BALANCED', spread: 'SPREAD', rapid: 'RAPID',
+      laser: 'LASER', ricochet: 'RICOCHET', homing: 'HOMING', explosive: 'EXPLOSIVE'
+    };
+    const weaponColors = {
+      balanced: '#44ffaa', spread: '#44ff88', rapid: '#ffaa44',
+      laser: '#ff66ff', ricochet: '#ffcc66', homing: '#ff66cc', explosive: '#ff6633'
+    };
+    weaponInd.textContent = weaponNames[weaponType] || 'BALANCED';
+    weaponInd.style.color = weaponColors[weaponType] || '#44ffaa';
+  }
   const killsEl = document.getElementById('kills');
   if (killsEl) killsEl.textContent = `KILLS: ${stats.kills}`;
   const scoreMultEl = document.getElementById('score-mult');
@@ -5304,7 +5317,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.7 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.78.8 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
