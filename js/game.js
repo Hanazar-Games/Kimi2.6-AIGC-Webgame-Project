@@ -4112,11 +4112,37 @@ function drawLowHPWarning() {
     ctx.textAlign = 'center';
     ctx.fillText('LOW HP WARNING', W / 2, H / 2 + 60);
     ctx.restore();
-    // heartbeat sound
+    // heartbeat sound (double beat: lub-dub)
+    const heartbeatInterval = hpRatio < 0.15 ? 40 : 55;
     lowHPTimer++;
-    if (lowHPTimer >= 60) {
+    if (lowHPTimer >= heartbeatInterval) {
       lowHPTimer = 0;
-      playTone(120, 'sine', 0.12, 0.08);
+      const vol = hpRatio < 0.15 ? 0.1 : 0.07;
+      const t = audioCtx.currentTime;
+      // lub
+      const o1 = audioCtx.createOscillator();
+      o1.type = 'sine';
+      o1.frequency.setValueAtTime(80, t);
+      o1.frequency.exponentialRampToValueAtTime(55, t + 0.1);
+      const g1 = audioCtx.createGain();
+      g1.gain.setValueAtTime(vol * masterVolume, t);
+      g1.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      o1.connect(g1);
+      g1.connect(audioCtx.destination);
+      o1.start(t);
+      o1.stop(t + 0.15);
+      // dub
+      const o2 = audioCtx.createOscillator();
+      o2.type = 'sine';
+      o2.frequency.setValueAtTime(100, t + 0.15);
+      o2.frequency.exponentialRampToValueAtTime(70, t + 0.25);
+      const g2 = audioCtx.createGain();
+      g2.gain.setValueAtTime(vol * 0.7 * masterVolume, t + 0.15);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + 0.27);
+      o2.connect(g2);
+      g2.connect(audioCtx.destination);
+      o2.start(t + 0.15);
+      o2.stop(t + 0.3);
     }
   } else {
     lowHPTimer = 0;
@@ -5035,7 +5061,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.77.5 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.77.6 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
