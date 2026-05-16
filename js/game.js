@@ -1915,39 +1915,51 @@ function updatePowerups(timeScale = 1) {
       continue;
     }
 
-    if (dist(p, player) < p.radius + player.radius + 6) {
-      if (p.type === 'energy') {
-        player.hp = clamp(player.hp + 20, 0, player.maxHp);
-        spawnFloatingText(player.x, player.y - 20, '+HP', '#44ff66');
-        sfxPowerup();
-      } else if (p.type === 'power') {
-        player.powerLevel = clamp(player.powerLevel + 1, 1, player.maxPower);
-        spawnFloatingText(player.x, player.y - 20, 'POWER UP!', '#ffcc44');
-        sfxUpgrade();
-      } else if (p.type === 'shield') {
-        player.invincible = Math.max(player.invincible, 300);
-        spawnFloatingText(player.x, player.y - 20, 'SHIELD!', '#44aaff');
-        sfxPowerup();
-      } else if (p.type === 'timestop') {
-        timeStopTimer = 180;
-        spawnFloatingText(player.x, player.y - 20, 'TIME STOP!', '#ff88ff');
-        sfxUpgrade();
-      } else if (p.type === 'magnet') {
-        magnetTimer = 300;
-        spawnFloatingText(player.x, player.y - 20, 'MAGNET!', '#ffaa44');
-        sfxPowerup();
-        unlockAchievement('magnetic_personality');
-      } else if (p.type === 'overdrive') {
-        overdriveTimer = 300;
-        spawnFloatingText(player.x, player.y - 20, 'OVERDRIVE!', '#ff4444');
-        sfxUpgrade();
-      } else if (p.type === 'score') {
-        scoreMultTimer = 600;
-        scoreMultBonus += 0.5;
-        spawnFloatingText(player.x, player.y - 20, 'SCORE x1.5!', '#ffee44');
-        sfxPowerup();
+    const pickupDist = p.radius + player.radius + 6;
+    const d = dist(p, player);
+    if (d < pickupDist) {
+      // Fly toward player before collecting
+      if (d > 5) {
+        const a = angleTo(p, player);
+        p.vx += Math.cos(a) * 2;
+        p.vy += Math.sin(a) * 2;
+        p.vx *= 0.8;
+        p.vy *= 0.8;
+      } else {
+        // Collected
+        if (p.type === 'energy') {
+          player.hp = clamp(player.hp + 20, 0, player.maxHp);
+          spawnFloatingText(player.x, player.y - 20, '+HP', '#44ff66');
+          sfxPowerup();
+        } else if (p.type === 'power') {
+          player.powerLevel = clamp(player.powerLevel + 1, 1, player.maxPower);
+          spawnFloatingText(player.x, player.y - 20, 'POWER UP!', '#ffcc44');
+          sfxUpgrade();
+        } else if (p.type === 'shield') {
+          player.invincible = Math.max(player.invincible, 300);
+          spawnFloatingText(player.x, player.y - 20, 'SHIELD!', '#44aaff');
+          sfxPowerup();
+        } else if (p.type === 'timestop') {
+          timeStopTimer = 180;
+          spawnFloatingText(player.x, player.y - 20, 'TIME STOP!', '#ff88ff');
+          sfxUpgrade();
+        } else if (p.type === 'magnet') {
+          magnetTimer = 300;
+          spawnFloatingText(player.x, player.y - 20, 'MAGNET!', '#ffaa44');
+          sfxPowerup();
+          unlockAchievement('magnetic_personality');
+        } else if (p.type === 'overdrive') {
+          overdriveTimer = 300;
+          spawnFloatingText(player.x, player.y - 20, 'OVERDRIVE!', '#ff4444');
+          sfxUpgrade();
+        } else if (p.type === 'score') {
+          scoreMultTimer = 600;
+          scoreMultBonus += 0.5;
+          spawnFloatingText(player.x, player.y - 20, 'SCORE x1.5!', '#ffee44');
+          sfxPowerup();
+        }
+        powerups.splice(i, 1);
       }
-      powerups.splice(i, 1);
     }
   }
 }

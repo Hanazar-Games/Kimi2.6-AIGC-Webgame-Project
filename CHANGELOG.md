@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.71.3] - 2026-05-13
+
+### Improved
+- Power-up collection animation
+  - Power-ups now fly toward player before being collected
+  - Smooth acceleration + damping for organic motion
+  - Collection only triggers when power-up reaches player center
+  - Makes pickups feel more satisfying and physical
+
 ## [1.71.2] - 2026-05-13
 
 ### Added
