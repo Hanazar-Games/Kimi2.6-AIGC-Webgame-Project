@@ -4671,7 +4671,13 @@ function drawUI() {
   }
   document.getElementById('health-text').textContent = `HP: ${Math.max(0, player.hp)}/${player.maxHp}`;
   const hpPct = Math.max(0, player.hp) / player.maxHp * 100;
-  document.getElementById('health-fill').style.width = hpPct + '%';
+  const hpFill = document.getElementById('health-fill');
+  if (hpFill) {
+    hpFill.style.width = hpPct + '%';
+    const hpColor = hpPct > 60 ? '#44ff88' : hpPct > 30 ? '#ffcc44' : '#ff4444';
+    hpFill.style.background = hpColor;
+    hpFill.style.boxShadow = hpPct <= 30 ? `0 0 8px ${hpColor}` : 'none';
+  }
   const bombEl = document.getElementById('bomb-count');
   if (bombEl) {
     bombEl.textContent = `BOMB: ${player.bombs}`;
@@ -5552,7 +5558,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.80.7 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.80.8 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
