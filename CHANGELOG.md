@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.70.4] - 2026-05-13
+
+### Added
+- Combo Burst full-screen flash effect
+  - Golden-yellow flash overlay when Combo Burst triggers at 100 combo
+  - Intensity scales with flash duration (0.5s)
+  - Makes the 100-combo milestone feel truly spectacular
+
 ## [1.70.3] - 2026-05-13
 
 ### Added

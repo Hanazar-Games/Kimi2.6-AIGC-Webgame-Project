@@ -256,6 +256,7 @@ let grazeTimer = 0;
 let dashCooldown = 0;
 let dashing = 0;
 let damageFlash = 0;
+let comboBurstFlash = 0;
 let gameStartTime = 0;
 let comboGuard = true;
 let comboScale = 1;
@@ -2016,6 +2017,7 @@ function checkCollisions() {
               sfxPowerup();
               // combo burst: clear bullets and damage all enemies
               spawnFloatingText(W / 2, H / 2 + 50, 'COMBO BURST!', '#ffee44');
+              comboBurstFlash = 30;
               for (const b of enemyBullets) {
                 spawnExplosion(b.x, b.y, '#ffee88', 3);
               }
@@ -4206,6 +4208,14 @@ function loop(timestamp) {
     ctx.fillRect(0, 0, W, H);
     ctx.restore();
     waveFlash--;
+  }
+  if (comboBurstFlash > 0) {
+    ctx.save();
+    ctx.globalAlpha = (comboBurstFlash / 30) * 0.25;
+    ctx.fillStyle = '#ffee88';
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    comboBurstFlash--;
   }
   if (tutorialActive) drawTutorialHint();
   if (encounterText && encounterTimer > 0) {
