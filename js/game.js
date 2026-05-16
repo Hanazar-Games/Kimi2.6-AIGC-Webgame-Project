@@ -1254,29 +1254,7 @@ function unlockAchievement(key) {
     spawnFloatingText(W / 2, H / 2 - 60, `Achievement: ${a.name}`, '#ffcc44');
     spawnFloatingText(W / 2, H / 2 - 40, a.desc, '#ffee88');
     shake = Math.max(shake, 8);
-    if (state === STATE.COUNTDOWN) {
-    countdownTimer--;
-    if (countdownTimer <= 0) {
-      countdownValue--;
-      if (countdownValue > 0) {
-        countdownTimer = 60;
-        playTone(600 + countdownValue * 200, 'sine', 0.12, 0.1);
-      } else if (countdownValue === 0) {
-        countdownTimer = 45;
-        playTone(1200, 'square', 0.15, 0.12);
-        // GO!
-      } else {
-        startWave();
-        state = STATE.PLAYING;
-      }
-    }
-    updatePlanets(timeScale);
-    updateAsteroids(timeScale);
-    updateMeteors(timeScale);
-    updateParticles();
-  }
-
-  if (state === STATE.PLAYING) {
+    if (state === STATE.PLAYING) {
       achievementNotifications.push({ name: a.name, desc: a.desc });
     }
     for (let k = 0; k < 20; k++) {
@@ -4979,7 +4957,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.83.0', W - 6, H - 6);
+  ctx.fillText('v1.83.1', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -6212,6 +6190,27 @@ function loop(timestamp) {
       requestAnimationFrame(loop);
       return;
     }
+  }
+
+  if (state === STATE.COUNTDOWN) {
+    countdownTimer--;
+    if (countdownTimer <= 0) {
+      countdownValue--;
+      if (countdownValue > 0) {
+        countdownTimer = 60;
+        playTone(600 + countdownValue * 200, 'sine', 0.12, 0.1);
+      } else if (countdownValue === 0) {
+        countdownTimer = 45;
+        playTone(1200, 'square', 0.15, 0.12);
+      } else {
+        startWave();
+        state = STATE.PLAYING;
+      }
+    }
+    updatePlanets(timeScale);
+    updateAsteroids(timeScale);
+    updateMeteors(timeScale);
+    updateParticles();
   }
 
   if (state === STATE.PLAYING) {
