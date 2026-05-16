@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.83.8';
+const VERSION = 'v1.83.9';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -5048,17 +5048,20 @@ function drawUI() {
       'P — Pause',
       'H — Show/Hide this help',
       '',
-      '[ / ] — Volume',
-      '- / = — Particle density',
-      'T — Color theme',
-      'A — Auto fire',
-      'M — Music',
+      'Q — Cycle weapon',
+      '1-7 — Select weapon directly',
       'W — Weapon info',
       'Tab — Stats',
       'L — Achievements',
       'E — Enemy log',
       'G — Leaderboard',
       'I — Wave info',
+      '',
+      '[ / ] — Volume',
+      '- / = — Particle density',
+      'T — Color theme',
+      'A — Auto fire',
+      'M — Music',
       'F2 — Screenshot',
       'F3 — FPS display',
       'F4 — Fullscreen',
