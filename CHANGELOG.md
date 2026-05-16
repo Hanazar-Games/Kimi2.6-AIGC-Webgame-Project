@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.70.1] - 2026-05-13
+
+### Added
+- Elite Wave system
+  - Every 10th wave (non-boss) becomes an Elite Wave
+  - ALL enemies in the wave are guaranteed elite
+  - Gold "ELITE WAVE!" warning on wave start
+  - Screen shake + warning sound on announcement
+  - Makes certain waves dramatically more intense
+
 ## [1.70.0] - 2026-05-13
 
 ### Added

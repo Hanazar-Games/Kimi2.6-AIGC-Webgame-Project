@@ -246,6 +246,7 @@ let waveClearTimer = 0;
 let waveClearWave = 0;
 let waveClearPerfect = false;
 let waveClearIsBoss = false;
+let eliteWave = false;
 let bombCooldown = 0;
 let bombAnim = 0;
 let grazeCount = 0;
@@ -929,7 +930,8 @@ function spawnEnemy(type) {
   else { x = -20; y = rand(30, H * 0.6); }
 
   const eliteRate = difficulty === 4 ? 0.15 : 0.08;
-  const isElite = type !== 'swarmer' && Math.random() < (type === 'boss' ? 0.15 : eliteRate);
+  let isElite = type !== 'swarmer' && Math.random() < (type === 'boss' ? 0.15 : eliteRate);
+  if (eliteWave && type !== 'boss' && type !== 'swarmer') isElite = true;
 
   const base = {
     x, y, vx: 0, vy: 0,
@@ -1100,6 +1102,12 @@ function checkWaveAchievements() {
 function startWave() {
   waveFlash = 20;
   bombsUsedThisWave = 0;
+  eliteWave = (wave % 10 === 0) && (wave % 5 !== 0);
+  if (eliteWave) {
+    spawnFloatingText(W / 2, H / 2 - 50, 'ELITE WAVE!', '#ffaa00');
+    shake = Math.max(shake, 6);
+    sfxHurt();
+  }
   // check no-damage streak for Untouchable achievement
   if (wave > 1 && !damageTakenThisWave) {
     noDamageWaves++;
