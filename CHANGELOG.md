@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.69.3] - 2026-05-13
+
+### Added
+- Background meteor shower effects
+  - Meteors streak across the sky at random intervals (5-10s)
+  - Spawn from top or left edge with varied trajectories
+  - Bright white head with blue trailing streak
+  - Alpha fades as meteor burns out
+  - Adds dynamic life to the background without distracting gameplay
+
 ## [1.69.2] - 2026-05-13
 
 ### Improved

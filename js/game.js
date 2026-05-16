@@ -269,6 +269,8 @@ let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
 let asteroids = [];
+let meteors = [];
+let meteorTimer = 0;
 let practiceMode = false;
 let autoFire = false;
 let planets = [];
@@ -2323,6 +2325,54 @@ function drawAsteroids() {
   }
 }
 
+function updateMeteors(timeScale = 1) {
+  if (meteorTimer <= 0 && Math.random() < 0.008) {
+    meteorTimer = rand(300, 600);
+    const side = Math.floor(rand(0, 2));
+    let mx, my, mvx, mvy;
+    if (side === 0) {
+      mx = rand(0, W); my = -10;
+      mvx = rand(-0.5, 0.5); mvy = rand(3, 6);
+    } else {
+      mx = -10; my = rand(0, H * 0.5);
+      mvx = rand(3, 6); mvy = rand(0.5, 2);
+    }
+    meteors.push({ x: mx, y: my, vx: mvx, vy: mvy, life: rand(40, 70), maxLife: 70, size: rand(1.5, 3.5) });
+  }
+  if (meteorTimer > 0) meteorTimer -= timeScale;
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const m = meteors[i];
+    m.x += m.vx * timeScale;
+    m.y += m.vy * timeScale;
+    m.life -= timeScale;
+    if (m.life <= 0 || m.x > W + 20 || m.y > H + 20) meteors.splice(i, 1);
+  }
+}
+
+function drawMeteors() {
+  for (const m of meteors) {
+    const alpha = m.life / m.maxLife;
+    const trailLen = Math.min(40, Math.hypot(m.vx, m.vy) * 6);
+    const tx = m.x - (m.vx / Math.hypot(m.vx, m.vy || 1)) * trailLen;
+    const ty = m.y - (m.vy / Math.hypot(m.vx, m.vy || 1)) * trailLen;
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.6;
+    ctx.strokeStyle = '#aaddff';
+    ctx.lineWidth = m.size;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(m.x, m.y);
+    ctx.stroke();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, m.size * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 function drawPlayer() {
   const theme = THEMES[colorTheme];
   ctx.save();
@@ -3925,6 +3975,7 @@ function loop(timestamp) {
   drawStars();
   drawNebulae();
   drawAsteroids();
+  drawMeteors();
 
   const timeScale = deathSlowMo > 0 ? 0.15 : (slowMo > 0 ? 0.4 : 1.0);
   // frame skip for 30fps mode
@@ -4036,6 +4087,7 @@ function loop(timestamp) {
     }
     updatePlanets(timeScale);
     updateAsteroids(timeScale);
+    updateMeteors(timeScale);
     updateParticles();
     updateShockwaves(timeScale);
     waveLogic();
