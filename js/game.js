@@ -247,6 +247,8 @@ let waveClearWave = 0;
 let waveClearPerfect = false;
 let waveClearIsBoss = false;
 let eliteWave = false;
+let waveScale = 1;
+let lastWave = 0;
 let bombCooldown = 0;
 let bombAnim = 0;
 let grazeCount = 0;
@@ -3210,7 +3212,22 @@ function drawUI() {
   document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()} (x${mult})`;
   const totalSpawned = enemiesToSpawn + enemies.length;
   const waveProgress = totalSpawned > 0 ? Math.floor(((totalSpawned - enemiesToSpawn) / totalSpawned) * 100) : 0;
-  document.getElementById('wave').textContent = `WAVE: ${wave} (${waveProgress}%)`;
+  const waveEl = document.getElementById('wave');
+  if (waveEl) {
+    waveEl.textContent = `WAVE: ${wave} (${waveProgress}%)`;
+    if (lastWave !== wave) {
+      lastWave = wave;
+      waveScale = 1.5;
+    }
+    if (waveScale > 1) {
+      waveScale -= 0.04;
+      waveEl.style.transform = `scale(${waveScale})`;
+      waveEl.style.display = 'inline-block';
+    } else {
+      waveScale = 1;
+      waveEl.style.transform = 'scale(1)';
+    }
+  }
   const timerEl = document.getElementById('timer');
   if (timerEl && gameStartTime > 0) {
     const sec = Math.floor((Date.now() - gameStartTime) / 1000);

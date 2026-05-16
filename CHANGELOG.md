@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.70.2] - 2026-05-13
+
+### Added
+- Wave number pop animation
+  - HUD wave text briefly scales up (1.5x) when wave changes
+  - Smooth elastic decay back to normal size
+  - Adds satisfying feedback to wave progression
+  - Works for all wave types (normal, boss, elite)
+
 ## [1.70.1] - 2026-05-13
 
 ### Added
