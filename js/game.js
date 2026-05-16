@@ -390,6 +390,11 @@ const ACHIEVEMENTS = {
   theme_survivor: { name: 'Theme Survivor', desc: 'Clear a Theme wave without taking damage', unlocked: false },
   magnetic_personality: { name: 'Magnetic Personality', desc: 'Pick up a Magnet power-up', unlocked: false },
   ricochet_king: { name: 'Ricochet King', desc: 'Kill an enemy with a bounced bullet', unlocked: false },
+  portal_observer: { name: 'Portal Observer', desc: 'Witness 50 enemies spawn through portals', unlocked: false },
+  homing_ace: { name: 'Homing Ace', desc: 'Destroy 100 enemies with Homing Missiles', unlocked: false },
+  overdrive_killer: { name: 'Overdrive Killer', desc: 'Destroy 30 enemies during Overdrive', unlocked: false },
+  elite_wave_survivor: { name: 'Elite Wave Survivor', desc: 'Survive an Elite Wave', unlocked: false },
+  combo_burst_master: { name: 'Combo Burst Master', desc: 'Trigger Combo Burst 3 times', unlocked: false },
 };
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
@@ -402,6 +407,11 @@ let scoreMultBonus = 1.0;
 let damageTakenThisWave = false;
 let usedWeapons = new Set();
 let bombsUsedThisWave = 0;
+let portalSpawnsSeen = 0;
+let homingKills = 0;
+let overdriveKills = 0;
+let eliteWavesSurvived = 0;
+let comboBurstsTriggered = 0;
 
 function loadAchievements() {
   try {
@@ -935,6 +945,10 @@ function spawnEnemy(type) {
   const eliteRate = difficulty === 4 ? 0.15 : 0.08;
   let isElite = type !== 'swarmer' && Math.random() < (type === 'boss' ? 0.15 : eliteRate);
   if (eliteWave && type !== 'boss' && type !== 'swarmer') isElite = true;
+  if (type !== 'boss') {
+    portalSpawnsSeen++;
+    if (portalSpawnsSeen >= 50) unlockAchievement('portal_observer');
+  }
 
   const base = {
     x, y, vx: 0, vy: 0,
@@ -1363,6 +1377,10 @@ function waveLogic() {
       waveClearWave = wave;
       waveClearPerfect = !damageTakenThisWave && wave > 1;
       waveClearIsBoss = false;
+      if (eliteWave) {
+        eliteWavesSurvived++;
+        unlockAchievement('elite_wave_survivor');
+      }
       wave++;
       checkWaveAchievements();
       startWave();
@@ -2018,6 +2036,8 @@ function checkCollisions() {
               // combo burst: clear bullets and damage all enemies
               spawnFloatingText(W / 2, H / 2 + 50, 'COMBO BURST!', '#ffee44');
               comboBurstFlash = 30;
+              comboBurstsTriggered++;
+              if (comboBurstsTriggered >= 3) unlockAchievement('combo_burst_master');
               for (const b of enemyBullets) {
                 spawnExplosion(b.x, b.y, '#ffee88', 3);
               }
@@ -2067,6 +2087,14 @@ function checkCollisions() {
           if (e.type === 'medic') unlockAchievement('medic_down');
           if (e.type === 'divider') unlockAchievement('divider_down');
           if (b.maxBounces > 0 && b.bounces < b.maxBounces) unlockAchievement('ricochet_king');
+          if (weaponType === 'homing') {
+            homingKills++;
+            if (homingKills >= 100) unlockAchievement('homing_ace');
+          }
+          if (overdriveTimer > 0) {
+            overdriveKills++;
+            if (overdriveKills >= 30) unlockAchievement('overdrive_killer');
+          }
           stats.kills++;
           enemies.splice(j, 1);
         } else {
@@ -3675,6 +3703,11 @@ function resetGame() {
   timeStopTimer = 0;
   magnetTimer = 0;
   deathSlowMo = 0;
+  portalSpawnsSeen = 0;
+  homingKills = 0;
+  overdriveKills = 0;
+  eliteWavesSurvived = 0;
+  comboBurstsTriggered = 0;
 
   score = 0;
   wave = 1;

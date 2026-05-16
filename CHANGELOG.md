@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.71.0] - 2026-05-13
+
+### Added
+- 5 new achievements (30 total)
+  - Portal Observer — Witness 50 enemies spawn through portals
+  - Homing Ace — Destroy 100 enemies with Homing Missiles
+  - Overdrive Killer — Destroy 30 enemies during Overdrive
+  - Elite Wave Survivor — Survive an Elite Wave
+  - Combo Burst Master — Trigger Combo Burst 3 times
+  - Each tracks progress across the run and unlocks automatically
+
 ## [1.70.4] - 2026-05-13
 
 ### Added
