@@ -258,6 +258,90 @@ function sfxBossAlert() {
   o.start(t);
   o.stop(t + 0.9);
 }
+function sfxWaveTheme(theme) {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  switch (theme) {
+    case 'SWARM':
+      // Dense buzzing: rapid low chirps
+      for (let i = 0; i < 6; i++) {
+        const o = audioCtx.createOscillator();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(200 + i * 30, t + i * 0.06);
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.02 * masterVolume, t + i * 0.06);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.08);
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start(t + i * 0.06);
+        o.stop(t + i * 0.06 + 0.1);
+      }
+      break;
+    case 'ASSAULT':
+      // Fast drum-like impacts
+      for (let i = 0; i < 4; i++) {
+        const o = audioCtx.createOscillator();
+        o.type = 'square';
+        o.frequency.setValueAtTime(150, t + i * 0.12);
+        o.frequency.exponentialRampToValueAtTime(80, t + i * 0.12 + 0.08);
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.04 * masterVolume, t + i * 0.12);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.1);
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start(t + i * 0.12);
+        o.stop(t + i * 0.12 + 0.12);
+      }
+      break;
+    case 'FORTRESS':
+      // Heavy low drone
+      {
+        const o = audioCtx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(80, t);
+        o.frequency.exponentialRampToValueAtTime(50, t + 0.3);
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.05 * masterVolume, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start(t);
+        o.stop(t + 0.45);
+      }
+      break;
+    case 'SNIPER':
+      // Electronic tick-tock
+      for (let i = 0; i < 5; i++) {
+        const o = audioCtx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(1200 - i * 100, t + i * 0.1);
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.025 * masterVolume, t + i * 0.1);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.06);
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start(t + i * 0.1);
+        o.stop(t + i * 0.1 + 0.08);
+      }
+      break;
+    case 'DIVIDE':
+      // Splitting sound: rapid descending chirps
+      for (let i = 0; i < 4; i++) {
+        const o = audioCtx.createOscillator();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(600, t + i * 0.08);
+        o.frequency.exponentialRampToValueAtTime(200, t + i * 0.08 + 0.1);
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.03 * masterVolume, t + i * 0.08);
+        g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.12);
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start(t + i * 0.08);
+        o.stop(t + i * 0.08 + 0.14);
+      }
+      break;
+  }
+}
 function sfxComboChime(currentCombo) {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
@@ -1606,6 +1690,7 @@ function startWave() {
     waveTheme = themes[Math.floor(Math.random() * themes.length)];
     const themeColors = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
     spawnFloatingText(W / 2, H / 2 + 30, `${waveTheme} WAVE!`, themeColors[waveTheme] || '#ffcc44');
+    sfxWaveTheme(waveTheme);
   }
   if (!rewardSelectActive) {
     sfxWaveStart();
@@ -4625,7 +4710,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.0 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.1 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
