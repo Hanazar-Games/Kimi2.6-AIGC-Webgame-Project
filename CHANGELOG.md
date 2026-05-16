@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.3] - 2026-05-13
+
+### Added
+- Enemy low-HP warning flash
+  - Enemies below 30% health glow red with pulsing alpha
+  - Flash frequency increases as HP drops lower
+  - Helps players prioritize finishing wounded targets
+  - Adds visual urgency to combat
+
 ## [1.68.2] - 2026-05-13
 
 ### Improved

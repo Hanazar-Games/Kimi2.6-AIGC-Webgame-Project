@@ -2346,6 +2346,17 @@ function drawEnemies() {
     ctx.shadowBlur = 10;
     ctx.shadowColor = e.color;
 
+    // Low HP flash effect
+    const hpPct = e.hp / e.maxHp;
+    if (hpPct < 0.3 && hpPct > 0) {
+      const flashSpeed = 100 + hpPct * 300;
+      const flashAlpha = 0.15 + 0.15 * Math.sin(Date.now() / flashSpeed);
+      ctx.fillStyle = `rgba(255, 0, 0, ${flashAlpha})`;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius * 1.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     if (e.type === 'drone') {
       ctx.fillStyle = e.color;
       ctx.beginPath();
