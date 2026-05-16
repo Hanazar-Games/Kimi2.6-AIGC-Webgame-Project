@@ -1068,6 +1068,7 @@ let noDamageWaves = 0;
 let totalPerfectWaves = 0;
 let bossesDefeatedThisRun = 0;
 let recordBrokenThisRun = false;
+let achievementsThisRun = 0;
 let volumeDisplayTimer = 0;
 let particleDisplayTimer = 0;
 let themeDisplayTimer = 0;
@@ -1239,6 +1240,7 @@ function unlockAchievement(key) {
   const a = ACHIEVEMENTS[key];
   if (a && !a.unlocked) {
     a.unlocked = true;
+    achievementsThisRun++;
     saveAchievements();
     sfxAchievementUnlock();
     spawnFloatingText(W / 2, H / 2 - 60, `Achievement: ${a.name}`, '#ffcc44');
@@ -4669,6 +4671,15 @@ function drawUI() {
       streakEl.style.display = 'none';
     }
   }
+  const achCountEl = document.getElementById('achievement-count');
+  if (achCountEl) {
+    if (achievementsThisRun > 0) {
+      achCountEl.style.display = 'inline';
+      achCountEl.textContent = `🏆 ${achievementsThisRun}`;
+    } else {
+      achCountEl.style.display = 'none';
+    }
+  }
   document.getElementById('health-text').textContent = `HP: ${Math.max(0, player.hp)}/${player.maxHp}`;
   const hpPct = Math.max(0, player.hp) / player.maxHp * 100;
   const hpFill = document.getElementById('health-fill');
@@ -4921,7 +4932,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.81.6', W - 6, H - 6);
+  ctx.fillText('v1.81.7', W - 6, H - 6);
   ctx.restore();
 }
 
@@ -5325,6 +5336,7 @@ function resetGame() {
   totalPerfectWaves = 0;
   bossesDefeatedThisRun = 0;
   recordBrokenThisRun = false;
+  achievementsThisRun = 0;
   volumeDisplayTimer = 0;
   particleDisplayTimer = 0;
   themeDisplayTimer = 0;
