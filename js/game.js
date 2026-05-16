@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.1';
+const VERSION = 'v1.84.2';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -1071,6 +1071,19 @@ const ACHIEVEMENTS = {
   phantom_hunter: { name: 'Phantom Hunter', desc: 'Destroy 10 Phantom enemies', unlocked: false },
   chain_reaction: { name: 'Chain Reaction', desc: 'Kill 5 enemies with one explosive shell', unlocked: false },
   century: { name: 'Century', desc: 'Kill 100 enemies in one run', unlocked: false },
+  laser_sniper: { name: 'Laser Sniper', desc: 'Destroy 50 enemies with the Laser', unlocked: false },
+  rapid_fire: { name: 'Rapid Fire', desc: 'Destroy 100 enemies with Rapid Fire', unlocked: false },
+  spread_shot: { name: 'Spread Shot', desc: 'Destroy 50 enemies with Spread', unlocked: false },
+  ricochet_master: { name: 'Ricochet Master', desc: 'Destroy 30 enemies with Ricochet bounces', unlocked: false },
+  balanced_veteran: { name: 'Balanced Veteran', desc: 'Destroy 200 enemies with Balanced', unlocked: false },
+  bomb_specialist: { name: 'Bomb Specialist', desc: 'Kill 20 enemies with Bombs', unlocked: false },
+  score_chaser: { name: 'Score Chaser', desc: 'Score 500,000 points in one run', unlocked: false },
+  time_warrior: { name: 'Time Warrior', desc: 'Survive for 10 minutes', unlocked: false },
+  elite_hunter: { name: 'Elite Hunter', desc: 'Destroy 10 Elite enemies', unlocked: false },
+  mine_sweeper: { name: 'Mine Sweeper', desc: 'Destroy 20 Mines', unlocked: false },
+  wave_master: { name: 'Wave Master', desc: 'Reach Wave 30', unlocked: false },
+  dash_master: { name: 'Dash Master', desc: 'Dash 50 times', unlocked: false },
+  collector: { name: 'Collector', desc: 'Pick up 50 power-ups in one run', unlocked: false },
 };
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
@@ -1110,6 +1123,16 @@ let comboBurstsTriggered = 0;
 let explosiveBestMultiKill = 0;
 let explosiveKills = 0;
 let phantomKills = 0;
+let laserKills = 0;
+let rapidKills = 0;
+let spreadKills = 0;
+let ricochetKills = 0;
+let balancedKills = 0;
+let bombKills = 0;
+let eliteKills = 0;
+let mineKills = 0;
+let dashCount = 0;
+let powerupsCollected = 0;
 
 function loadAchievements() {
   try {
@@ -1285,6 +1308,12 @@ function checkAchievements() {
   if (grazeCount >= 100) unlockAchievement('grazer');
   if (combo >= 25) unlockAchievement('combo_master');
   if (wave >= 10) unlockAchievement('survivor');
+  if (score >= 500000) unlockAchievement('score_chaser');
+  if (wave >= 30) unlockAchievement('wave_master');
+  if (gameStartTime > 0) {
+    const minutes = (Date.now() - gameStartTime) / 60000;
+    if (minutes >= 10) unlockAchievement('time_warrior');
+  }
 }
 function updateAchievementUI() {
   const list = document.getElementById('achievement-list');
@@ -2243,6 +2272,8 @@ function useBomb() {
       spawnExplosion(e.x, e.y, e.color, 20);
       spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
       if (Math.random() < 0.15) spawnPowerup(e.x, e.y);
+      bombKills++;
+      if (bombKills >= 20) unlockAchievement('bomb_specialist');
       enemies.splice(i, 1);
     }
   }
@@ -2429,6 +2460,8 @@ function updatePlayer() {
     player.vy = my * player.dashSpeed;
     sfxDash();
     spawnFloatingText(player.x, player.y - 20, 'DASH!', '#aaddff');
+    dashCount++;
+    if (dashCount >= 50) unlockAchievement('dash_master');
   }
 
   player.vx += (mx * speed - player.vx) * 0.2;
@@ -2991,6 +3024,8 @@ function updatePowerups(timeScale = 1) {
         p.vy *= 0.8;
       } else {
         // Collected
+        powerupsCollected++;
+        if (powerupsCollected >= 50) unlockAchievement('collector');
         const puColors = {
           energy: '#44ff66', power: '#ffcc44', shield: '#44aaff',
           timestop: '#ff88ff', magnet: '#ffaa44', overdrive: '#ff4444', score: '#ffee44',
@@ -3258,9 +3293,37 @@ function checkCollisions() {
             explosiveKills++;
             if (explosiveKills >= 50) unlockAchievement('explosive_destroyer');
           }
+          if (weaponType === 'laser') {
+            laserKills++;
+            if (laserKills >= 50) unlockAchievement('laser_sniper');
+          }
+          if (weaponType === 'rapid') {
+            rapidKills++;
+            if (rapidKills >= 100) unlockAchievement('rapid_fire');
+          }
+          if (weaponType === 'spread') {
+            spreadKills++;
+            if (spreadKills >= 50) unlockAchievement('spread_shot');
+          }
+          if (weaponType === 'ricochet') {
+            ricochetKills++;
+            if (ricochetKills >= 30) unlockAchievement('ricochet_master');
+          }
+          if (weaponType === 'balanced') {
+            balancedKills++;
+            if (balancedKills >= 200) unlockAchievement('balanced_veteran');
+          }
           if (overdriveTimer > 0) {
             overdriveKills++;
             if (overdriveKills >= 30) unlockAchievement('overdrive_killer');
+          }
+          if (e.elite) {
+            eliteKills++;
+            if (eliteKills >= 10) unlockAchievement('elite_hunter');
+          }
+          if (e.type === 'mine') {
+            mineKills++;
+            if (mineKills >= 20) unlockAchievement('mine_sweeper');
           }
           enemyKillsLog[e.type] = (enemyKillsLog[e.type] || 0) + 1;
           stats.kills++;
@@ -5742,6 +5805,16 @@ function resetGame() {
   explosiveBestMultiKill = 0;
   explosiveKills = 0;
   phantomKills = 0;
+  laserKills = 0;
+  rapidKills = 0;
+  spreadKills = 0;
+  ricochetKills = 0;
+  balancedKills = 0;
+  bombKills = 0;
+  eliteKills = 0;
+  mineKills = 0;
+  dashCount = 0;
+  powerupsCollected = 0;
 
   score = 0;
   wave = 1;
