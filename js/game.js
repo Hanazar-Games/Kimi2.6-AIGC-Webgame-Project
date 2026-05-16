@@ -939,6 +939,7 @@ let tutorialStepsShown = new Set();
 let countdownValue = 3;
 let countdownTimer = 0;
 let logoTimer = 180;
+let damageIndicators = [];
 let asteroids = [];
 let meteors = [];
 let meteorTimer = 0;
@@ -1654,6 +1655,7 @@ function bomberExplode(e) {
     player.hp -= practiceMode ? 0 : 12;
     player.invincible = 60;
     damageFlash = 10;
+    damageIndicators.push({ angle: boomAngle, life: 60, maxLife: 60 });
     shake = Math.max(shake, 12);
     damageTakenThisWave = true;
     spawnPlayerHitParticles();
@@ -3304,6 +3306,7 @@ function checkCollisions() {
         const bAngle2 = Math.atan2(player.y - b.y, player.x - b.x);
         shakeDirX = Math.cos(bAngle2);
         shakeDirY = Math.sin(bAngle2);
+        damageIndicators.push({ angle: bAngle2, life: 60, maxLife: 60 });
         damageFlash = 15;
         damageTakenThisWave = true;
         spawnExplosion(player.x, player.y, '#44aaff', 16);
@@ -3382,6 +3385,7 @@ function playerDeathEffect() {
         const eAngle = Math.atan2(player.y - e.y, player.x - e.x);
         shakeDirX = Math.cos(eAngle);
         shakeDirY = Math.sin(eAngle);
+        damageIndicators.push({ angle: eAngle, life: 60, maxLife: 60 });
         damageFlash = 15;
         damageTakenThisWave = true;
         spawnPlayerHitParticles();
@@ -4365,6 +4369,47 @@ function hexToRgba(hex, a) {
   return `rgba(${r},${g},${b},${a})`;
 }
 
+function drawDamageIndicators() {
+  for (let i = damageIndicators.length - 1; i >= 0; i--) {
+    const ind = damageIndicators[i];
+    ind.life--;
+    if (ind.life <= 0) {
+      damageIndicators.splice(i, 1);
+      continue;
+    }
+    const t = ind.life / ind.maxLife;
+    const alpha = t * 0.7;
+    const size = 20 + (1 - t) * 15;
+    // Position on screen edge in direction of damage
+    const margin = 30;
+    let dx = Math.cos(ind.angle);
+    let dy = Math.sin(ind.angle);
+    let ix, iy;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      ix = dx > 0 ? W - margin : margin;
+      iy = H / 2 + dy * (H / 2 - margin * 2);
+    } else {
+      iy = dy > 0 ? H - margin : margin;
+      ix = W / 2 + dx * (W / 2 - margin * 2);
+    }
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(ix, iy);
+    ctx.rotate(ind.angle);
+    ctx.fillStyle = '#ff3333';
+    ctx.shadowColor = '#ff0000';
+    ctx.shadowBlur = 10;
+    // Draw arrow pointing inward
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.5, -size * 0.3);
+    ctx.lineTo(size * 0.3, 0);
+    ctx.lineTo(-size * 0.5, size * 0.3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 function drawTutorialHint() {
   ctx.save();
   ctx.globalAlpha = 0.7 + Math.sin(Date.now() * 0.005) * 0.3;
@@ -5006,7 +5051,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.83.3', W - 6, H - 6);
+  ctx.fillText('v1.83.4', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -6481,6 +6526,7 @@ function loop(timestamp) {
   drawDangerZone();
   drawDamageFlash();
   drawPickupFlash();
+  drawDamageIndicators();
   drawLowHPWarning();
   drawBossWarning();
   if (bombAnim > 0) drawBombEffect();
