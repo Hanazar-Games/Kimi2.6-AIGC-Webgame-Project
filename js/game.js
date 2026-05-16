@@ -470,6 +470,24 @@ function sfxPerfectWave() {
   o2.start(t);
   o2.stop(t + 0.55);
 }
+function sfxMilestone() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  // Triumphant ascending fanfare
+  const notes = [523, 659, 784, 1047, 1319];
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.06);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.05 * masterVolume, t + i * 0.06);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.15);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.06);
+    o.stop(t + i * 0.06 + 0.2);
+  }
+}
 function sfxHurt() { playTone(120, 'sawtooth', 0.25, 0.08); }
 function sfxWaveStart() {
   playTone(440, 'square', 0.15, 0.05);
@@ -2771,6 +2789,7 @@ function checkCollisions() {
           if ([50, 100, 200, 500].includes(stats.kills)) {
             spawnFloatingText(W / 2, H / 2 - 60, `KILL MILESTONE: ${stats.kills}!`, '#ffee44');
             shake = Math.max(shake, 8);
+            sfxMilestone();
           }
           enemies.splice(j, 1);
         } else {
@@ -4784,7 +4803,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.75.0 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.75.1 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
