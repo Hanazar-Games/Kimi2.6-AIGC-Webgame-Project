@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.71.1] - 2026-05-13
+
+### Improved
+- Weapon-colored engine trails
+  - Each weapon now has a unique engine exhaust color
+  - Balanced = cyan, Spread = green, Rapid = orange
+  - Laser = magenta, Ricochet = gold, Homing = pink
+  - Makes weapon choice more visually distinct during gameplay
+
 ## [1.71.0] - 2026-05-13
 
 ### Added

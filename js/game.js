@@ -1454,6 +1454,14 @@ function updatePlayer() {
     if (Math.random() < 0.5) {
       const theme = THEMES[colorTheme];
       const backAngle = player.angle + Math.PI;
+      const engineColors = {
+        balanced: '#44ffaa',
+        spread: '#44ff88',
+        rapid: '#ffaa44',
+        laser: '#ff66ff',
+        ricochet: '#ffcc66',
+        homing: '#ff66cc',
+      };
       particles.push({
         x: player.x + Math.cos(backAngle) * 8 + rand(-3, 3),
         y: player.y + Math.sin(backAngle) * 8 + rand(-3, 3),
@@ -1461,7 +1469,7 @@ function updatePlayer() {
         vy: Math.sin(backAngle) * rand(0.5, 1.5) + rand(-0.3, 0.3),
         life: rand(6, 14),
         maxLife: 14,
-        color: theme.engine,
+        color: engineColors[weaponType] || theme.engine,
         size: rand(1.5, 3),
         decay: 0.9,
       });
