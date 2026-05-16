@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.85.1';
+const VERSION = 'v1.85.2';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -1570,17 +1570,18 @@ function spawnExplosion(x, y, color, count = 12, shockwave = false) {
 
 function spawnPlayerHitParticles() {
   const densityMult = particleDensity === 0 ? 0.5 : particleDensity === 1 ? 0.8 : 1.0;
-  const count = Math.floor(10 * densityMult);
+  const count = Math.floor(14 * densityMult);
   for (let i = 0; i < count; i++) {
     const a = rand(0, Math.PI * 2);
-    const s = rand(2, 5);
+    const s = rand(2, 6);
+    const isRed = Math.random() < 0.4;
     particles.push({
       x: player.x, y: player.y,
       vx: Math.cos(a) * s,
       vy: Math.sin(a) * s,
-      life: rand(15, 30),
-      maxLife: 30,
-      color: '#aaddff',
+      life: rand(15, 35),
+      maxLife: 35,
+      color: isRed ? '#ff4444' : '#aaddff',
       size: rand(2, 4),
       decay: 0.92,
     });
@@ -6228,10 +6229,12 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense ${VERSION} | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  ctx.fillText(`Stellar Defense ${VERSION} | ${dateStr} | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
-  link.download = `stellar-defense-w${wave}-${score}.png`;
+  link.download = `stellar-defense-w${wave}-${score}-${Date.now()}.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
 }
