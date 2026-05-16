@@ -2011,6 +2011,7 @@ function startWave() {
   if (noDamageWaves >= 3 && !rewardSelectActive) {
     rewardSelectActive = true;
     generateRewardOptions();
+    sfxRewardAppear();
     spawnFloatingText(W / 2, H / 2 - 30, 'CHOOSE YOUR REWARD!', '#ffee44');
     shake = Math.max(shake, 4);
     shakeDirX = 0;
@@ -2057,12 +2058,46 @@ function generateRewardOptions() {
     }
   }
 }
+function sfxRewardAppear() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const notes = [440, 554, 659]; // A4, C#5, E5 (bright major triad)
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.06);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.035 * masterVolume, t + i * 0.06);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.15);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.06);
+    o.stop(t + i * 0.06 + 0.2);
+  }
+}
+function sfxRewardSelect() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6 (celebratory arpeggio)
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.05);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.04 * masterVolume, t + i * 0.05);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.05 + 0.12);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.05);
+    o.stop(t + i * 0.05 + 0.18);
+  }
+}
 function applyReward(idx) {
   if (idx >= 0 && idx < rewardOptions.length) {
     const r = rewardOptions[idx];
     r.apply();
     spawnFloatingText(W / 2, H / 2 + 80, r.name, r.color);
-    sfxPowerup();
+    sfxRewardSelect();
     shake = Math.max(shake, 6);
     shakeDirX = 0;
     shakeDirY = -1;
@@ -5201,7 +5236,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.2 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.78.3 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
