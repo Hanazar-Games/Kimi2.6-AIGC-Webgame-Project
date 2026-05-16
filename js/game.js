@@ -1071,6 +1071,7 @@ let recordBrokenThisRun = false;
 let volumeDisplayTimer = 0;
 let particleDisplayTimer = 0;
 let themeDisplayTimer = 0;
+let autoFireDisplayTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4752,6 +4753,25 @@ function drawUI() {
     ctx.fillText(`THEME: ${theme.name}`, tx + 6, ty + 15);
     ctx.restore();
   }
+  // Auto fire indicator overlay
+  if (autoFireDisplayTimer > 0) {
+    autoFireDisplayTimer--;
+    const alpha = Math.min(1, autoFireDisplayTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const ax = W - 120;
+    const ay = H - 118;
+    ctx.fillStyle = 'rgba(20, 30, 60, 0.85)';
+    ctx.fillRect(ax, ay, 110, 22);
+    ctx.strokeStyle = autoFire ? 'rgba(100, 255, 100, 0.5)' : 'rgba(255, 100, 100, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(ax, ay, 110, 22);
+    ctx.fillStyle = autoFire ? '#88ffaa' : '#ff8888';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`AUTO FIRE: ${autoFire ? 'ON' : 'OFF'}`, ax + 6, ay + 15);
+    ctx.restore();
+  }
 }
 
 function drawAchievementNotification() {
@@ -5157,6 +5177,7 @@ function resetGame() {
   volumeDisplayTimer = 0;
   particleDisplayTimer = 0;
   themeDisplayTimer = 0;
+  autoFireDisplayTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5402,7 +5423,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.79.6 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.79.7 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5537,6 +5558,15 @@ function loop(timestamp) {
     colorTheme = (colorTheme + 1) % THEMES.length;
     themeDisplayTimer = 120;
     sfxClick();
+  }
+
+  // Auto fire toggle shortcut
+  if (isDown('a') && state === STATE.PLAYING) {
+    keys['a'] = false;
+    autoFire = !autoFire;
+    autoFireDisplayTimer = 120;
+    sfxClick();
+    try { localStorage.setItem('stellar_defense_autofire', autoFire); } catch (e) {}
   }
 
   // Input for pause
