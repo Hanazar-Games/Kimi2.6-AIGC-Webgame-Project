@@ -2580,6 +2580,29 @@ function updatePlayer() {
     usedWeapons.add(weaponType);
     stats.weaponUses[weaponType] = (stats.weaponUses[weaponType] || 0) + 1;
     const newUses = stats.weaponUses[weaponType];
+    const starLevel = Math.min(5, Math.floor(newUses / 50));
+    const prevLevel = Math.min(5, Math.floor((newUses - 1) / 50));
+    if (starLevel > prevLevel && starLevel <= 5) {
+      const starColor = starLevel === 5 ? '#ffcc44' : '#ffee88';
+      spawnFloatingText(player.x, player.y - 50, `${WEAPON_DESCS[weaponType].name} ★${starLevel}`, starColor);
+      const pCount = particleDensity === 0 ? 10 : particleDensity === 1 ? 16 : 24;
+      for (let k = 0; k < pCount; k++) {
+        const a = rand(0, Math.PI * 2);
+        const s = rand(1, 4);
+        particles.push({
+          x: player.x, y: player.y - 40,
+          vx: Math.cos(a) * s,
+          vy: Math.sin(a) * s,
+          life: rand(25, 50),
+          maxLife: 50,
+          color: starColor,
+          size: rand(2, 4),
+          decay: 0.93,
+        });
+      }
+      shake = Math.max(shake, 4);
+      sfxUpgrade();
+    }
     if (newUses >= 250 && !masteredWeapons.has(weaponType)) {
       masteredWeapons.add(weaponType);
       player.hp = Math.min(player.maxHp, player.hp + 2);
@@ -5051,7 +5074,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.83.5', W - 6, H - 6);
+  ctx.fillText('v1.83.6', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
