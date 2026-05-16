@@ -264,6 +264,7 @@ let waveFlash = 0;
 let waveTheme = null;
 let timeStopTimer = 0;
 let magnetTimer = 0;
+let overdriveTimer = 0;
 let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
@@ -795,6 +796,7 @@ function spawnPowerup(x, y) {
   else if (roll < 0.25) type = 'shield';
   else if (roll < 0.30) type = 'timestop';
   else if (roll < 0.35) type = 'magnet';
+  else if (roll < 0.40) type = 'overdrive';
   powerups.push({
     x, y,
     vx: rand(-0.5, 0.5),
@@ -1367,6 +1369,7 @@ function waveLogic() {
 
 /* ---------- Player Logic ---------- */
 function updatePlayer() {
+  if (overdriveTimer > 0) overdriveTimer--;
   const focus = isDown('shift') || touchFocusBtn;
   const speed = (focus ? player.focusSpeed : player.speed) * speedMultBonus;
 
@@ -1464,7 +1467,7 @@ function updatePlayer() {
     useBomb();
   }
 
-  player.shootCooldown--;
+  player.shootCooldown -= overdriveTimer > 0 ? 2 : 1;
   const shooting = isDown(' ') || isDown('j') || touchShootBtn || autoFire;
   if (shooting && player.shootCooldown <= 0) {
     const pl = player.powerLevel;
@@ -1891,6 +1894,10 @@ function updatePowerups(timeScale = 1) {
         spawnFloatingText(player.x, player.y - 20, 'MAGNET!', '#ffaa44');
         sfxPowerup();
         unlockAchievement('magnetic_personality');
+      } else if (p.type === 'overdrive') {
+        overdriveTimer = 300;
+        spawnFloatingText(player.x, player.y - 20, 'OVERDRIVE!', '#ff4444');
+        sfxUpgrade();
       }
       powerups.splice(i, 1);
     }
@@ -2389,6 +2396,20 @@ function drawPlayer() {
     ctx.beginPath();
     ctx.arc(0, 0, player.radius + 8, 0, Math.PI * 2);
     ctx.stroke();
+  }
+
+  // overdrive aura
+  if (overdriveTimer > 0) {
+    const odPulse = 0.4 + 0.3 * Math.sin(Date.now() * 0.008);
+    ctx.strokeStyle = `rgba(255, 68, 68, ${odPulse})`;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, player.radius + 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255, 68, 68, ${odPulse * 0.2})`;
+    ctx.beginPath();
+    ctx.arc(0, 0, player.radius + 6, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   // glow
@@ -3268,6 +3289,15 @@ function drawUI() {
       dashEl.style.color = '#88aaff';
     }
   }
+  const odEl = document.getElementById('overdrive-status');
+  if (odEl) {
+    if (overdriveTimer > 0) {
+      odEl.textContent = `OVERDRIVE: ${Math.ceil(overdriveTimer / 60)}s`;
+      odEl.style.display = 'inline';
+    } else {
+      odEl.style.display = 'none';
+    }
+  }
   if (activeNotification && state === STATE.PLAYING) {
     drawAchievementNotification();
   }
@@ -3610,6 +3640,7 @@ function resetGame() {
   bombAnim = 0;
   dashCooldown = 0;
   dashing = 0;
+  overdriveTimer = 0;
   damageFlash = 0;
   hitstop = 0;
   waveFlash = 0;

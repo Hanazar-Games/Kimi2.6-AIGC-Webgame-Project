@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.70.0] - 2026-05-13
+
+### Added
+- New power-up: OVERDRIVE
+  - 6th power-up type (5% drop chance)
+  - Doubles fire rate for 5 seconds
+  - Red pulsing aura around player while active
+  - HUD timer shows remaining duration
+  - Visual and audio feedback on pickup
+  - Adds burst-damage option to the power-up roster
+
 ## [1.69.3] - 2026-05-13
 
 ### Added
