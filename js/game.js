@@ -4139,6 +4139,12 @@ function drawUI() {
       }
     }
   }
+  const comboBonusEl = document.getElementById('combo-bonus');
+  if (comboBonusEl) {
+    const bonus = Math.floor(combo * 10);
+    comboBonusEl.textContent = `+${bonus}%`;
+    comboBonusEl.style.display = combo > 0 ? 'inline' : 'none';
+  }
   if (comboFill && comboBar) {
     if (combo > 0 && comboTimer > 0) {
       comboBar.style.display = 'inline-block';
@@ -4868,7 +4874,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.76.2 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.76.3 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
