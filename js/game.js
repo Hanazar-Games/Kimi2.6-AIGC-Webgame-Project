@@ -882,6 +882,7 @@ initTouch();
 
 /* ---------- Game State ---------- */
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
+const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
 let score = 0;
 let highScore = 0;
@@ -2057,8 +2058,7 @@ function startWave() {
   if (wave % 5 !== 0 && wave % 3 === 0 && wave >= 3) {
     const themes = ['SWARM', 'ASSAULT', 'FORTRESS', 'SNIPER', 'DIVIDE'];
     waveTheme = themes[Math.floor(Math.random() * themes.length)];
-    const themeColors = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
-    spawnFloatingText(W / 2, H / 2 + 30, `${waveTheme} WAVE!`, themeColors[waveTheme] || '#ffcc44');
+    spawnFloatingText(W / 2, H / 2 + 30, `${waveTheme} WAVE!`, THEME_COLORS[waveTheme] || '#ffcc44');
     sfxWaveTheme(waveTheme);
   }
   if (!rewardSelectActive) {
@@ -5051,7 +5051,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.83.4', W - 6, H - 6);
+  ctx.fillText('v1.83.5', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -5458,7 +5458,7 @@ function showPause() {
       pThemeRow.style.display = 'block';
       pTheme.textContent = waveTheme;
       const themeColors = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
-      pTheme.style.color = themeColors[waveTheme] || '#ff88ff';
+      pTheme.style.color = THEME_COLORS[waveTheme] || '#ff88ff';
     } else {
       pThemeRow.style.display = 'none';
     }
@@ -6483,6 +6483,16 @@ function loop(timestamp) {
     ctx.restore();
     waveFlash--;
   }
+  // Wave theme background tint
+  if (waveTheme && state === STATE.PLAYING) {
+    ctx.save();
+    const tc = THEME_COLORS[waveTheme];
+    const rgba = hexToRgba(tc, 0.04);
+    ctx.fillStyle = rgba;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
   if (comboBurstFlash > 0) {
     ctx.save();
     ctx.globalAlpha = (comboBurstFlash / 30) * 0.25;
