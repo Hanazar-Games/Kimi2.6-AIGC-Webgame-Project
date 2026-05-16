@@ -359,6 +359,40 @@ function sfxWaveClear() {
     o.stop(t + i * 0.08 + 0.2);
   }
 }
+function sfxPause() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const notes = [523, 392]; // C5 down to G4
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.06);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.025 * masterVolume, t + i * 0.06);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.1);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.06);
+    o.stop(t + i * 0.06 + 0.15);
+  }
+}
+function sfxResume() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const notes = [392, 523]; // G4 up to C5
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.06);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.025 * masterVolume, t + i * 0.06);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.1);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.06);
+    o.stop(t + i * 0.06 + 0.15);
+  }
+}
 function sfxWeaponSwitch() {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
@@ -4933,7 +4967,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.77.0 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.77.1 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -4992,10 +5026,12 @@ function loop(timestamp) {
   if (isDown('p') && state === STATE.PLAYING) {
     keys['p'] = false;
     state = STATE.PAUSED;
+    sfxPause();
     showPause();
   } else if (isDown('p') && state === STATE.PAUSED) {
     keys['p'] = false;
     state = STATE.PLAYING;
+    sfxResume();
     hideScreens();
   }
   // Quick restart from game over
