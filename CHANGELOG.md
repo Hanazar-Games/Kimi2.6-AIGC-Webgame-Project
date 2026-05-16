@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.72.1] - 2026-05-13
+
+### Improved
+- Wave progress display now shows kill count
+  - Changed from percentage (e.g. "65%") to fraction (e.g. "8/12")
+  - More intuitive and precise than percentage alone
+  - Works for all wave types including boss and elite waves
+
 ## [1.72.0] - 2026-05-13
 
 ### Added

@@ -3374,10 +3374,10 @@ function drawUI() {
   const mult = (1 + combo * 0.1).toFixed(1);
   document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()} (x${mult})`;
   const totalSpawned = enemiesToSpawn + enemies.length;
-  const waveProgress = totalSpawned > 0 ? Math.floor(((totalSpawned - enemiesToSpawn) / totalSpawned) * 100) : 0;
+  const killed = totalSpawned - enemiesToSpawn;
   const waveEl = document.getElementById('wave');
   if (waveEl) {
-    waveEl.textContent = `WAVE: ${wave} (${waveProgress}%)`;
+    waveEl.textContent = `WAVE: ${wave} (${killed}/${totalSpawned})`;
     if (lastWave !== wave) {
       lastWave = wave;
       waveScale = 1.5;
