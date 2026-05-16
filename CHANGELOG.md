@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.5] - 2026-05-13
+
+### Improved
+- Enhanced starfield parallax depth
+  - 3 distinct layers: far (slow, small, dim), mid, near (fast, large, bright)
+  - 40% far / 35% mid / 25% near distribution
+  - Layer-based size, speed, and alpha multipliers
+  - Creates much stronger sense of depth and motion
+  - Increased total star count from 150 to 180
+
 ## [1.68.4] - 2026-05-13
 
 ### Improved

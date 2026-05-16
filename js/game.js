@@ -576,14 +576,19 @@ const warnings = [];
 let nebulae = [];
 function initStars() {
   stars.length = 0;
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 180; i++) {
+    const roll = Math.random();
+    const layer = roll < 0.4 ? 0 : (roll < 0.75 ? 1 : 2);
+    const sizeMult = layer === 0 ? 0.6 : layer === 1 ? 1.0 : 1.5;
+    const alphaMult = layer === 0 ? 0.6 : layer === 1 ? 1.0 : 1.2;
+    const speedMult = layer === 0 ? 0.4 : layer === 1 ? 0.8 : 1.3;
     stars.push({
       x: Math.random() * W,
       y: Math.random() * H,
-      size: Math.random() * 2.5 + 0.3,
-      speed: Math.random() * 1.5 + 0.1,
-      alpha: Math.random() * 0.7 + 0.15,
-      layer: Math.random() < 0.3 ? 2 : 1,
+      size: (Math.random() * 2.2 + 0.3) * sizeMult,
+      speed: (Math.random() * 1.2 + 0.15) * speedMult,
+      alpha: Math.min(1, (Math.random() * 0.6 + 0.2) * alphaMult),
+      layer,
     });
   }
   nebulae = [];
@@ -2191,7 +2196,7 @@ function drawStars() {
     ctx.beginPath();
     ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
     ctx.fill();
-    s.y += s.speed * (s.layer === 2 ? 0.5 : 1);
+    s.y += s.speed;
     if (s.y > H) { s.y = 0; s.x = rand(0, W); }
   }
   ctx.globalAlpha = 1;
