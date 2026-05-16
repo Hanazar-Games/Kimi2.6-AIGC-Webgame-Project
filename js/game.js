@@ -1066,6 +1066,7 @@ const ACHIEVEMENTS = {
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
 let bossesDefeatedThisRun = 0;
+let recordBrokenThisRun = false;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -1122,6 +1123,35 @@ function saveAchievements() {
     for (const k in ACHIEVEMENTS) obj[k] = ACHIEVEMENTS[k].unlocked;
     localStorage.setItem('stellar_defense_achievements', JSON.stringify(obj));
   } catch (e) {}
+}
+function sfxNewRecord() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  // Triumphant fanfare: C4-E4-G4-C5-E5-G5 (full major arpeggio)
+  const notes = [262, 330, 392, 523, 659, 784];
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.08);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.05 * masterVolume, t + i * 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.25);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.08);
+    o.stop(t + i * 0.08 + 0.3);
+  }
+  // Bass support
+  const bass = audioCtx.createOscillator();
+  bass.type = 'sine';
+  bass.frequency.setValueAtTime(65, t);
+  const bg = audioCtx.createGain();
+  bg.gain.setValueAtTime(0.06 * masterVolume, t);
+  bg.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+  bass.connect(bg);
+  bg.connect(audioCtx.destination);
+  bass.start(t);
+  bass.stop(t + 0.6);
 }
 function sfxEliteKill() {
   if (!audioCtx) return;
@@ -1579,6 +1609,14 @@ function spawnPowerup(x, y) {
 }
 
 /* ---------- Enemy Factory ---------- */
+function checkHighScore() {
+  if (score > highScore || score > (highScoresByDifficulty[difficulty] || 0)) {
+    recordBrokenThisRun = true;
+  }
+  if (score > highScore) { highScore = score; }
+  if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
+  saveHighScore();
+}
 function bomberExplode(e) {
   const radius = 50;
   spawnExplosion(e.x, e.y, '#ff5522', 25, true);
@@ -1610,9 +1648,7 @@ function bomberExplode(e) {
         deathSlowMo = 90;
         state = STATE.GAMEOVER;
         if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-        if (score > highScore) { highScore = score; }
-        if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
-        saveHighScore();
+        checkHighScore();
         stats.totalGraze += grazeCount;
         updateStats(true);
         showGameOver();
@@ -1652,9 +1688,7 @@ function mineExplode(e) {
         playerDeathEffect();
         state = STATE.GAMEOVER;
         if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-        if (score > highScore) { highScore = score; }
-        if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
-        saveHighScore();
+        checkHighScore();
         stats.totalGraze += grazeCount;
         updateStats(true);
         showGameOver();
@@ -3140,9 +3174,7 @@ function checkCollisions() {
             playerDeathEffect();
             state = STATE.GAMEOVER;
             if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-            if (score > highScore) { highScore = score; }
-        if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
-        saveHighScore();
+            checkHighScore();
             stats.totalGraze += grazeCount;
             updateStats(true);
             showGameOver();
@@ -3227,9 +3259,7 @@ function playerDeathEffect() {
             playerDeathEffect();
             state = STATE.GAMEOVER;
             if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-            if (score > highScore) { highScore = score; }
-        if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
-        saveHighScore();
+            checkHighScore();
             stats.totalGraze += grazeCount;
             updateStats(true);
             showGameOver();
@@ -4779,6 +4809,7 @@ function animateGameOverStats() {
 }
 
 function showGameOver() {
+  if (recordBrokenThisRun) sfxNewRecord();
   document.getElementById('gameover-screen').classList.add('active');
   animateGameOverStats();
   document.getElementById('final-wave').textContent = `Wave: ${wave}`;
@@ -4925,6 +4956,7 @@ function resetGame() {
   noDamageWaves = 0;
   totalPerfectWaves = 0;
   bossesDefeatedThisRun = 0;
+  recordBrokenThisRun = false;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5169,7 +5201,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.1 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.78.2 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
