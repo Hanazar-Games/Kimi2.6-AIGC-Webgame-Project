@@ -342,6 +342,23 @@ function sfxWaveTheme(theme) {
       break;
   }
 }
+function sfxWaveClear() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const notes = [523, 659, 784]; // C5, E5, G5 (major triad arpeggio)
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.08);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.03 * masterVolume, t + i * 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.15);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.08);
+    o.stop(t + i * 0.08 + 0.2);
+  }
+}
 function sfxWeaponSwitch() {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
@@ -1720,6 +1737,7 @@ function checkWaveAchievements() {
 
 function startWave() {
   waveFlash = 20;
+  if (wave > 1) sfxWaveClear();
   bombsUsedThisWave = 0;
   eliteWave = (wave % 10 === 0) && (wave > 0);
   if (eliteWave) {
@@ -4915,7 +4933,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.76.9 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.77.0 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
