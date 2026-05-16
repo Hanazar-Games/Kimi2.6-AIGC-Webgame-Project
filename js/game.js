@@ -2105,6 +2105,7 @@ function checkCollisions() {
             sfxPowerup();
           } else {
             player.hp = 0;
+            playerDeathEffect();
             state = STATE.GAMEOVER;
             if (score > highScore) { highScore = score; }
         if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
@@ -2117,6 +2118,40 @@ function checkCollisions() {
       }
     }
   }
+
+function playerDeathEffect() {
+  deathSlowMo = 90;
+  shake = 25;
+  shakeDirX = 0;
+  shakeDirY = 0;
+  damageFlash = 30;
+  // Chain explosions
+  const colors = ['#ff4444', '#ff8844', '#ffcc44', '#ffffff'];
+  for (let k = 0; k < 5; k++) {
+    const ox = player.x + rand(-20, 20);
+    const oy = player.y + rand(-20, 20);
+    spawnExplosion(ox, oy, colors[k % colors.length], 20 + k * 3);
+  }
+  // Energy shards
+  const shardCount = particleDensity === 0 ? 30 : particleDensity === 1 ? 50 : 70;
+  for (let k = 0; k < shardCount; k++) {
+    const a = rand(0, Math.PI * 2);
+    const s = rand(3, 8);
+    particles.push({
+      x: player.x, y: player.y,
+      vx: Math.cos(a) * s,
+      vy: Math.sin(a) * s,
+      life: rand(40, 90),
+      maxLife: 90,
+      color: k % 3 === 0 ? '#ffffff' : (k % 3 === 1 ? '#ff8844' : '#ff4444'),
+      size: rand(2, 5),
+      decay: 0.95,
+    });
+  }
+  // Shockwave
+  shockwaves.push({ x: player.x, y: player.y, radius: 5, maxRadius: 120, life: 40, color: '#ff8844' });
+  sfxExplosion();
+}
 
   // enemies vs player (collision)
   if (player.invincible <= 0) {
@@ -2155,6 +2190,7 @@ function checkCollisions() {
             sfxPowerup();
           } else {
             player.hp = 0;
+            playerDeathEffect();
             state = STATE.GAMEOVER;
             if (score > highScore) { highScore = score; }
         if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }

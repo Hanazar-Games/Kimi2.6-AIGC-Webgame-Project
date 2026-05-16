@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.6] - 2026-05-13
+
+### Added
+- Enhanced player death spectacle
+  - Chain of 5 multi-colored explosions
+  - 30-70 energy shards bursting outward (density-scaled)
+  - Shockwave ripple expanding from player
+  - Extended death slow-motion (1.5s)
+  - Strong screen shake (25) + full white flash
+  - Death effect triggers on both bullet and collision death
+
 ## [1.68.5] - 2026-05-13
 
 ### Improved
