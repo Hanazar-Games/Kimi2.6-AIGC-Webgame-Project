@@ -1081,6 +1081,7 @@ let weaponInfoTimer = 0;
 let statsPanelTimer = 0;
 let achievementListTimer = 0;
 let enemyLogTimer = 0;
+let leaderboardTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4936,7 +4937,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.82.1', W - 6, H - 6);
+  ctx.fillText('v1.82.2', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -5083,6 +5084,45 @@ function drawUI() {
       ctx.textAlign = 'right';
       ctx.fillText(discovered ? `${kills} kills` : '—', W / 2 + 130, y);
     });
+    ctx.restore();
+  }
+  // Leaderboard overlay
+  if (leaderboardTimer > 0) {
+    leaderboardTimer--;
+    const alpha = Math.min(1, leaderboardTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.92;
+    ctx.fillStyle = 'rgba(10, 15, 30, 0.9)';
+    ctx.fillRect(W / 2 - 150, H / 2 - 160, 300, 320);
+    ctx.strokeStyle = 'rgba(100, 150, 255, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W / 2 - 150, H / 2 - 160, 300, 320);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#aaccff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('LEADERBOARD', W / 2, H / 2 - 135);
+    ctx.font = '11px sans-serif';
+    const diffColors = { 1: '#44ff88', 2: '#aabbdd', 3: '#ff8844', 4: '#ff4444' };
+    const diffNames = { 1: 'E', 2: 'N', 3: 'H', 4: 'X' };
+    leaderboard.slice(0, 10).forEach((entry, i) => {
+      const isCurrent = entry.score === score && entry.wave === wave;
+      ctx.fillStyle = isCurrent ? '#ffee88' : '#aabbdd';
+      ctx.textAlign = 'left';
+      ctx.fillText(`${i + 1}.`, W / 2 - 130, H / 2 - 110 + i * 22);
+      ctx.fillStyle = diffColors[entry.difficulty] || '#aabbdd';
+      ctx.fillText(`[${diffNames[entry.difficulty] || '?'}]`, W / 2 - 110, H / 2 - 110 + i * 22);
+      ctx.fillStyle = isCurrent ? '#ffee88' : '#e0e0ff';
+      ctx.fillText(entry.score.toLocaleString(), W / 2 - 80, H / 2 - 110 + i * 22);
+      ctx.fillStyle = '#8899bb';
+      ctx.textAlign = 'right';
+      ctx.fillText(`W${entry.wave}`, W / 2 + 130, H / 2 - 110 + i * 22);
+    });
+    if (leaderboard.length === 0) {
+      ctx.fillStyle = '#556688';
+      ctx.textAlign = 'center';
+      ctx.fillText('No scores yet', W / 2, H / 2);
+    }
     ctx.restore();
   }
 }
@@ -5500,6 +5540,7 @@ function resetGame() {
   statsPanelTimer = 0;
   achievementListTimer = 0;
   enemyLogTimer = 0;
+  leaderboardTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5937,6 +5978,16 @@ function loop(timestamp) {
   } else if (isDown('e') && state === STATE.PLAYING && enemyLogTimer > 0) {
     keys['e'] = false;
     enemyLogTimer = 0;
+  }
+
+  // Leaderboard shortcut
+  if (isDown('g') && state === STATE.PLAYING && leaderboardTimer <= 0) {
+    keys['g'] = false;
+    leaderboardTimer = 300; // 5 seconds
+    sfxClick();
+  } else if (isDown('g') && state === STATE.PLAYING && leaderboardTimer > 0) {
+    keys['g'] = false;
+    leaderboardTimer = 0;
   }
 
   // FPS display toggle shortcut
