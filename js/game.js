@@ -3672,6 +3672,13 @@ function drawPlanets() {
       ctx.arc(p.x + Math.cos(ca) * cr, p.y + Math.sin(ca) * cr, rand(8, 18), 0, Math.PI * 2);
       ctx.fill();
     }
+    // Atmospheric glow ring
+    ctx.globalAlpha = 0.04 + Math.sin(Date.now() * 0.001 + p.x * 0.01) * 0.02;
+    ctx.strokeStyle = p.color.highlight;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius + 4, 0, Math.PI * 2);
+    ctx.stroke();
     ctx.restore();
   }
 }
@@ -5671,10 +5678,19 @@ function showMenu() {
   if (st) st.textContent = `Time: ${Math.floor(stats.totalTime / 60)}m`;
   if (sc) sc.textContent = `Best Combo: ${stats.highestCombo}`;
   if (sbs) sbs.textContent = `Bosses: ${stats.bossesDefeated}`;
+  const sd = document.getElementById('stat-damage');
+  if (sd) sd.textContent = `Damage: ${(stats.totalDamage || 0).toLocaleString()}`;
+  const sgr = document.getElementById('stat-graze');
+  if (sgr) sgr.textContent = `Graze: ${stats.totalGraze || 0}`;
+  const sa = document.getElementById('stat-achievements');
+  if (sa) {
+    const unlockedCount = Object.values(ACHIEVEMENTS).filter(a => a.unlocked).length;
+    sa.textContent = `Achievements: ${unlockedCount}/50`;
+  }
   const sw = document.getElementById('stat-weapons');
   if (sw) {
     const w = stats.weaponUses;
-    const names = { balanced: 'B', spread: 'S', rapid: 'R', laser: 'L', ricochet: 'Rc' };
+    const names = { balanced: 'B', spread: 'S', rapid: 'R', laser: 'L', ricochet: 'Rc', homing: 'H', explosive: 'Ex' };
     const parts = [];
     for (const key in names) {
       const count = w[key] || 0;
