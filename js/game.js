@@ -258,6 +258,23 @@ function sfxBossAlert() {
   o.start(t);
   o.stop(t + 0.9);
 }
+function sfxComboChime(currentCombo) {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const freq = Math.min(1800, 440 + currentCombo * 15);
+  const vol = Math.min(0.05, 0.02 + Math.min(currentCombo, 30) * 0.001);
+  const dur = currentCombo % 10 === 0 ? 0.12 : 0.05;
+  const o = audioCtx.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(freq, t);
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(vol * masterVolume, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  o.start(t);
+  o.stop(t + dur + 0.01);
+}
 function sfxEnemyShoot() { playTone(220, 'sawtooth', 0.1, 0.03); }
 function sfxHit() { playTone(150, 'sawtooth', 0.15, 0.06); }
 function sfxEnemyDeath(type) {
@@ -1698,6 +1715,7 @@ function useBomb() {
       const pts = Math.floor(e.score * (1 + combo * 0.1));
       score += Math.floor(pts * scoreMultBonus);
       combo++;
+      sfxComboChime(combo);
       comboTimer = 180;
       comboScale = 1.4;
       spawnExplosion(e.x, e.y, e.color, 20);
@@ -2496,6 +2514,7 @@ function checkCollisions() {
           const pts = Math.floor(e.score * (1 + combo * 0.1));
           score += Math.floor(pts * scoreMultBonus);
           combo++;
+          sfxComboChime(combo);
           comboTimer = 180;
           if (combo === 10 || combo === 25 || combo === 50 || combo === 100) {
             spawnFloatingText(W / 2, H / 2 - 40, `COMBO x${combo}!`, '#ff44ff');
@@ -4554,7 +4573,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.3 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.4 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
