@@ -3268,12 +3268,26 @@ function drawEnemies() {
     // Low HP flash effect
     const hpPct = e.hp / e.maxHp;
     if (hpPct < 0.3 && hpPct > 0) {
-      const flashSpeed = 100 + hpPct * 300;
-      const flashAlpha = 0.15 + 0.15 * Math.sin(Date.now() / flashSpeed);
+      const urgency = 1 - hpPct / 0.3; // 0→1 as HP drops
+      const flashSpeed = 60 + (1 - urgency) * 100;
+      const pulse = Math.sin(Date.now() / flashSpeed);
+      const flashAlpha = 0.1 + 0.2 * (pulse > 0 ? 1 : 0.3);
+      const pulseScale = 1 + urgency * 0.15 * pulse;
+      ctx.save();
+      ctx.scale(pulseScale, pulseScale);
       ctx.fillStyle = `rgba(255, 0, 0, ${flashAlpha})`;
       ctx.beginPath();
-      ctx.arc(0, 0, e.radius * 1.3, 0, Math.PI * 2);
+      ctx.arc(0, 0, e.radius * 1.4, 0, Math.PI * 2);
       ctx.fill();
+      // Red glow ring
+      ctx.strokeStyle = `rgba(255, 40, 40, ${0.3 + 0.3 * pulse})`;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#ff0000';
+      ctx.shadowBlur = 8 * urgency;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius * 1.3, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
 
     if (e.type === 'drone') {
@@ -4844,7 +4858,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.75.7 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.75.8 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
