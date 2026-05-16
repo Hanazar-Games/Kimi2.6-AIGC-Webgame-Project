@@ -677,6 +677,21 @@ function sfxUpgrade() {
   playTone(784, 'sine', 0.15, 0.07);
   playTone(1047, 'sine', 0.2, 0.07);
 }
+function sfxBombThrow() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(600, t);
+  o.frequency.exponentialRampToValueAtTime(1800, t + 0.08);
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.04 * masterVolume, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  o.start(t);
+  o.stop(t + 0.12);
+}
 function sfxBomb() {
   if (!audioCtx) return;
   const o = audioCtx.createOscillator();
@@ -1963,6 +1978,7 @@ function useBomb() {
   shakeDirX = 0;
   shakeDirY = 0;
   slowMo = 45;
+  sfxBombThrow();
   sfxBomb();
   // clear enemy bullets
   const bombParticles = particleDensity === 0 ? 2 : particleDensity === 1 ? 3 : 4;
@@ -4998,7 +5014,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.77.3 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.77.4 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
