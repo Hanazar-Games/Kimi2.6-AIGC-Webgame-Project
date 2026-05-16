@@ -917,6 +917,8 @@ let waveAlertType = null; // 'elite' or 'boss'
 let comboGuardFlash = 0;
 let comboFlash = 0;
 let comboFlashColor = '#ffffff';
+let pickupFlash = 0;
+let pickupFlashColor = '#ffffff';
 let gameStartTime = 0;
 let comboGuard = true;
 let comboScale = 1;
@@ -2962,6 +2964,28 @@ function updatePowerups(timeScale = 1) {
         p.vy *= 0.8;
       } else {
         // Collected
+        const puColors = {
+          energy: '#44ff66', power: '#ffcc44', shield: '#44aaff',
+          timestop: '#ff88ff', magnet: '#ffaa44', overdrive: '#ff4444', score: '#ffee44',
+        };
+        const puColor = puColors[p.type] || '#ffffff';
+        pickupFlash = 10;
+        pickupFlashColor = puColor;
+        const puCount = particleDensity === 0 ? 8 : particleDensity === 1 ? 14 : 20;
+        for (let k = 0; k < puCount; k++) {
+          const a = rand(0, Math.PI * 2);
+          const s = rand(1, 4);
+          particles.push({
+            x: player.x, y: player.y,
+            vx: Math.cos(a) * s,
+            vy: Math.sin(a) * s,
+            life: rand(20, 45),
+            maxLife: 45,
+            color: puColor,
+            size: rand(2, 4),
+            decay: 0.92,
+          });
+        }
         if (p.type === 'energy') {
           player.hp = clamp(player.hp + 20, 0, player.maxHp);
           spawnFloatingText(player.x, player.y - 20, '+HP', '#44ff66');
@@ -4316,6 +4340,30 @@ function drawDamageFlash() {
   }
 }
 
+function drawPickupFlash() {
+  if (pickupFlash > 0) {
+    const t = pickupFlash / 10;
+    const alpha = t * 0.2;
+    ctx.save();
+    const maxDim = Math.max(W, H);
+    const grad = ctx.createRadialGradient(W / 2, H / 2, maxDim * 0.4, W / 2, H / 2, maxDim * 0.8);
+    grad.addColorStop(0, 'rgba(255,255,255,0)');
+    grad.addColorStop(0.7, hexToRgba(pickupFlashColor, alpha * 0.4));
+    grad.addColorStop(1, hexToRgba(pickupFlashColor, alpha));
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+    pickupFlash--;
+  }
+}
+
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
 function drawTutorialHint() {
   ctx.save();
   ctx.globalAlpha = 0.7 + Math.sin(Date.now() * 0.005) * 0.3;
@@ -4957,7 +5005,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.83.1', W - 6, H - 6);
+  ctx.fillText('v1.83.2', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -5559,6 +5607,8 @@ function resetGame() {
   waveAlertType = null;
   comboGuardFlash = 0;
   comboFlash = 0;
+  pickupFlash = 0;
+  pickupFlashColor = '#ffffff';
   waveTheme = null;
   timeStopTimer = 0;
   magnetTimer = 0;
@@ -6401,6 +6451,7 @@ function loop(timestamp) {
   drawWarnings();
   drawDangerZone();
   drawDamageFlash();
+  drawPickupFlash();
   drawLowHPWarning();
   drawBossWarning();
   if (bombAnim > 0) drawBombEffect();
