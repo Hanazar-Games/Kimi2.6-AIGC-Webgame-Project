@@ -1082,6 +1082,7 @@ let statsPanelTimer = 0;
 let achievementListTimer = 0;
 let enemyLogTimer = 0;
 let leaderboardTimer = 0;
+let waveInfoTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4921,6 +4922,12 @@ function drawUI() {
       'T — Color theme',
       'A — Auto fire',
       'M — Music',
+      'W — Weapon info',
+      'Tab — Stats',
+      'L — Achievements',
+      'E — Enemy log',
+      'G — Leaderboard',
+      'I — Wave info',
       'F2 — Screenshot',
       'F3 — FPS display',
       'F4 — Fullscreen',
@@ -4937,7 +4944,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.82.2', W - 6, H - 6);
+  ctx.fillText('v1.82.3', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -5123,6 +5130,45 @@ function drawUI() {
       ctx.textAlign = 'center';
       ctx.fillText('No scores yet', W / 2, H / 2);
     }
+    ctx.restore();
+  }
+  // Wave info overlay
+  if (waveInfoTimer > 0) {
+    waveInfoTimer--;
+    const alpha = Math.min(1, waveInfoTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.92;
+    ctx.fillStyle = 'rgba(10, 15, 30, 0.9)';
+    ctx.fillRect(W / 2 - 130, H / 2 - 120, 260, 240);
+    ctx.strokeStyle = 'rgba(100, 150, 255, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W / 2 - 130, H / 2 - 120, 260, 240);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#aaccff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('WAVE INFO', W / 2, H / 2 - 95);
+    const totalSpawned = enemiesToSpawn + enemies.length;
+    const killed = totalSpawned - enemiesToSpawn;
+    const isBossWave = wave % 5 === 0;
+    const isEliteWave = wave % 10 === 0 && wave > 0;
+    const lines = [
+      `Wave: ${wave}`,
+      `Type: ${isEliteWave ? 'ELITE' : isBossWave ? 'BOSS' : 'NORMAL'}`,
+      `Theme: ${waveTheme || 'None'}`,
+      `Enemies: ${totalSpawned}`,
+      `Killed: ${killed}`,
+      `Remaining: ${enemiesToSpawn}`,
+      `Score Mult: x${scoreMultBonus.toFixed(1)}`,
+      `Damage Mult: x${damageMult.toFixed(1)}`,
+      `Speed Mult: x${speedMultBonus.toFixed(1)}`,
+    ];
+    ctx.font = '11px sans-serif';
+    lines.forEach((line, i) => {
+      const color = line.includes('ELITE') ? '#ffaa00' : line.includes('BOSS') ? '#ff4444' : '#aabbdd';
+      ctx.fillStyle = color;
+      ctx.fillText(line, W / 2, H / 2 - 70 + i * 18);
+    });
     ctx.restore();
   }
 }
@@ -5541,6 +5587,7 @@ function resetGame() {
   achievementListTimer = 0;
   enemyLogTimer = 0;
   leaderboardTimer = 0;
+  waveInfoTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5988,6 +6035,16 @@ function loop(timestamp) {
   } else if (isDown('g') && state === STATE.PLAYING && leaderboardTimer > 0) {
     keys['g'] = false;
     leaderboardTimer = 0;
+  }
+
+  // Wave info shortcut
+  if (isDown('i') && state === STATE.PLAYING && waveInfoTimer <= 0) {
+    keys['i'] = false;
+    waveInfoTimer = 300; // 5 seconds
+    sfxClick();
+  } else if (isDown('i') && state === STATE.PLAYING && waveInfoTimer > 0) {
+    keys['i'] = false;
+    waveInfoTimer = 0;
   }
 
   // FPS display toggle shortcut
