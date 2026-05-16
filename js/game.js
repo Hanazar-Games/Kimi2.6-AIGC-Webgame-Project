@@ -925,6 +925,7 @@ function spawnEnemy(type) {
     phase: 0,
     elite: isElite,
     hitFlash: 0,
+    spawnDelay: type === 'boss' ? 0 : 30,
   };
 
   const diffMult = practiceMode ? 0.5 : (difficulty === 1 ? 0.7 : difficulty === 3 ? 1.4 : difficulty === 4 ? 2.0 : 1.0);
@@ -1524,6 +1525,10 @@ function updatePlayer() {
 function updateEnemies(timeScale = 1) {
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
+    if (e.spawnDelay > 0) {
+      e.spawnDelay -= timeScale;
+      continue;
+    }
     e.phase++;
 
     if (e.type === 'drone') {
@@ -1842,6 +1847,7 @@ function checkCollisions() {
     const b = bullets[i];
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
+      if (e.spawnDelay > 0) continue;
       if (dist(b, e) < e.radius + b.radius) {
         if (b.laser && b.hitTimer > 0) continue;
         if (!b.laser) bullets.splice(i, 1);
@@ -2044,6 +2050,7 @@ function checkCollisions() {
   if (player.invincible <= 0) {
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
+      if (e.spawnDelay > 0) continue;
       if (dist(e, player) < e.radius + player.radius) {
         player.hp -= practiceMode ? 0 : 15;
         combo = Math.max(0, combo - 3);
@@ -2267,6 +2274,37 @@ function drawEnemies() {
   for (const e of enemies) {
     ctx.save();
     ctx.translate(e.x, e.y);
+
+    if (e.spawnDelay > 0) {
+      const progress = 1 - (e.spawnDelay / 30);
+      const pulse = 0.8 + 0.2 * Math.sin(Date.now() * 0.01);
+      const r = e.radius * (0.5 + progress * 0.5) * pulse;
+      // Portal ring
+      ctx.strokeStyle = e.color;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.6 + progress * 0.4;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.stroke();
+      // Inner rotating arc
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.7, Date.now() * 0.005, Date.now() * 0.005 + Math.PI);
+      ctx.stroke();
+      // Glow dots
+      for (let k = 0; k < 4; k++) {
+        const a = Date.now() * 0.003 + k * (Math.PI / 2);
+        ctx.fillStyle = e.color;
+        ctx.globalAlpha = 0.5 + progress * 0.5;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * r * 0.5, Math.sin(a) * r * 0.5, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+      continue;
+    }
+
     ctx.shadowBlur = 10;
     ctx.shadowColor = e.color;
 

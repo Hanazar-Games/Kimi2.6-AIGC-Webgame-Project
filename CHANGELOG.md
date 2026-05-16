@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.67.2] - 2026-05-13
+
+### Added
+- Enemy spawn portal effects
+  - Enemies now materialize through a rotating portal ring (0.5s delay)
+  - Portal color matches enemy type
+  - Inner rotating arc + orbiting glow dots for visual flair
+  - Enemies are invulnerable and intangible during spawn delay
+  - Gives players extra reaction time and makes spawns more visually interesting
+
 ## [1.67.1] - 2026-05-13
 
 ### Added
