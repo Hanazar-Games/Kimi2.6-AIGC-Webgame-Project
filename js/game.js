@@ -1074,6 +1074,7 @@ let themeDisplayTimer = 0;
 let autoFireDisplayTimer = 0;
 let musicDisplayTimer = 0;
 let fpsDisplayTimer = 0;
+let fullscreenDisplayTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4812,6 +4813,26 @@ function drawUI() {
     ctx.fillText(`FPS: ${showFPS ? 'ON' : 'OFF'}`, fx + 6, fy + 15);
     ctx.restore();
   }
+  // Fullscreen indicator overlay
+  if (fullscreenDisplayTimer > 0) {
+    fullscreenDisplayTimer--;
+    const alpha = Math.min(1, fullscreenDisplayTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const fsx = W - 120;
+    const fsy = H - 196;
+    const isFullscreen = !!document.fullscreenElement;
+    ctx.fillStyle = 'rgba(20, 30, 60, 0.85)';
+    ctx.fillRect(fsx, fsy, 110, 22);
+    ctx.strokeStyle = isFullscreen ? 'rgba(100, 255, 150, 0.5)' : 'rgba(150, 150, 150, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(fsx, fsy, 110, 22);
+    ctx.fillStyle = isFullscreen ? '#88ffaa' : '#8899aa';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`FULLSCREEN: ${isFullscreen ? 'ON' : 'OFF'}`, fsx + 6, fsy + 15);
+    ctx.restore();
+  }
 }
 
 function drawAchievementNotification() {
@@ -5220,6 +5241,7 @@ function resetGame() {
   autoFireDisplayTimer = 0;
   musicDisplayTimer = 0;
   fpsDisplayTimer = 0;
+  fullscreenDisplayTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5465,7 +5487,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.79.9 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.80.0 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5624,6 +5646,19 @@ function loop(timestamp) {
     keys['F3'] = false;
     showFPS = !showFPS;
     fpsDisplayTimer = 120;
+    sfxClick();
+  }
+
+  // Fullscreen toggle shortcut
+  if (isDown('F4')) {
+    keys['F4'] = false;
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+    fullscreenDisplayTimer = 120;
     sfxClick();
   }
 
