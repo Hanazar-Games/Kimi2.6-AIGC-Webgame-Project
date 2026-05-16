@@ -5304,7 +5304,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.6 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.78.7 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5375,6 +5375,23 @@ function loop(timestamp) {
       if (score >= m && lastScoreMilestone < m) {
         lastScoreMilestone = m;
         sfxScoreMilestone(m);
+        // score milestone particle burst
+        const smColor = m >= 100000 ? '#ffcc44' : m >= 10000 ? '#ff88ff' : '#44aaff';
+        const smCount = particleDensity === 0 ? 12 : particleDensity === 1 ? 20 : 30;
+        for (let k = 0; k < smCount; k++) {
+          const angle = rand(0, Math.PI * 2);
+          const speed = rand(2, 6);
+          particles.push({
+            x: W / 2, y: H / 3,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: rand(25, 55),
+            maxLife: 55,
+            color: smColor,
+            size: rand(2, 4),
+            decay: 0.95,
+          });
+        }
         break;
       }
     }
