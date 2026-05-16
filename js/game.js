@@ -4299,6 +4299,10 @@ const GAME_TIPS = [
   "Tip: The Magnet power-up attracts all nearby pickups for 5 seconds.",
   "Tip: Bosses enrage at 50% HP with faster attacks and new colors!",
   "Tip: Every 3rd non-boss wave has a theme (Swarm/Assault/Fortress/etc).",
+  "Tip: Explosive shells deal 50% splash damage in a radius — great for crowds!",
+  "Tip: Phantom enemies phase in and out. Time your shots when they're visible!",
+  "Tip: Elite Waves (every 10th) force all enemies to be elite. Brace yourself!",
+  "Tip: Kill milestones at 50/100/200/500 grant bonus score celebrations!",
 ];
 function updateGameTip() {
   const el = document.getElementById('game-tip');
@@ -4803,7 +4807,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.75.1 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.75.2 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
