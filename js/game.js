@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.5';
+const VERSION = 'v1.84.6';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -5696,33 +5696,42 @@ function showPause() {
   if (pBosses) pBosses.textContent = bossesDefeatedThisRun;
 }
 
+function animateCounter(el, prefix, target, duration = 800) {
+  if (!el) return;
+  const step = Math.max(1, Math.floor(target / (duration / 25)));
+  let current = 0;
+  const interval = setInterval(() => {
+    current += step;
+    if (current >= target) {
+      current = target;
+      clearInterval(interval);
+    }
+    el.textContent = `${prefix}: ${current.toLocaleString()}`;
+  }, 25);
+}
+
 function animateGameOverStats() {
   const scoreEl = document.getElementById('final-score');
   const killsEl = document.getElementById('final-kills');
   const grazeEl = document.getElementById('final-graze');
-  let current = 0;
-  const step = Math.max(1, Math.floor(score / 40));
-  const interval = setInterval(() => {
-    current += step;
-    if (current >= score) {
-      current = score;
-      clearInterval(interval);
-    }
-    if (scoreEl) scoreEl.textContent = `Score: ${current.toLocaleString()}`;
-  }, 25);
-  // Animate kills counter
-  let killCurrent = 0;
-  const killTarget = stats.kills;
-  const killStep = Math.max(1, Math.floor(killTarget / 30));
-  const killInterval = setInterval(() => {
-    killCurrent += killStep;
-    if (killCurrent >= killTarget) {
-      killCurrent = killTarget;
-      clearInterval(killInterval);
-    }
-    if (killsEl) killsEl.textContent = `Kills: ${killCurrent}`;
-  }, 30);
-  if (grazeEl) grazeEl.textContent = `Graze: ${grazeCount}`;
+  const comboEl = document.getElementById('final-combo');
+  const perfectEl = document.getElementById('final-perfect');
+  const bossesEl = document.getElementById('final-bosses');
+  // Staggered animations
+  animateCounter(scoreEl, 'Score', score, 1000);
+  setTimeout(() => animateCounter(killsEl, 'Kills', stats.kills, 600), 200);
+  setTimeout(() => {
+    if (grazeEl) grazeEl.textContent = `Graze: ${grazeCount}`;
+  }, 400);
+  setTimeout(() => {
+    if (comboEl) comboEl.textContent = `Best Combo: ${combo}`;
+  }, 500);
+  setTimeout(() => {
+    if (perfectEl) perfectEl.textContent = `Perfect Waves: ${totalPerfectWaves}`;
+  }, 600);
+  setTimeout(() => {
+    if (bossesEl) bossesEl.textContent = `Bosses: ${bossesDefeatedThisRun}`;
+  }, 700);
 }
 
 function showGameOver() {
@@ -6444,11 +6453,13 @@ function loop(timestamp) {
     sfxResume();
     hideScreens();
   }
-  // Quick restart from game over
-  if (isDown('r') && state === STATE.GAMEOVER) {
+  // Quick restart from game over or pause
+  if (isDown('r') && (state === STATE.GAMEOVER || state === STATE.PAUSED)) {
     keys['r'] = false;
     resetGame();
-    state = STATE.PLAYING;
+    countdownValue = 3;
+    countdownTimer = 60;
+    state = STATE.COUNTDOWN;
     hideScreens();
   }
   // Reward selection input
