@@ -2908,8 +2908,13 @@ function showGameOver() {
   if (fcEl) fcEl.textContent = `Best Combo: ${combo}`;
   const fwEl = document.getElementById('final-weapon');
   if (fwEl) {
-    const wname = weaponType.charAt(0).toUpperCase() + weaponType.slice(1);
-    fwEl.textContent = `Weapon: ${wname}`;
+    if (usedWeapons.size > 1) {
+      const names = [...usedWeapons].map(w => w.charAt(0).toUpperCase() + w.slice(1));
+      fwEl.textContent = `Weapons: ${names.join(', ')}`;
+    } else {
+      const wname = weaponType.charAt(0).toUpperCase() + weaponType.slice(1);
+      fwEl.textContent = `Weapon: ${wname}`;
+    }
   }
   if (!practiceMode) {
     const oldRank = leaderboard.findIndex(e => e.score === score && e.wave === wave);

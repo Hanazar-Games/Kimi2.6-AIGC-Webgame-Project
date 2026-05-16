@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.5] - 2026-05-13
+
+### Improved
+- Game Over screen now shows all weapons used in the run
+  - If multiple weapons were used, lists them all (e.g. "Weapons: Balanced, Laser, Ricochet")
+  - Single weapon still shows as "Weapon: X"
+
 ## [1.63.4] - 2026-05-13
 
 ### Improved
