@@ -2750,6 +2750,16 @@ function drawUI() {
     grazeEl.textContent = `GRAZE: ${grazeCount}`;
     grazeEl.style.color = grazeTimer > 0 ? '#ff88ff' : '#e0e0ff';
   }
+  const streakEl = document.getElementById('perfect-streak');
+  if (streakEl) {
+    if (noDamageWaves > 0) {
+      streakEl.style.display = 'inline';
+      streakEl.textContent = `🔥 x${noDamageWaves}`;
+      streakEl.style.color = noDamageWaves >= 5 ? '#ff4444' : noDamageWaves >= 3 ? '#ff8844' : '#ffcc44';
+    } else {
+      streakEl.style.display = 'none';
+    }
+  }
   document.getElementById('health-text').textContent = `HP: ${Math.max(0, player.hp)}/${player.maxHp}`;
   const hpPct = Math.max(0, player.hp) / player.maxHp * 100;
   document.getElementById('health-fill').style.width = hpPct + '%';

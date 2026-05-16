@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.8] - 2026-05-13
+
+### Added
+- Perfect streak HUD indicator
+  - Fire emoji (🔥) + consecutive no-damage wave count
+  - Color tiers: yellow (1-2), orange (3-4), red (5+)
+  - Hidden when streak is broken
+  - Appears in top bar next to Graze counter
+
 ## [1.63.7] - 2026-05-13
 
 ### Improved
