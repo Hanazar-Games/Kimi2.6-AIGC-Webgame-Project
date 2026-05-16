@@ -21,12 +21,25 @@ resize();
 /* ---------- Audio (Web Audio API) ---------- */
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
+let engineOsc = null;
+let engineGainNode = null;
 function ensureAudio() {
   if (!audioCtx) {
     audioCtx = new AudioCtx();
     musicNextTime = audioCtx.currentTime;
   }
   if (audioCtx.state === 'suspended') audioCtx.resume();
+  // Start engine hum
+  if (!engineOsc && audioCtx) {
+    engineOsc = audioCtx.createOscillator();
+    engineGainNode = audioCtx.createGain();
+    engineOsc.type = 'sine';
+    engineOsc.frequency.setValueAtTime(55, audioCtx.currentTime);
+    engineGainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+    engineOsc.connect(engineGainNode);
+    engineGainNode.connect(audioCtx.destination);
+    engineOsc.start();
+  }
 }
 
 function playTone(freq, type, duration, vol = 0.08) {
@@ -866,6 +879,7 @@ function bomberExplode(e) {
         player.hp = 0;
         deathSlowMo = 90;
         state = STATE.GAMEOVER;
+        if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
         if (score > highScore) { highScore = score; }
         if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
         saveHighScore();
@@ -906,6 +920,7 @@ function mineExplode(e) {
         player.hp = 0;
         playerDeathEffect();
         state = STATE.GAMEOVER;
+        if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
         if (score > highScore) { highScore = score; }
         if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
         saveHighScore();
@@ -1517,6 +1532,15 @@ function updatePlayer() {
   player.y += player.vy;
   player.x = clamp(player.x, player.radius, W - player.radius);
   player.y = clamp(player.y, player.radius, H - player.radius);
+
+  // engine hum volume scales with movement speed
+  if (engineGainNode && audioCtx) {
+    const spd = Math.hypot(player.vx, player.vy);
+    const baseVol = 0.008;
+    const maxExtra = 0.025;
+    const targetVol = (baseVol + Math.min(spd / player.speed, 1) * maxExtra) * masterVolume;
+    engineGainNode.gain.setTargetAtTime(targetVol, audioCtx.currentTime, 0.1);
+  }
 
   if (mx !== 0 || my !== 0) {
     player.angle = Math.atan2(my, mx);
@@ -2267,6 +2291,7 @@ function checkCollisions() {
             player.hp = 0;
             playerDeathEffect();
             state = STATE.GAMEOVER;
+            if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
             if (score > highScore) { highScore = score; }
         if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
         saveHighScore();
@@ -2352,6 +2377,7 @@ function playerDeathEffect() {
             player.hp = 0;
             playerDeathEffect();
             state = STATE.GAMEOVER;
+            if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
             if (score > highScore) { highScore = score; }
         if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
         saveHighScore();
@@ -4111,7 +4137,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.72.2 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.72.4 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -4193,6 +4219,7 @@ function loop(timestamp) {
   if (isDown('escape') && state === STATE.GAMEOVER) {
     keys['escape'] = false;
     state = STATE.MENU;
+    if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
     showMenu();
   }
 
