@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.1] - 2026-05-13
+
+### Added
+- Weapon descriptions in menu
+  - Shows selected weapon name, description, and mastery info
+  - Updates dynamically when switching weapons
+  - Helps new players understand each weapon's strengths
+  - Displays proficiency stars and damage bonus
+
 ## [1.68.0] - 2026-05-13
 
 ### Added

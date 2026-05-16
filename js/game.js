@@ -3437,18 +3437,38 @@ document.querySelectorAll('#difficulty-select .diff-btn').forEach(btn => {
 });
 
 /* ---------- Weapon Selection ---------- */
+const WEAPON_DESCS = {
+  balanced: { name: 'Balanced', desc: 'Reliable all-rounder. Moderate damage and fire rate. Gains extra side shots at higher power levels.', color: '#44ffaa' },
+  spread: { name: 'Spread', desc: 'Wide cone of projectiles. Great for crowds. More pellets and wider arc as power increases.', color: '#44ff88' },
+  rapid: { name: 'Rapid', desc: 'Extremely fast fire rate with lower per-shot damage. Melts enemies at close range.', color: '#ffaa44' },
+  laser: { name: 'Laser', desc: 'Piercing beams that hit up to 3 enemies in a line. High damage, medium cooldown.', color: '#ff66ff' },
+  ricochet: { name: 'Ricochet', desc: 'Bouncing projectiles that hit walls twice. Excellent for tight spaces and angles.', color: '#ffcc66' },
+  homing: { name: 'Homing', desc: 'Auto-tracking missiles seek the nearest enemy. Lower speed but guaranteed hits.', color: '#ff66cc' },
+};
+function updateWeaponDesc() {
+  const el = document.getElementById('weapon-desc');
+  if (!el) return;
+  const info = WEAPON_DESCS[weaponType];
+  if (!info) { el.innerHTML = ''; return; }
+  const uses = stats.weaponUses[weaponType] || 0;
+  const stars = Math.min(5, Math.floor(uses / 50));
+  const starStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+  const bonus = Math.floor(stars * 2);
+  el.innerHTML = `<span style="color:${info.color}; font-weight:bold;">${info.name}</span> — ${info.desc}<br><span style="color:#ffcc44; font-size:10px;">${starStr}</span> <span style="color:#88aadd; font-size:10px;">Mastery: +${bonus}% dmg (${uses} uses)</span>`;
+}
 document.querySelectorAll('#weapon-select .weapon-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('#weapon-select .weapon-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     weaponType = btn.dataset.weapon;
     try { localStorage.setItem('stellar_defense_weapon', weaponType); } catch (e) {}
+    updateWeaponDesc();
   });
 });
 function loadWeapon() {
   try {
     const v = localStorage.getItem('stellar_defense_weapon');
-    if (v && ['balanced', 'spread', 'rapid', 'laser', 'ricochet'].includes(v)) {
+    if (v && ['balanced', 'spread', 'rapid', 'laser', 'ricochet', 'homing'].includes(v)) {
       weaponType = v;
       document.querySelectorAll('#weapon-select .weapon-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.weapon === v);
@@ -3457,6 +3477,7 @@ function loadWeapon() {
   } catch (e) {}
 }
 loadWeapon();
+updateWeaponDesc();
 
 /* ---------- Music Toggle ---------- */
 const musicToggleBtn = document.getElementById('music-toggle');
