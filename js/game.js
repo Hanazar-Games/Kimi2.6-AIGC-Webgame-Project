@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.83.9';
+const VERSION = 'v1.84.0';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -4677,6 +4677,40 @@ function drawBossUI() {
   ctx.restore();
 }
 
+function drawOffscreenIndicators() {
+  if (state !== STATE.PLAYING) return;
+  for (const e of enemies) {
+    if (e.spawnDelay > 0) continue;
+    const margin = 40;
+    const onScreen = e.x > -margin && e.x < W + margin && e.y > -margin && e.y < H + margin;
+    if (onScreen) continue;
+    // Only show for boss, elite, or special enemies
+    if (!e.elite && e.type !== 'boss' && e.type !== 'bomber' && e.type !== 'shielder' && e.type !== 'medic') continue;
+    const angle = Math.atan2(e.y - H / 2, e.x - W / 2);
+    const edgeDist = 18;
+    let ix = W / 2 + Math.cos(angle) * (W / 2 - edgeDist);
+    let iy = H / 2 + Math.sin(angle) * (H / 2 - edgeDist);
+    // Clamp to edges
+    ix = clamp(ix, edgeDist, W - edgeDist);
+    iy = clamp(iy, edgeDist, H - edgeDist);
+    ctx.save();
+    ctx.translate(ix, iy);
+    ctx.rotate(angle);
+    const color = e.type === 'boss' ? '#ff3333' : e.elite ? '#ffee44' : e.type === 'bomber' ? '#ff5522' : e.type === 'shielder' ? '#44ddaa' : '#44ff88';
+    ctx.globalAlpha = 0.7 + Math.sin(Date.now() * 0.008) * 0.3;
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.moveTo(6, 0);
+    ctx.lineTo(-4, -4);
+    ctx.lineTo(-4, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
 function drawUI() {
   const mult = (1 + combo * 0.1).toFixed(1);
   const scoreEl = document.getElementById('score');
@@ -6600,6 +6634,7 @@ function loop(timestamp) {
   drawBossWarning();
   if (bombAnim > 0) drawBombEffect();
   drawBossUI();
+  drawOffscreenIndicators();
   drawPlayer();
   drawEnemies();
   drawBullets(bullets);
