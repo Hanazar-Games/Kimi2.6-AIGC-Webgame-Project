@@ -4681,7 +4681,10 @@ function drawUI() {
   const bombEl = document.getElementById('bomb-count');
   if (bombEl) {
     bombEl.textContent = `BOMB: ${player.bombs}`;
-    bombEl.style.color = bombCooldown > 0 ? '#556688' : '#ff8844';
+    const bombReady = bombCooldown <= 0 && player.bombs > 0;
+    const bombColor = player.bombs === 0 ? '#ff4444' : bombReady ? '#ffcc44' : '#556688';
+    bombEl.style.color = bombColor;
+    bombEl.style.textShadow = bombReady ? '0 0 8px rgba(255, 204, 68, 0.5)' : 'none';
   }
   const magnetEl = document.getElementById('magnet-status');
   if (magnetEl) {
@@ -5558,7 +5561,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.80.8 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.80.9 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
