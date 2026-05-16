@@ -160,6 +160,10 @@ const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.key.toLowerCase()] = true;
   if (e.key === ' ' || e.key.toLowerCase() === 'p') e.preventDefault();
+  if (e.key === 'F12') {
+    e.preventDefault();
+    takeScreenshot();
+  }
 });
 window.addEventListener('keyup', e => {
   keys[e.key.toLowerCase()] = false;
@@ -4100,24 +4104,23 @@ if (resetDataBtn) {
 }
 
 /* ---------- Screenshot ---------- */
+function takeScreenshot() {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(W - 280, H - 30, 275, 24);
+  ctx.fillStyle = '#aabbdd';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(`Stellar Defense v1.72.2 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.restore();
+  const link = document.createElement('a');
+  link.download = `stellar-defense-w${wave}-${score}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
 const screenshotBtn = document.getElementById('screenshot-btn');
 if (screenshotBtn) {
-  screenshotBtn.addEventListener('click', () => {
-    // draw watermark
-    ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(W - 260, H - 30, 255, 24);
-    ctx.fillStyle = '#aabbdd';
-    ctx.font = '11px sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText(`Stellar Defense v1.63.6 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
-    ctx.restore();
-    // capture
-    const link = document.createElement('a');
-    link.download = `stellar-defense-w${wave}-${score}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
+  screenshotBtn.addEventListener('click', takeScreenshot);
 }
 
 /* ---------- Event Listeners ---------- */

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.72.3] - 2026-05-13
+
+### Added
+- F12 in-game screenshot hotkey
+  - Press F12 anytime during gameplay to capture the screen
+  - Watermark shows current version, score, and wave
+  - Works in addition to the game over screenshot button
+  - Fixed outdated version number in watermark
+
 ## [1.72.2] - 2026-05-13
 
 ### Added
