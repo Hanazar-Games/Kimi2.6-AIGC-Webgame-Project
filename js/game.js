@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.85.5';
+const VERSION = 'v1.85.6';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -922,6 +922,7 @@ let comboFlashColor = '#ffffff';
 let pickupFlash = 0;
 let pickupFlashColor = '#ffffff';
 let gameStartTime = 0;
+let checkpointWave = 1;
 let comboGuard = true;
 let comboScale = 1;
 let particleDensity = 2; // 0=low, 1=medium, 2=high
@@ -1284,6 +1285,37 @@ function unlockAchievement(key) {
     spawnFloatingText(W / 2, H / 2 - 60, `Achievement: ${a.name}`, '#ffcc44');
     spawnFloatingText(W / 2, H / 2 - 40, a.desc, '#ffee88');
     shake = Math.max(shake, 8);
+    // Achievement rewards
+    const rewards = {
+      first_blood: { score: 50 },
+      grazer: { score: 100 },
+      survivor: { hp: 1 },
+      boss_slayer: { bombs: 1 },
+      elite_slayer: { score: 200 },
+      combo_25: { score: 50 },
+      combo_50: { hp: 1 },
+      combo_100: { bombs: 1 },
+      weapon_master: { bombs: 1 },
+      millionaire: { score: 500 },
+      marathon: { hp: 2 },
+      century: { score: 100 },
+      nightmare_survivor: { score: 300 },
+    };
+    const reward = rewards[key];
+    if (reward && state === STATE.PLAYING) {
+      if (reward.score) {
+        score += reward.score;
+        spawnFloatingText(W / 2, H / 2 - 20, `+${reward.score} Score!`, '#ffcc44');
+      }
+      if (reward.hp) {
+        player.hp = Math.min(player.maxHp, player.hp + reward.hp);
+        spawnFloatingText(W / 2, H / 2 - 20, `+${reward.hp} HP!`, '#44ff88');
+      }
+      if (reward.bombs) {
+        player.bombs = Math.min(5, player.bombs + reward.bombs);
+        spawnFloatingText(W / 2, H / 2 - 20, `+${reward.bombs} Bomb!`, '#ff8844');
+      }
+    }
     if (state === STATE.PLAYING) {
       achievementNotifications.push({ name: a.name, desc: a.desc });
     }
@@ -2098,6 +2130,11 @@ function startWave() {
   if (!rewardSelectActive) {
     sfxWaveStart();
     spawnFloatingText(W / 2, H / 2, `WAVE ${wave}`, '#44aaff');
+  }
+  // Update checkpoint every 5 waves
+  if (wave > 1 && wave % 5 === 0 && wave > checkpointWave) {
+    checkpointWave = wave;
+    spawnFloatingText(W / 2, H / 2 - 50, `CHECKPOINT SAVED!`, '#44ff88');
   }
   checkAchievements();
 }
@@ -5911,6 +5948,16 @@ function showGameOver() {
     }
     setSharedScore(score, wave);
   }
+  // Show checkpoint button if available
+  const cpBtn = document.getElementById('checkpoint-btn');
+  if (cpBtn) {
+    if (checkpointWave > 1 && checkpointWave < wave) {
+      cpBtn.style.display = 'inline-block';
+      cpBtn.textContent = `CONTINUE FROM WAVE ${checkpointWave}`;
+    } else {
+      cpBtn.style.display = 'none';
+    }
+  }
 }
 
 /* ---------- Init & Reset ---------- */
@@ -6299,6 +6346,16 @@ document.getElementById('resume-btn').addEventListener('click', () => {
 
 document.getElementById('restart-btn').addEventListener('click', () => {
   resetGame();
+  countdownValue = 3;
+  countdownTimer = 60;
+  state = STATE.COUNTDOWN;
+  hideScreens();
+});
+
+document.getElementById('checkpoint-btn').addEventListener('click', () => {
+  resetGame();
+  wave = checkpointWave;
+  score = 0;
   countdownValue = 3;
   countdownTimer = 60;
   state = STATE.COUNTDOWN;
