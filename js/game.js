@@ -4866,6 +4866,9 @@ function showPause() {
     if (player.invincible > 0) buffs.push(`Shield ${Math.ceil(player.invincible / 60)}s`);
     if (timeStopTimer > 0) buffs.push(`Time Stop ${Math.ceil(timeStopTimer / 60)}s`);
     if (magnetTimer > 0) buffs.push(`Magnet ${Math.ceil(magnetTimer / 60)}s`);
+    if (overdriveTimer > 0) buffs.push(`Overdrive ${Math.ceil(overdriveTimer / 60)}s`);
+    if (scoreMultTimer > 0) buffs.push(`Score Mult ${Math.ceil(scoreMultTimer / 60)}s`);
+    if (comboGuard) buffs.push('Combo Guard');
     if (buffs.length) {
       pBuffsRow.style.display = 'block';
       pBuffs.textContent = buffs.join(' · ');
@@ -5317,7 +5320,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.8 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.78.9 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
