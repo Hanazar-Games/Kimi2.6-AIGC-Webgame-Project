@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.6] - 2026-05-13
+
+### Added
+- Damage number pop-ups on enemy hits
+  - White numbers for normal damage, yellow for high damage (15+)
+  - Float upward and fade out over 25 frames
+  - Disabled on Low particle density to reduce clutter
+  - Smaller font (12px) than regular floating text
+
 ## [1.63.5] - 2026-05-13
 
 ### Improved

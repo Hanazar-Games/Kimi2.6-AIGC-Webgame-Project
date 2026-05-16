@@ -702,7 +702,12 @@ function spawnHitSparks(x, y, color = '#ffaa44') {
 }
 
 function spawnFloatingText(x, y, txt, color) {
-  texts.push({ x, y, txt, color, life: 45, maxLife: 45, vy: -1 });
+  texts.push({ x, y, txt, color, life: 45, maxLife: 45, vy: -1, size: 16 });
+}
+function spawnDamageNumber(x, y, dmg) {
+  if (particleDensity === 0) return;
+  const color = dmg >= 15 ? '#ffee44' : dmg >= 8 ? '#ffffff' : '#aabbcc';
+  texts.push({ x, y, txt: Math.ceil(dmg).toString(), color, life: 25, maxLife: 25, vy: -1.5, size: 12 });
 }
 
 /* ---------- Bullet Factory ---------- */
@@ -1722,6 +1727,7 @@ function checkCollisions() {
         const kbForce = 0.8;
         e.vx += Math.cos(kbAngle) * kbForce;
         e.vy += Math.sin(kbAngle) * kbForce;
+        spawnDamageNumber(e.x, e.y - e.radius - 5, dmg);
         spawnHitSparks(b.x, b.y, e.color);
         e.hitFlash = 4;
         shake = Math.max(shake, 2);
@@ -2653,7 +2659,7 @@ function drawTexts() {
     const scale = 1 + Math.sin(progress * Math.PI) * 0.3;
     ctx.globalAlpha = t.life / t.maxLife;
     ctx.fillStyle = t.color;
-    ctx.font = 'bold 16px sans-serif';
+    ctx.font = `bold ${t.size || 16}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.save();
     ctx.translate(t.x, t.y);
