@@ -933,6 +933,7 @@ let targetFPS = 60;
 let skipFrame = false;
 let tutorialActive = false;
 let tutorialDismissed = false;
+let tutorialStepsShown = new Set();
 let asteroids = [];
 let meteors = [];
 let meteorTimer = 0;
@@ -5096,6 +5097,7 @@ function resetGame() {
   comboGuard = true;
   tutorialActive = !tutorialDismissed;
   tutorialDismissed = true;
+  tutorialStepsShown.clear();
 
   initStars();
   startWave();
@@ -5320,7 +5322,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.9 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.79.0 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5715,10 +5717,41 @@ function loop(timestamp) {
 
   drawWaveClear();
   drawUI();
+  drawTutorial();
 
   requestAnimationFrame(loop);
 }
 
+function drawTutorial() {
+  if (state !== STATE.PLAYING) return;
+  const tips = {
+    1: 'WASD / Arrows to move  ·  Space to shoot',
+    2: 'Press B to use Bomb (clear screen)',
+    3: 'Graze enemy bullets for bonus points!',
+    4: 'Build combo for score multiplier!',
+    5: 'Press K or X to Dash while moving',
+  };
+  const tip = tips[wave];
+  if (!tip || tutorialStepsShown.has(wave)) return;
+  // show tip
+  ctx.save();
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = 'rgba(20, 30, 60, 0.8)';
+  ctx.fillRect(W / 2 - 200, H - 70, 400, 28);
+  ctx.strokeStyle = 'rgba(100, 150, 255, 0.4)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(W / 2 - 200, H - 70, 400, 28);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#aaccff';
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(tip, W / 2, H - 51);
+  ctx.restore();
+  // dismiss on input
+  if (isDown(' ') || isDown('j') || isDown('b') || isDown('k') || isDown('x')) {
+    tutorialStepsShown.add(wave);
+  }
+}
 function drawWaveClear() {
   if (waveClearTimer <= 0) return;
   const t = waveClearTimer;
