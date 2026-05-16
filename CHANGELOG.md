@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.9] - 2026-05-13
+
+### Improved
+- Game Over screen shows more detailed stats
+  - Perfect Waves: total no-damage waves this run
+  - Bosses: bosses defeated this run
+  - Tracks per-run stats separately from lifetime stats
+
 ## [1.63.8] - 2026-05-13
 
 ### Added

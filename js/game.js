@@ -366,6 +366,8 @@ const ACHIEVEMENTS = {
   ricochet_king: { name: 'Ricochet King', desc: 'Kill an enemy with a bounced bullet', unlocked: false },
 };
 let noDamageWaves = 0;
+let totalPerfectWaves = 0;
+let bossesDefeatedThisRun = 0;
 let damageTakenThisWave = false;
 let usedWeapons = new Set();
 let bombsUsedThisWave = 0;
@@ -1043,6 +1045,7 @@ function startWave() {
   // check no-damage streak for Untouchable achievement
   if (wave > 1 && !damageTakenThisWave) {
     noDamageWaves++;
+    totalPerfectWaves++;
     if (noDamageWaves >= 5) unlockAchievement('untouchable');
     if (waveTheme) unlockAchievement('theme_survivor');
     const perfectBonus = 500 + wave * 100;
@@ -1788,6 +1791,7 @@ function checkCollisions() {
             unlockAchievement('boss_slayer');
             if (e.elite) unlockAchievement('elite_slayer');
             stats.bossesDefeated++;
+            bossesDefeatedThisRun++;
             if (stats.bossesDefeated >= 5) unlockAchievement('boss_hunter');
             // boss defeat spectacle
             spawnExplosion(e.x, e.y, e.color, 40, true);
@@ -2922,6 +2926,10 @@ function showGameOver() {
   }
   const fcEl = document.getElementById('final-combo');
   if (fcEl) fcEl.textContent = `Best Combo: ${combo}`;
+  const fpEl = document.getElementById('final-perfect');
+  if (fpEl) fpEl.textContent = `Perfect Waves: ${totalPerfectWaves}`;
+  const fbEl = document.getElementById('final-bosses');
+  if (fbEl) fbEl.textContent = `Bosses: ${bossesDefeatedThisRun}`;
   const fwEl = document.getElementById('final-weapon');
   if (fwEl) {
     if (usedWeapons.size > 1) {
@@ -3006,6 +3014,8 @@ function resetGame() {
   grazeCount = 0;
   grazeTimer = 0;
   noDamageWaves = 0;
+  totalPerfectWaves = 0;
+  bossesDefeatedThisRun = 0;
   damageTakenThisWave = false;
   musicBeat = 0;
   if (audioCtx) musicNextTime = audioCtx.currentTime;
