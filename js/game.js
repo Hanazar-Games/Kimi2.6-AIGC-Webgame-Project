@@ -2757,6 +2757,11 @@ function checkCollisions() {
           if (e.elite) spawnFloatingText(e.x, e.y - 15, 'ELITE!', '#ffee88');
           spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
           sfxEnemyDeath(e.type);
+          if (weaponType === 'explosive') {
+            // Extra explosive impact sound
+            playTone(100, 'sawtooth', 0.1, 0.04);
+            playTone(60, 'square', 0.15, 0.03);
+          }
           // explosive multi-kill tracking
           if (b.explosive && explosiveKillsThisHit > 0) {
             const totalKills = explosiveKillsThisHit + 1; // +1 for primary target
@@ -4839,7 +4844,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.75.6 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.75.7 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
