@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.64.0] - 2026-05-13
+
+### Added
+- Per-difficulty high scores
+  - Separate high score tracked for each difficulty (Easy/Normal/Hard/Nightmare)
+  - Menu shows global high score + current difficulty's best
+  - Game Over shows current difficulty's high score alongside global
+  - Backward compatible with existing save data
+
 ## [1.63.9] - 2026-05-13
 
 ### Improved

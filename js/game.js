@@ -228,6 +228,7 @@ const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3 };
 let state = STATE.MENU;
 let score = 0;
 let highScore = 0;
+let highScoresByDifficulty = { 1: 0, 2: 0, 3: 0, 4: 0 };
 let wave = 1;
 let combo = 0;
 let comboTimer = 0;
@@ -276,11 +277,17 @@ function loadHighScore() {
   try {
     const v = localStorage.getItem('stellar_defense_highscore');
     if (v) highScore = parseInt(v, 10) || 0;
+    const vd = localStorage.getItem('stellar_defense_highscores_diff');
+    if (vd) {
+      const parsed = JSON.parse(vd);
+      highScoresByDifficulty = { ...highScoresByDifficulty, ...parsed };
+    }
   } catch (e) {}
 }
 function saveHighScore() {
   try {
     localStorage.setItem('stellar_defense_highscore', String(highScore));
+    localStorage.setItem('stellar_defense_highscores_diff', JSON.stringify(highScoresByDifficulty));
   } catch (e) {}
 }
 loadHighScore();
@@ -783,7 +790,9 @@ function bomberExplode(e) {
         player.hp = 0;
         deathSlowMo = 90;
         state = STATE.GAMEOVER;
-        if (score > highScore) { highScore = score; saveHighScore(); }
+        if (score > highScore) { highScore = score; }
+        if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
+        saveHighScore();
         stats.totalGraze += grazeCount;
         updateStats(true);
         showGameOver();
@@ -1870,7 +1879,9 @@ function checkCollisions() {
           } else {
             player.hp = 0;
             state = STATE.GAMEOVER;
-            if (score > highScore) { highScore = score; saveHighScore(); }
+            if (score > highScore) { highScore = score; }
+        if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
+        saveHighScore();
             stats.totalGraze += grazeCount;
             updateStats(true);
             showGameOver();
@@ -1914,7 +1925,9 @@ function checkCollisions() {
           } else {
             player.hp = 0;
             state = STATE.GAMEOVER;
-            if (score > highScore) { highScore = score; saveHighScore(); }
+            if (score > highScore) { highScore = score; }
+        if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
+        saveHighScore();
             stats.totalGraze += grazeCount;
             updateStats(true);
             showGameOver();
@@ -2802,7 +2815,11 @@ function showMenu() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('menu-screen').classList.add('active');
   const el = document.getElementById('menu-highscore');
-  if (el) el.textContent = `High Score: ${highScore.toLocaleString()}`;
+  if (el) {
+    const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
+    const diffHigh = highScoresByDifficulty[difficulty] || 0;
+    el.innerHTML = `High Score: ${highScore.toLocaleString()} <span style="color:#88aaff; font-size:11px;">(${diffNames[difficulty]}: ${diffHigh.toLocaleString()})</span>`;
+  }
   updateAchievementUI();
   updateEnemyLogUI();
   updateLeaderboardUI();
@@ -2912,7 +2929,11 @@ function showGameOver() {
   animateGameOverStats();
   document.getElementById('final-wave').textContent = `Wave: ${wave}`;
   const hsEl = document.getElementById('final-highscore');
-  if (hsEl) hsEl.textContent = `High Score: ${highScore.toLocaleString()}`;
+  if (hsEl) {
+    const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
+    const diffHigh = highScoresByDifficulty[difficulty] || 0;
+    hsEl.innerHTML = `High Score: ${highScore.toLocaleString()} <span style="color:#88aaff; font-size:12px;">(${diffNames[difficulty]}: ${diffHigh.toLocaleString()})</span>`;
+  }
   const fkEl = document.getElementById('final-kills');
   if (fkEl) fkEl.textContent = `Kills: ${stats.kills}`;
   const fgEl = document.getElementById('final-graze');
