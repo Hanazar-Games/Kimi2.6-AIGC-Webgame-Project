@@ -2643,6 +2643,28 @@ function drawEnemies() {
       ctx.globalAlpha = 1;
     }
 
+    // elite aura
+    if (e.elite) {
+      const auraPulse = 1 + 0.15 * Math.sin(Date.now() * 0.004 + e.x * 0.01);
+      const auraR = (e.radius + 8) * auraPulse;
+      ctx.strokeStyle = 'rgba(255, 238, 136, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, auraR, 0, Math.PI * 2);
+      ctx.stroke();
+      // Rotating triangle markers
+      const triCount = 3;
+      ctx.fillStyle = 'rgba(255, 238, 136, 0.5)';
+      for (let t = 0; t < triCount; t++) {
+        const ta = Date.now() * 0.002 + t * (Math.PI * 2 / triCount);
+        const tx = Math.cos(ta) * auraR;
+        const ty = Math.sin(ta) * auraR;
+        ctx.beginPath();
+        ctx.arc(tx, ty, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
     ctx.shadowBlur = 0;
     ctx.restore();
   }

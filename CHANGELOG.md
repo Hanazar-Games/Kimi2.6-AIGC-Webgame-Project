@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.7] - 2026-05-13
+
+### Added
+- Elite enemy aura effects
+  - Pulsing gold ring around all elite enemies
+  - 3 rotating orbiting dot markers
+  - Pulse speed varies slightly per enemy (based on x position)
+  - Makes elites immediately distinguishable in crowds
+  - Complements existing crown icon and lightenColor
+
 ## [1.68.6] - 2026-05-13
 
 ### Added
