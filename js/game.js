@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.7';
+const VERSION = 'v1.84.8';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -4413,6 +4413,19 @@ function drawDangerZone() {
         ctx.restore();
       }
     }
+  }
+  // Screen edge warning when player is too close
+  const edgeMargin = 40;
+  if (player.x < edgeMargin || player.x > W - edgeMargin || player.y < edgeMargin || player.y > H - edgeMargin) {
+    const edgePulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.01);
+    ctx.save();
+    ctx.globalAlpha = edgePulse * 0.35;
+    ctx.fillStyle = '#ff3333';
+    if (player.x < edgeMargin) ctx.fillRect(0, 0, 4, H);
+    if (player.x > W - edgeMargin) ctx.fillRect(W - 4, 0, 4, H);
+    if (player.y < edgeMargin) ctx.fillRect(0, 0, W, 4);
+    if (player.y > H - edgeMargin) ctx.fillRect(0, H - 4, W, 4);
+    ctx.restore();
   }
 }
 
