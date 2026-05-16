@@ -4619,7 +4619,10 @@ function updateWeaponDesc() {
   const stars = Math.min(5, Math.floor(uses / 50));
   const starStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
   const bonus = Math.floor(stars * 2);
-  el.innerHTML = `<span style="color:${info.color}; font-weight:bold;">${info.name}</span> — ${info.desc}<br><span style="color:#ffcc44; font-size:10px;">${starStr}</span> <span style="color:#88aadd; font-size:10px;">Mastery: +${bonus}% dmg (${uses} uses)</span>`;
+  const nextThreshold = Math.min(250, (stars + 1) * 50);
+  const progress = stars >= 5 ? 100 : Math.min(100, Math.floor((uses % 50) / 50 * 100));
+  const progressBar = `<div style="display:inline-block; width:60px; height:4px; background:rgba(100,100,150,0.3); border-radius:2px; overflow:hidden; vertical-align:middle; margin:0 4px;"><div style="width:${progress}%; height:100%; background:${info.color};"></div></div>`;
+  el.innerHTML = `<span style="color:${info.color}; font-weight:bold;">${info.name}</span> — ${info.desc}<br><span style="color:#ffcc44; font-size:10px;">${starStr}</span> ${progressBar} <span style="color:#88aadd; font-size:10px;">Mastery: +${bonus}% dmg (${uses} uses)</span>`;
 }
 document.querySelectorAll('#weapon-select .weapon-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -4781,7 +4784,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.9 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.75.0 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
