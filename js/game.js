@@ -3196,6 +3196,22 @@ function checkCollisions() {
             spawnFloatingText(W / 2, H / 2 - 60, `KILL MILESTONE: ${stats.kills}!`, '#ffee44');
             shake = Math.max(shake, 8);
             sfxMilestone();
+            // kill milestone particle burst
+            const kmCount = particleDensity === 0 ? 15 : particleDensity === 1 ? 25 : 40;
+            for (let k = 0; k < kmCount; k++) {
+              const angle = rand(0, Math.PI * 2);
+              const speed = rand(2, 7);
+              particles.push({
+                x: W / 2, y: H / 2 - 60,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: rand(30, 70),
+                maxLife: 70,
+                color: '#ffee44',
+                size: rand(2, 5),
+                decay: 0.95,
+              });
+            }
           }
           enemies.splice(j, 1);
         } else {
@@ -5288,7 +5304,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.5 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.78.6 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
