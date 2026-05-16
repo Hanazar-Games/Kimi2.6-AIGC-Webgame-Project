@@ -862,6 +862,7 @@ const ACHIEVEMENTS = {
   phantom_slayer: { name: 'Phantom Slayer', desc: 'Destroy a Phantom enemy', unlocked: false },
   phantom_hunter: { name: 'Phantom Hunter', desc: 'Destroy 10 Phantom enemies', unlocked: false },
   chain_reaction: { name: 'Chain Reaction', desc: 'Kill 5 enemies with one explosive shell', unlocked: false },
+  century: { name: 'Century', desc: 'Kill 100 enemies in one run', unlocked: false },
 };
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
@@ -2763,6 +2764,7 @@ function checkCollisions() {
           }
           enemyKillsLog[e.type] = (enemyKillsLog[e.type] || 0) + 1;
           stats.kills++;
+          if (stats.kills >= 100) unlockAchievement('century');
           enemies.splice(j, 1);
         } else {
           sfxHit();
@@ -4739,7 +4741,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.3 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.4 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
