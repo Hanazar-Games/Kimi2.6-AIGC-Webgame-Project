@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.72.2] - 2026-05-13
+
+### Added
+- Enemy Log kill counters
+  - Each discovered enemy now shows total lifetime kills
+  - Hover tooltip shows kill count alongside hint text
+  - Persisted across sessions via localStorage
+  - Gives players a long-term goal of hunting every enemy type
+
 ## [1.72.1] - 2026-05-13
 
 ### Improved

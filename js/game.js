@@ -282,6 +282,7 @@ let planets = [];
 let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser', 'ricochet'
 let encounteredTypes = new Set();
 let persistentEncountered = new Set();
+let enemyKillsLog = {};
 let encounterText = null;
 let encounterTimer = 0;
 const THEMES = [
@@ -432,11 +433,16 @@ function loadPersistentEncountered() {
       const arr = JSON.parse(v);
       persistentEncountered = new Set(arr);
     }
+    const kv = localStorage.getItem('stellar_defense_kills');
+    if (kv) {
+      enemyKillsLog = JSON.parse(kv);
+    }
   } catch (e) {}
 }
 function savePersistentEncountered() {
   try {
     localStorage.setItem('stellar_defense_encountered', JSON.stringify([...persistentEncountered]));
+    localStorage.setItem('stellar_defense_kills', JSON.stringify(enemyKillsLog));
   } catch (e) {}
 }
 function saveAchievements() {
@@ -532,8 +538,9 @@ function updateEnemyLogUI() {
       opacity: ${discovered ? 1 : 0.6};
       cursor: ${discovered ? 'help' : 'default'};
     `;
-    el.textContent = discovered ? entry.name : '???';
-    if (discovered) el.title = ENEMY_HINTS[entry.type];
+    const kills = enemyKillsLog[entry.type] || 0;
+    el.textContent = discovered ? `${entry.name} (${kills})` : '???';
+    if (discovered) el.title = `${ENEMY_HINTS[entry.type]} — Kills: ${kills}`;
     list.appendChild(el);
   }
 }
@@ -2194,6 +2201,7 @@ function checkCollisions() {
             overdriveKills++;
             if (overdriveKills >= 30) unlockAchievement('overdrive_killer');
           }
+          enemyKillsLog[e.type] = (enemyKillsLog[e.type] || 0) + 1;
           stats.kills++;
           enemies.splice(j, 1);
         } else {
