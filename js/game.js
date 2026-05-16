@@ -1123,11 +1123,29 @@ function saveAchievements() {
     localStorage.setItem('stellar_defense_achievements', JSON.stringify(obj));
   } catch (e) {}
 }
+function sfxAchievementUnlock() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6 (major chord arpeggio)
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.08);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.04 * masterVolume, t + i * 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.2);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.08);
+    o.stop(t + i * 0.08 + 0.25);
+  }
+}
 function unlockAchievement(key) {
   const a = ACHIEVEMENTS[key];
   if (a && !a.unlocked) {
     a.unlocked = true;
     saveAchievements();
+    sfxAchievementUnlock();
     spawnFloatingText(W / 2, H / 2 - 60, `Achievement: ${a.name}`, '#ffcc44');
     spawnFloatingText(W / 2, H / 2 - 40, a.desc, '#ffee88');
     shake = Math.max(shake, 8);
@@ -5093,7 +5111,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.77.8 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.77.9 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
