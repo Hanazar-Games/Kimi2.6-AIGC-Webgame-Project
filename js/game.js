@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.85.2';
+const VERSION = 'v1.85.3';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -1088,6 +1088,7 @@ const ACHIEVEMENTS = {
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
 let bossesDefeatedThisRun = 0;
+let totalDamageDealt = 0;
 let recordBrokenThisRun = false;
 let achievementsThisRun = 0;
 let volumeDisplayTimer = 0;
@@ -2261,7 +2262,9 @@ function useBomb() {
   // damage enemies
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
-    e.hp -= 40 * damageMult;
+    const bombDmg = 40 * damageMult;
+    e.hp -= bombDmg;
+    totalDamageDealt += bombDmg;
     spawnHitSparks(e.x, e.y, e.color);
     if (e.hp <= 0) {
       const pts = Math.floor(e.score * (1 + combo * 0.1));
@@ -3162,6 +3165,7 @@ function checkCollisions() {
           }
         } else {
           e.hp -= dmg;
+          totalDamageDealt += dmg;
         }
         // divider split logic
         if (e.type === 'divider' && e.splitCount < e.maxSplits && e.hp > 0 && Math.random() < 0.25) {
@@ -3509,6 +3513,7 @@ function playerDeathEffect() {
         damageTakenThisWave = true;
         spawnPlayerHitParticles();
         e.hp -= 20;
+        totalDamageDealt += 20;
         spawnExplosion((player.x + e.x) / 2, (player.y + e.y) / 2, '#ff4444', 18);
         sfxHurt();
         if (e.hp <= 0) {
@@ -5685,6 +5690,8 @@ function showPause() {
   if (pp) pp.textContent = totalPerfectWaves;
   const pb = document.getElementById('pause-bosses');
   if (pb) pb.textContent = bossesDefeatedThisRun;
+  const pDamage = document.getElementById('pause-damage');
+  if (pDamage) pDamage.textContent = Math.floor(totalDamageDealt).toLocaleString();
   const pWeapon = document.getElementById('pause-weapon');
   if (pWeapon) pWeapon.textContent = weaponType.charAt(0).toUpperCase() + weaponType.slice(1);
   const pWeaponStars = document.getElementById('pause-weapon-stars');
@@ -5956,6 +5963,7 @@ function resetGame() {
   noDamageWaves = 0;
   totalPerfectWaves = 0;
   bossesDefeatedThisRun = 0;
+  totalDamageDealt = 0;
   recordBrokenThisRun = false;
   achievementsThisRun = 0;
   volumeDisplayTimer = 0;
@@ -6534,8 +6542,8 @@ function loop(timestamp) {
     if (isDown('2')) { keys['2'] = false; applyReward(1); }
     if (isDown('3')) { keys['3'] = false; applyReward(2); }
   }
-  // Return to menu from game over
-  if (isDown('escape') && state === STATE.GAMEOVER) {
+  // Return to menu from game over or pause
+  if (isDown('escape') && (state === STATE.GAMEOVER || state === STATE.PAUSED)) {
     keys['escape'] = false;
     state = STATE.MENU;
     if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
