@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.8';
+const VERSION = 'v1.84.9';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -2485,7 +2485,10 @@ function updatePlayer() {
   if (mx !== 0 || my !== 0) {
     player.angle = Math.atan2(my, mx);
     // engine trail particles
-    if (Math.random() < 0.5) {
+    const isDashing = dashing > 0;
+    const isOverdrive = overdriveTimer > 0;
+    const spawnRate = isDashing ? 0.9 : isOverdrive ? 0.7 : 0.5;
+    if (Math.random() < spawnRate) {
       const theme = THEMES[colorTheme];
       const backAngle = player.angle + Math.PI;
       const engineColors = {
@@ -2497,17 +2500,22 @@ function updatePlayer() {
         homing: '#ff66cc',
         explosive: '#ff6633',
       };
-      particles.push({
-        x: player.x + Math.cos(backAngle) * 8 + rand(-3, 3),
-        y: player.y + Math.sin(backAngle) * 8 + rand(-3, 3),
-        vx: Math.cos(backAngle) * rand(0.5, 1.5) + rand(-0.3, 0.3),
-        vy: Math.sin(backAngle) * rand(0.5, 1.5) + rand(-0.3, 0.3),
-        life: rand(6, 14),
-        maxLife: 14,
-        color: engineColors[weaponType] || theme.engine,
-        size: rand(1.5, 3),
-        decay: 0.9,
-      });
+      const baseColor = engineColors[weaponType] || theme.engine;
+      const color = isOverdrive ? '#ff4444' : (isDashing ? '#aaddff' : baseColor);
+      const count = isDashing ? 2 : 1;
+      for (let k = 0; k < count; k++) {
+        particles.push({
+          x: player.x + Math.cos(backAngle) * 8 + rand(-3, 3),
+          y: player.y + Math.sin(backAngle) * 8 + rand(-3, 3),
+          vx: Math.cos(backAngle) * rand(0.5, 1.5) + rand(-0.3, 0.3),
+          vy: Math.sin(backAngle) * rand(0.5, 1.5) + rand(-0.3, 0.3),
+          life: rand(6, 14),
+          maxLife: 14,
+          color: color,
+          size: rand(1.5, isDashing ? 4 : 3),
+          decay: 0.9,
+        });
+      }
     }
   }
 
@@ -4718,6 +4726,7 @@ function drawBossWarning() {
 
 function drawBombEffect() {
   const r = (40 - bombAnim) * 18;
+  const progress = 1 - bombAnim / 40;
   ctx.save();
   ctx.globalAlpha = bombAnim / 40 * 0.35;
   ctx.fillStyle = '#ffaa44';
@@ -4729,6 +4738,14 @@ function drawBombEffect() {
   ctx.beginPath();
   ctx.arc(player.x, player.y, r * 0.7, 0, Math.PI * 2);
   ctx.stroke();
+  // White core flash
+  ctx.globalAlpha = (bombAnim / 40) * 0.5;
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = '#ff8844';
+  ctx.shadowBlur = 30;
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, r * 0.3 * progress, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 
