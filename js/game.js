@@ -1075,6 +1075,7 @@ let autoFireDisplayTimer = 0;
 let musicDisplayTimer = 0;
 let fpsDisplayTimer = 0;
 let fullscreenDisplayTimer = 0;
+let helpOverlayTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4833,6 +4834,47 @@ function drawUI() {
     ctx.fillText(`FULLSCREEN: ${isFullscreen ? 'ON' : 'OFF'}`, fsx + 6, fsy + 15);
     ctx.restore();
   }
+  // Help overlay
+  if (helpOverlayTimer > 0) {
+    helpOverlayTimer--;
+    const alpha = Math.min(1, helpOverlayTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.92;
+    ctx.fillStyle = 'rgba(10, 15, 30, 0.9)';
+    ctx.fillRect(W / 2 - 160, H / 2 - 140, 320, 280);
+    ctx.strokeStyle = 'rgba(100, 150, 255, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W / 2 - 160, H / 2 - 140, 320, 280);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#aaccff';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('CONTROLS', W / 2, H / 2 - 115);
+    ctx.font = '12px sans-serif';
+    const controls = [
+      'WASD / Arrows — Move',
+      'Space / J — Shoot',
+      'B — Bomb (clear screen)',
+      'K / X — Dash (while moving)',
+      'Shift — Focus (Slow movement)',
+      'P — Pause',
+      'H — Show/Hide this help',
+      '',
+      '[ / ] — Volume',
+      '- / = — Particle density',
+      'T — Color theme',
+      'A — Auto fire',
+      'M — Music',
+      'F2 — Screenshot',
+      'F3 — FPS display',
+      'F4 — Fullscreen',
+    ];
+    controls.forEach((line, i) => {
+      ctx.fillStyle = line.includes('—') ? '#aabbdd' : '#88aadd';
+      ctx.fillText(line, W / 2, H / 2 - 90 + i * 16);
+    });
+    ctx.restore();
+  }
 }
 
 function drawAchievementNotification() {
@@ -5242,6 +5284,7 @@ function resetGame() {
   musicDisplayTimer = 0;
   fpsDisplayTimer = 0;
   fullscreenDisplayTimer = 0;
+  helpOverlayTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5487,7 +5530,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.80.0 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.80.1 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5660,6 +5703,16 @@ function loop(timestamp) {
     }
     fullscreenDisplayTimer = 120;
     sfxClick();
+  }
+
+  // Help overlay shortcut
+  if (isDown('h') && state === STATE.PLAYING && helpOverlayTimer <= 0) {
+    keys['h'] = false;
+    helpOverlayTimer = 300; // 5 seconds
+    sfxClick();
+  } else if (isDown('h') && state === STATE.PLAYING && helpOverlayTimer > 0) {
+    keys['h'] = false;
+    helpOverlayTimer = 0;
   }
 
   // Input for pause
