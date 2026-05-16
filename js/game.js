@@ -443,6 +443,33 @@ function sfxExplosion() {
   noise.start();
 }
 function sfxPowerup() { playTone(660, 'sine', 0.1, 0.06); playTone(880, 'sine', 0.15, 0.06); }
+function sfxPerfectWave() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const notes = [523, 659, 784, 1047];
+  for (let i = 0; i < notes.length; i++) {
+    const o = audioCtx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(notes[i], t + i * 0.08);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.04 * masterVolume, t + i * 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.2);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t + i * 0.08);
+    o.stop(t + i * 0.08 + 0.25);
+  }
+  const o2 = audioCtx.createOscillator();
+  o2.type = 'sine';
+  o2.frequency.setValueAtTime(262, t);
+  const g2 = audioCtx.createGain();
+  g2.gain.setValueAtTime(0.03 * masterVolume, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+  o2.connect(g2);
+  g2.connect(audioCtx.destination);
+  o2.start(t);
+  o2.stop(t + 0.55);
+}
 function sfxHurt() { playTone(120, 'sawtooth', 0.25, 0.08); }
 function sfxWaveStart() {
   playTone(440, 'square', 0.15, 0.05);
@@ -1657,7 +1684,7 @@ function startWave() {
     const perfectBonus = 500 + wave * 100;
     score += Math.floor(perfectBonus * scoreMultBonus);
     spawnFloatingText(W / 2, H / 2 + 30, `PERFECT! +${perfectBonus}`, '#ffcc44');
-    sfxPowerup();
+    sfxPerfectWave();
   } else if (damageTakenThisWave) {
     noDamageWaves = 0;
     // wave clear bonus based on remaining HP
@@ -4710,7 +4737,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.1 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.2 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
