@@ -1070,6 +1070,7 @@ let bossesDefeatedThisRun = 0;
 let recordBrokenThisRun = false;
 let volumeDisplayTimer = 0;
 let particleDisplayTimer = 0;
+let themeDisplayTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4731,6 +4732,26 @@ function drawUI() {
     ctx.fillText(`PARTICLES: ${particleLabels[particleDensity]}`, px + 6, py + 15);
     ctx.restore();
   }
+  // Color theme indicator overlay
+  if (themeDisplayTimer > 0) {
+    themeDisplayTimer--;
+    const alpha = Math.min(1, themeDisplayTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const tx = W - 120;
+    const ty = H - 92;
+    const theme = THEMES[colorTheme];
+    ctx.fillStyle = 'rgba(20, 30, 60, 0.85)';
+    ctx.fillRect(tx, ty, 110, 22);
+    ctx.strokeStyle = theme.glow;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(tx, ty, 110, 22);
+    ctx.fillStyle = theme.player;
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`THEME: ${theme.name}`, tx + 6, ty + 15);
+    ctx.restore();
+  }
 }
 
 function drawAchievementNotification() {
@@ -5135,6 +5156,7 @@ function resetGame() {
   recordBrokenThisRun = false;
   volumeDisplayTimer = 0;
   particleDisplayTimer = 0;
+  themeDisplayTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5380,7 +5402,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.79.5 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.79.6 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
@@ -5506,6 +5528,14 @@ function loop(timestamp) {
     keys['Equal'] = false;
     particleDensity = Math.min(2, particleDensity + 1);
     particleDisplayTimer = 120;
+    sfxClick();
+  }
+
+  // Color theme shortcut
+  if (isDown('t') && state === STATE.PLAYING) {
+    keys['t'] = false;
+    colorTheme = (colorTheme + 1) % THEMES.length;
+    themeDisplayTimer = 120;
     sfxClick();
   }
 
