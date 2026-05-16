@@ -723,6 +723,7 @@ const ACHIEVEMENTS = {
   elite_wave_survivor: { name: 'Elite Wave Survivor', desc: 'Survive an Elite Wave', unlocked: false },
   combo_burst_master: { name: 'Combo Burst Master', desc: 'Trigger Combo Burst 3 times', unlocked: false },
   demolition_expert: { name: 'Demolition Expert', desc: 'Kill 3 enemies with one explosive shell', unlocked: false },
+  explosive_destroyer: { name: 'Explosive Destroyer', desc: 'Destroy 50 enemies with Explosive shells', unlocked: false },
 };
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
@@ -742,6 +743,7 @@ let overdriveKills = 0;
 let eliteWavesSurvived = 0;
 let comboBurstsTriggered = 0;
 let explosiveBestMultiKill = 0;
+let explosiveKills = 0;
 
 function loadAchievements() {
   try {
@@ -2569,6 +2571,10 @@ function checkCollisions() {
             homingKills++;
             if (homingKills >= 100) unlockAchievement('homing_ace');
           }
+          if (weaponType === 'explosive') {
+            explosiveKills++;
+            if (explosiveKills >= 50) unlockAchievement('explosive_destroyer');
+          }
           if (overdriveTimer > 0) {
             overdriveKills++;
             if (overdriveKills >= 30) unlockAchievement('overdrive_killer');
@@ -4241,6 +4247,7 @@ function resetGame() {
   eliteWavesSurvived = 0;
   comboBurstsTriggered = 0;
   explosiveBestMultiKill = 0;
+  explosiveKills = 0;
 
   score = 0;
   wave = 1;
