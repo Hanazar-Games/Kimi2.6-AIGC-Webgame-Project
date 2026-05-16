@@ -57,18 +57,132 @@ function playTone(freq, type, duration, vol = 0.08) {
 }
 
 function sfxShoot() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const g = audioCtx.createGain();
+  g.connect(audioCtx.destination);
+
   if (weaponType === 'rapid') {
-    playTone(1200, 'square', 0.06, 0.03);
+    // Rapid: short, crisp high-frequency chirp
+    const o = audioCtx.createOscillator();
+    o.type = 'square';
+    o.frequency.setValueAtTime(1400, t);
+    o.frequency.exponentialRampToValueAtTime(600, t + 0.04);
+    g.gain.setValueAtTime(0.03 * masterVolume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+    o.connect(g);
+    o.start(t);
+    o.stop(t + 0.05);
   } else if (weaponType === 'spread') {
-    playTone(600, 'sawtooth', 0.1, 0.05);
+    // Spread: thick sawtooth + noise burst, heavy impact
+    const o1 = audioCtx.createOscillator();
+    o1.type = 'sawtooth';
+    o1.frequency.setValueAtTime(500, t);
+    o1.frequency.exponentialRampToValueAtTime(150, t + 0.12);
+    const o2 = audioCtx.createOscillator();
+    o2.type = 'square';
+    o2.frequency.setValueAtTime(350, t);
+    o2.frequency.exponentialRampToValueAtTime(100, t + 0.12);
+    g.gain.setValueAtTime(0.04 * masterVolume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    o1.connect(g);
+    o2.connect(g);
+    o1.start(t);
+    o2.start(t);
+    o1.stop(t + 0.15);
+    o2.stop(t + 0.15);
+    // Add tiny noise burst
+    const noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.06, audioCtx.sampleRate);
+    const nd = noiseBuf.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1) * (1 - i / nd.length);
+    const ns = audioCtx.createBufferSource();
+    ns.buffer = noiseBuf;
+    const ng = audioCtx.createGain();
+    ng.gain.setValueAtTime(0.02 * masterVolume, t);
+    ng.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    ns.connect(ng);
+    ng.connect(audioCtx.destination);
+    ns.start(t);
+    ns.stop(t + 0.07);
   } else if (weaponType === 'laser') {
-    playTone(2000, 'sawtooth', 0.08, 0.06);
+    // Laser: sharp frequency sweep down, piercing
+    const o = audioCtx.createOscillator();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(3000, t);
+    o.frequency.exponentialRampToValueAtTime(400, t + 0.12);
+    // Lowpass filter for smoother laser sound
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(4000, t);
+    filter.frequency.exponentialRampToValueAtTime(600, t + 0.1);
+    g.gain.setValueAtTime(0.04 * masterVolume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    o.connect(filter);
+    filter.connect(g);
+    o.start(t);
+    o.stop(t + 0.13);
   } else if (weaponType === 'ricochet') {
-    playTone(1400, 'triangle', 0.07, 0.04);
+    // Ricochet: metallic ping with slight delay echo
+    const o = audioCtx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(1800, t);
+    o.frequency.exponentialRampToValueAtTime(800, t + 0.06);
+    g.gain.setValueAtTime(0.035 * masterVolume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    o.connect(g);
+    o.start(t);
+    o.stop(t + 0.09);
+    // Echo
+    const o2 = audioCtx.createOscillator();
+    o2.type = 'triangle';
+    o2.frequency.setValueAtTime(1400, t + 0.04);
+    o2.frequency.exponentialRampToValueAtTime(600, t + 0.08);
+    const g2 = audioCtx.createGain();
+    g2.gain.setValueAtTime(0.015 * masterVolume, t + 0.04);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+    o2.connect(g2);
+    g2.connect(audioCtx.destination);
+    o2.start(t + 0.04);
+    o2.stop(t + 0.1);
   } else if (weaponType === 'homing') {
-    playTone(1000, 'sawtooth', 0.07, 0.05);
+    // Homing: whistle that sweeps down, missile-like
+    const o = audioCtx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(2000, t);
+    o.frequency.exponentialRampToValueAtTime(300, t + 0.18);
+    g.gain.setValueAtTime(0.035 * masterVolume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    o.connect(g);
+    o.start(t);
+    o.stop(t + 0.22);
+    // Slight sawtooth overtone for grit
+    const o2 = audioCtx.createOscillator();
+    o2.type = 'sawtooth';
+    o2.frequency.setValueAtTime(2000, t);
+    o2.frequency.exponentialRampToValueAtTime(300, t + 0.18);
+    const g2 = audioCtx.createGain();
+    g2.gain.setValueAtTime(0.008 * masterVolume, t);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    o2.connect(g2);
+    g2.connect(audioCtx.destination);
+    o2.start(t);
+    o2.stop(t + 0.22);
   } else {
-    playTone(880, 'square', 0.08, 0.04);
+    // Balanced: clean dual square wave with slight detune
+    const o1 = audioCtx.createOscillator();
+    o1.type = 'square';
+    o1.frequency.setValueAtTime(880, t);
+    const o2 = audioCtx.createOscillator();
+    o2.type = 'square';
+    o2.frequency.setValueAtTime(890, t); // 10Hz detune
+    g.gain.setValueAtTime(0.03 * masterVolume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+    o1.connect(g);
+    o2.connect(g);
+    o1.start(t);
+    o2.start(t);
+    o1.stop(t + 0.08);
+    o2.stop(t + 0.08);
   }
 }
 function sfxEnemyShoot() { playTone(220, 'sawtooth', 0.1, 0.03); }
@@ -4137,7 +4251,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.72.4 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.72.5 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
