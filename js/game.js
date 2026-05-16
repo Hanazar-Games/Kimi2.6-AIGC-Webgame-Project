@@ -1134,12 +1134,12 @@ function spawnHitSparks(x, y, color = '#ffaa44') {
 }
 
 function spawnFloatingText(x, y, txt, color) {
-  texts.push({ x, y, txt, color, life: 45, maxLife: 45, vy: -1, size: 16 });
+  texts.push({ x, y, txt, color, life: 45, maxLife: 45, vy: -2.2, size: 16, baseScale: 1.5 });
 }
 function spawnDamageNumber(x, y, dmg) {
   if (particleDensity === 0) return;
   const color = dmg >= 15 ? '#ffee44' : dmg >= 8 ? '#ffffff' : '#aabbcc';
-  texts.push({ x, y, txt: Math.ceil(dmg).toString(), color, life: 25, maxLife: 25, vy: -1.5, size: 12 });
+  texts.push({ x, y, txt: Math.ceil(dmg).toString(), color, life: 25, maxLife: 25, vy: -1.8, size: 12, baseScale: 1.3 });
 }
 
 /* ---------- Bullet Factory ---------- */
@@ -2824,6 +2824,7 @@ function updateParticles() {
   for (let i = texts.length - 1; i >= 0; i--) {
     const t = texts[i];
     t.y += t.vy;
+    t.vy *= 0.92; // air resistance
     t.life--;
     if (t.life <= 0) texts.splice(i, 1);
   }
@@ -3802,14 +3803,20 @@ function drawShockwaves() {
 function drawTexts() {
   for (const t of texts) {
     const progress = 1 - t.life / t.maxLife;
-    const scale = 1 + Math.sin(progress * Math.PI) * 0.3;
-    ctx.globalAlpha = t.life / t.maxLife;
+    const popScale = t.baseScale ? (t.baseScale - (t.baseScale - 1) * progress) : 1;
+    const breathe = 1 + Math.sin(progress * Math.PI) * 0.15;
+    const scale = popScale * breathe;
+    ctx.globalAlpha = Math.min(1, t.life / t.maxLife);
     ctx.fillStyle = t.color;
     ctx.font = `bold ${t.size || 16}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.save();
     ctx.translate(t.x, t.y);
     ctx.scale(scale, scale);
+    // subtle shadow for depth
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillText(t.txt, 1, 1);
+    ctx.fillStyle = t.color;
     ctx.fillText(t.txt, 0, 0);
     ctx.restore();
   }
@@ -4592,7 +4599,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.6 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.7 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
