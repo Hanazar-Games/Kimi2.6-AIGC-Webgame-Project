@@ -2754,7 +2754,12 @@ function checkCollisions() {
           }
           spawnExplosion(e.x, e.y, e.color, 20, true);
           if (e.type === 'mine') mineExplode(e);
-          if (e.elite) spawnFloatingText(e.x, e.y - 15, 'ELITE!', '#ffee88');
+          if (e.elite) {
+            spawnFloatingText(e.x, e.y - 15, 'ELITE!', '#ffee88');
+            scoreMultBonus += 0.1;
+            scoreMultTimer = 300; // 5 seconds
+            spawnFloatingText(W / 2, H / 2 - 80, 'ELITE KILL BONUS! +0.1x SCORE', '#ffee44');
+          }
           spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
           sfxEnemyDeath(e.type);
           if (weaponType === 'explosive') {
@@ -4858,7 +4863,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.75.9 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.76.0 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
