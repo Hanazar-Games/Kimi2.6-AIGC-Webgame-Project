@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.0] - 2026-05-13
+
+### Added
+- New weapon: HOMING MISSILES
+  - 6th weapon type available in weapon selection
+  - Missiles automatically track nearest enemy within 400px
+  - Turn rate scales with power level (+0.01 per level)
+  - Lower base speed (0.85x) but high accuracy
+  - Rocket-shaped visuals with engine glow pulsing
+  - Unique sawtooth shoot sound effect
+  - Fires 1 + floor(power/2) missiles per shot
+  - Contributes to weapon proficiency system
+
 ## [1.67.2] - 2026-05-13
 
 ### Added

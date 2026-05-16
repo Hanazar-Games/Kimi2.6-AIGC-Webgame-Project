@@ -52,6 +52,8 @@ function sfxShoot() {
     playTone(2000, 'sawtooth', 0.08, 0.06);
   } else if (weaponType === 'ricochet') {
     playTone(1400, 'triangle', 0.07, 0.04);
+  } else if (weaponType === 'homing') {
+    playTone(1000, 'sawtooth', 0.07, 0.05);
   } else {
     playTone(880, 'square', 0.08, 0.04);
   }
@@ -754,7 +756,9 @@ function spawnBullet(x, y, angle, speed, color, isEnemy = false, radius = 3, bou
   const arr = isEnemy ? enemyBullets : bullets;
   const limit = isEnemy ? 500 : 200;
   if (arr.length >= limit) arr.shift();
-  arr.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color, radius, isEnemy, bounces, maxBounces: bounces });
+  const b = { x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color, radius, isEnemy, bounces, maxBounces: bounces };
+  arr.push(b);
+  return b;
 }
 
 function spawnLaser(x, y, angle) {
@@ -1478,6 +1482,14 @@ function updatePlayer() {
         const offsetX = (k - (rCount - 1) / 2) * 10;
         spawnBullet(player.x + offsetX, player.y - 10, baseAngle, bSpeed * 0.95, '#ffcc66', false, 4, 2);
       }
+    } else if (weaponType === 'homing') {
+      player.shootCooldown = 10;
+      const hCount = 1 + Math.floor(pl / 2);
+      for (let k = 0; k < hCount; k++) {
+        const offsetX = (k - (hCount - 1) / 2) * 12;
+        const b = spawnBullet(player.x + offsetX, player.y - 10, baseAngle, bSpeed * 0.85, '#ff66cc', false, 5);
+        if (b) { b.homing = true; b.homingTurn = 0.04 + pl * 0.01; }
+      }
     } else {
       // balanced
       player.shootCooldown = 6;
@@ -1756,6 +1768,28 @@ function updateBullets(arr, timeScale = 1) {
     const b = arr[i];
     b.x += b.vx * timeScale;
     b.y += b.vy * timeScale;
+    // homing tracking
+    if (!b.isEnemy && b.homing) {
+      let closest = null;
+      let closestDist = Infinity;
+      for (const e of enemies) {
+        if (e.spawnDelay > 0) continue;
+        const d = dist(b, e);
+        if (d < closestDist) { closestDist = d; closest = e; }
+      }
+      if (closest && closestDist < 400) {
+        const targetAngle = Math.atan2(closest.y - b.y, closest.x - b.x);
+        const currentAngle = Math.atan2(b.vy, b.vx);
+        let diff = targetAngle - currentAngle;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        const turn = Math.min(Math.abs(diff), b.homingTurn || 0.04) * Math.sign(diff);
+        const newAngle = currentAngle + turn;
+        const spd = Math.hypot(b.vx, b.vy);
+        b.vx = Math.cos(newAngle) * spd;
+        b.vy = Math.sin(newAngle) * spd;
+      }
+    }
     if (b.laser) {
       b.life -= timeScale;
       if (b.life <= 0) {
@@ -2529,6 +2563,38 @@ function drawEnemies() {
 function drawBullets(arr) {
   for (const b of arr) {
     ctx.save();
+    if (!b.isEnemy && b.homing) {
+      const angle = Math.atan2(b.vy, b.vx);
+      ctx.translate(b.x, b.y);
+      ctx.rotate(angle + Math.PI / 2);
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = b.color;
+      // Rocket body
+      ctx.fillStyle = b.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -6);
+      ctx.lineTo(-3, 4);
+      ctx.lineTo(0, 2);
+      ctx.lineTo(3, 4);
+      ctx.closePath();
+      ctx.fill();
+      // White tip
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(0, -6);
+      ctx.lineTo(-1.5, -2);
+      ctx.lineTo(1.5, -2);
+      ctx.closePath();
+      ctx.fill();
+      // Engine glow
+      ctx.globalAlpha = 0.6 + Math.sin(Date.now() * 0.02) * 0.3;
+      ctx.fillStyle = '#ff88cc';
+      ctx.beginPath();
+      ctx.arc(0, 5, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      continue;
+    }
     if (b.laser) {
       // laser beam effect
       const lifePct = b.life / b.maxLife;
