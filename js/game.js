@@ -515,6 +515,7 @@ const ENEMY_LOG_DATA = [
   { type: 'medic', name: 'Medic', color: '#44ff88' },
   { type: 'divider', name: 'Divider', color: '#4466ff' },
   { type: 'boss', name: 'Boss', color: '#ff3333' },
+  { type: 'mine', name: 'Mine', color: '#aa2222' },
 ];
 function updateEnemyLogUI() {
   const list = document.getElementById('enemy-log-list');
@@ -865,6 +866,46 @@ function bomberExplode(e) {
   }
 }
 
+function mineExplode(e) {
+  const radius = 35;
+  spawnExplosion(e.x, e.y, '#ff4444', 15, true);
+  spawnFloatingText(e.x, e.y - 15, 'BOOM!', '#ff4444');
+  shake = Math.max(shake, 6);
+  const boomAngle = Math.atan2(player.y - e.y, player.x - e.x);
+  shakeDirX = Math.cos(boomAngle);
+  shakeDirY = Math.sin(boomAngle);
+  if (player.invincible <= 0 && dist(e, player) < radius + player.radius) {
+    player.hp -= practiceMode ? 0 : 10;
+    player.invincible = 60;
+    damageFlash = 8;
+    shake = Math.max(shake, 10);
+    damageTakenThisWave = true;
+    spawnPlayerHitParticles();
+    sfxHurt();
+    if (player.hp <= 0) {
+      if (combo >= 10 && comboGuard) {
+        comboGuard = false;
+        player.hp = 1;
+        combo = 0;
+        comboTimer = 0;
+        player.invincible = 120;
+        spawnFloatingText(player.x, player.y - 30, 'COMBO GUARD!', '#ff44ff');
+        sfxPowerup();
+      } else {
+        player.hp = 0;
+        playerDeathEffect();
+        state = STATE.GAMEOVER;
+        if (score > highScore) { highScore = score; }
+        if (score > (highScoresByDifficulty[difficulty] || 0)) { highScoresByDifficulty[difficulty] = score; }
+        saveHighScore();
+        stats.totalGraze += grazeCount;
+        updateStats(true);
+        showGameOver();
+      }
+    }
+  }
+}
+
 function splitDivider(e) {
   if (e.splitCount >= e.maxSplits) return;
   const newRadius = e.radius * 0.7;
@@ -934,6 +975,7 @@ const ENEMY_HINTS = {
   shielder: 'Has regenerating shield — break it fast!',
   medic: 'Heals nearby enemies — take it out first!',
   divider: 'Splits when hit — destroy all parts!',
+  mine: 'Proximity mine — explodes when you get too close!',
 };
 let bossFirstEncounter = { alpha: false, beta: false };
 
@@ -1066,6 +1108,15 @@ function spawnEnemy(type) {
     base.score = 400;
     base.splitCount = 0;
     base.maxSplits = 2;
+  } else if (type === 'mine') {
+    base.hp = base.maxHp = Math.floor((20 + wave * 3) * diffMult);
+    base.radius = 10;
+    base.color = '#aa2222';
+    base.speed = 0;
+    base.shootInterval = 99999;
+    base.score = 250;
+    base.armTimer = 60; // 1 second to arm
+    base.armed = false;
   }
 
   if (base.elite) {
@@ -1329,6 +1380,7 @@ function waveLogic() {
       } else if (waveTheme === 'FORTRESS') {
         if (wave >= 5 && roll < 0.30) type = 'tank';
         else if (wave >= 8 && roll < 0.55) type = 'shielder';
+        else if (wave >= 11 && roll < 0.70) type = 'mine';
       } else if (waveTheme === 'SNIPER') {
         if (wave >= 4 && roll < 0.30) type = 'sniper';
         else if (wave >= 9 && roll < 0.50) type = 'medic';
@@ -1345,6 +1397,7 @@ function waveLogic() {
         if (wave >= 8 && roll < 0.22) type = 'shielder';
         if (wave >= 9 && roll < 0.28) type = 'medic';
         if (wave >= 10 && roll < 0.20) type = 'divider';
+        if (wave >= 11 && roll < 0.15) type = 'mine';
       }
       spawnEnemy(type);
       enemiesToSpawn--;
@@ -1721,6 +1774,20 @@ function updateEnemies(timeScale = 1) {
       if (e.vy > e.speed) e.vy = e.speed;
       e.x += Math.sin(e.phase * 0.02 + e.splitCount) * 0.8 * timeScale;
       e.y += e.vy * timeScale;
+    } else if (e.type === 'mine') {
+      if (e.armTimer > 0) {
+        e.armTimer -= timeScale;
+        if (e.armTimer <= 0) e.armed = true;
+      }
+      if (e.armed) {
+        const d = dist(e, player);
+        if (d < 30) {
+          // Explode
+          mineExplode(e);
+          enemies.splice(i, 1);
+          continue;
+        }
+      }
     }
 
     // bounds
@@ -2083,6 +2150,7 @@ function checkCollisions() {
             }
           }
           spawnExplosion(e.x, e.y, e.color, 20, true);
+          if (e.type === 'mine') mineExplode(e);
           if (e.elite) spawnFloatingText(e.x, e.y - 15, 'ELITE!', '#ffee88');
           spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
           sfxExplosion();
@@ -2748,6 +2816,40 @@ function drawEnemies() {
         ctx.lineTo(Math.cos(a) * 120, Math.sin(a) * 120);
         ctx.stroke();
         ctx.setLineDash([]);
+      }
+    } else if (e.type === 'mine') {
+      const armPulse = e.armed ? 0.5 + 0.5 * Math.sin(Date.now() * 0.01) : 0.3;
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // Inner glow
+      ctx.fillStyle = `rgba(255, 100, 100, ${armPulse})`;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+      // Spikes
+      for (let k = 0; k < 8; k++) {
+        const a = k * (Math.PI / 4);
+        const spikeLen = e.radius * (0.3 + armPulse * 0.3);
+        ctx.strokeStyle = e.color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * e.radius * 0.7, Math.sin(a) * e.radius * 0.7);
+        ctx.lineTo(Math.cos(a) * (e.radius + spikeLen), Math.sin(a) * (e.radius + spikeLen));
+        ctx.stroke();
+      }
+      // Warning ring when player is close
+      if (e.armed) {
+        const d = dist(e, player);
+        if (d < 60) {
+          const warnAlpha = (1 - d / 60) * 0.4;
+          ctx.strokeStyle = `rgba(255, 68, 68, ${warnAlpha})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, e.radius + 10 + (1 - d / 60) * 8, 0, Math.PI * 2);
+          ctx.stroke();
+        }
       }
     }
 

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.72.0] - 2026-05-13
+
+### Added
+- New enemy type: MINE
+  - 12th enemy type (appears from Wave 11+)
+  - Stationary proximity mine that arms after 1 second
+  - Explodes when player gets within 30px
+  - Also explodes when destroyed by bullets
+  - Spiky visual with pulsing inner glow
+  - Warning ring expands as player approaches
+  - Higher spawn rate in FORTRESS theme waves
+  - Added to Enemy Log with hint text
+
 ## [1.71.3] - 2026-05-13
 
 ### Improved
