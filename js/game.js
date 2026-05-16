@@ -244,6 +244,65 @@ function sfxBossAlert() {
 }
 function sfxEnemyShoot() { playTone(220, 'sawtooth', 0.1, 0.03); }
 function sfxHit() { playTone(150, 'sawtooth', 0.15, 0.06); }
+function sfxEnemyDeath(type) {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  switch (type) {
+    case 'drone':
+      sfxExplosion();
+      break;
+    case 'hunter':
+      playTone(200, 'sawtooth', 0.12, 0.05);
+      setTimeout(() => playTone(100, 'sawtooth', 0.15, 0.04), 40);
+      break;
+    case 'tank':
+      // Heavy low thud
+      playTone(80, 'square', 0.2, 0.07);
+      setTimeout(() => playTone(60, 'sawtooth', 0.25, 0.06), 60);
+      break;
+    case 'sniper':
+      playTone(600, 'sine', 0.06, 0.03);
+      setTimeout(() => playTone(300, 'sine', 0.1, 0.02), 50);
+      break;
+    case 'swarmer':
+      playTone(400, 'triangle', 0.04, 0.025);
+      break;
+    case 'splitter':
+      playTone(300, 'sine', 0.06, 0.03);
+      setTimeout(() => playTone(500, 'sine', 0.06, 0.025), 60);
+      break;
+    case 'bomber':
+      sfxExplosion();
+      break;
+    case 'shielder':
+      // Shield shatter: glass-like high break
+      playTone(1200, 'sine', 0.05, 0.03);
+      setTimeout(() => playTone(800, 'sine', 0.07, 0.025), 40);
+      setTimeout(() => playTone(400, 'sine', 0.09, 0.02), 80);
+      break;
+    case 'medic':
+      playTone(700, 'sine', 0.05, 0.025);
+      setTimeout(() => playTone(350, 'sine', 0.08, 0.02), 50);
+      break;
+    case 'divider':
+      playTone(280, 'sine', 0.06, 0.03);
+      setTimeout(() => playTone(450, 'sine', 0.06, 0.025), 60);
+      break;
+    case 'mine':
+      playTone(500, 'sawtooth', 0.08, 0.04);
+      setTimeout(() => playTone(250, 'sawtooth', 0.1, 0.03), 50);
+      break;
+    case 'turret':
+      playTone(350, 'square', 0.08, 0.035);
+      setTimeout(() => playTone(180, 'square', 0.1, 0.03), 60);
+      break;
+    case 'boss':
+      sfxExplosion();
+      break;
+    default:
+      sfxExplosion();
+  }
+}
 function sfxExplosion() {
   if (!audioCtx) return;
   const bufferSize = audioCtx.sampleRate * 0.3;
@@ -2424,7 +2483,7 @@ function checkCollisions() {
           if (e.type === 'mine') mineExplode(e);
           if (e.elite) spawnFloatingText(e.x, e.y - 15, 'ELITE!', '#ffee88');
           spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
-          sfxExplosion();
+          sfxEnemyDeath(e.type);
           // drop powerup chance
           if (Math.random() < 0.12) spawnPowerup(e.x, e.y);
           unlockAchievement('first_blood');
@@ -2443,7 +2502,7 @@ function checkCollisions() {
             shakeDirX = Math.cos(bossDefeatAngle);
             shakeDirY = Math.sin(bossDefeatAngle);
             damageFlash = 10;
-            sfxExplosion();
+            sfxEnemyDeath('boss');
           }
           if (e.type === 'splitter') {
             splitEnemy(e.x, e.y, e.elite);
@@ -4381,7 +4440,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.72.9 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.0 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
