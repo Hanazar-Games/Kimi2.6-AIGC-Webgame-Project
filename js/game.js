@@ -1849,7 +1849,8 @@ function checkCollisions() {
         spawnDamageNumber(e.x, e.y - e.radius - 5, dmg);
         spawnHitSparks(b.x, b.y, e.color);
         e.hitFlash = 4;
-        shake = Math.max(shake, 2);
+        const shakeAmt = dmg >= 20 ? 10 : dmg >= 10 ? 6 : dmg >= 5 ? 4 : 2;
+        shake = Math.max(shake, shakeAmt);
         hitstop = 3;
         if (e.hp <= 0) {
           const pts = Math.floor(e.score * (1 + combo * 0.1));

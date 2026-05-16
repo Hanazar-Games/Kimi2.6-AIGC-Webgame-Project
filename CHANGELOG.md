@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.66.5] - 2026-05-13
+
+### Improved
+- Screen shake scales with damage dealt
+  - < 5 dmg: light shake (2)
+  - 5-9 dmg: medium shake (4)
+  - 10-19 dmg: strong shake (6)
+  - 20+ dmg: intense shake (10)
+  - Makes combat feel more impactful and responsive
+
 ## [1.66.4] - 2026-05-13
 
 ### Added
