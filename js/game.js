@@ -2302,6 +2302,23 @@ function waveLogic() {
       waveClearWave = wave;
       waveClearPerfect = !damageTakenThisWave && wave > 1;
       waveClearIsBoss = false;
+      // wave clear particle burst
+      const burstColor = waveClearPerfect ? '#ffee44' : '#44aaff';
+      const burstCount = particleDensity === 0 ? 20 : particleDensity === 1 ? 35 : 50;
+      for (let k = 0; k < burstCount; k++) {
+        const angle = rand(0, Math.PI * 2);
+        const speed = rand(2, 6);
+        particles.push({
+          x: W / 2, y: H / 2,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: rand(30, 60),
+          maxLife: 60,
+          color: burstColor,
+          size: rand(2, 4),
+          decay: 0.95,
+        });
+      }
       if (eliteWave) {
         eliteWavesSurvived++;
         unlockAchievement('elite_wave_survivor');
@@ -2315,6 +2332,22 @@ function waveLogic() {
     waveClearWave = wave;
     waveClearPerfect = false;
     waveClearIsBoss = true;
+    // boss defeat particle burst
+    const bossBurstCount = particleDensity === 0 ? 30 : particleDensity === 1 ? 50 : 70;
+    for (let k = 0; k < bossBurstCount; k++) {
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(3, 8);
+      particles.push({
+        x: W / 2, y: H / 2,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: rand(40, 80),
+        maxLife: 80,
+        color: k % 3 === 0 ? '#ff4444' : k % 3 === 1 ? '#ffee44' : '#ff8844',
+        size: rand(2, 5),
+        decay: 0.96,
+      });
+    }
     wave++;
     checkWaveAchievements();
     startWave();
@@ -5255,7 +5288,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.78.4 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.78.5 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
