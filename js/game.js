@@ -4540,7 +4540,12 @@ function drawBossUI() {
 
 function drawUI() {
   const mult = (1 + combo * 0.1).toFixed(1);
-  document.getElementById('score').textContent = `SCORE: ${score.toLocaleString()} (x${mult})`;
+  const scoreEl = document.getElementById('score');
+  if (scoreEl) {
+    scoreEl.textContent = `SCORE: ${score.toLocaleString()} (x${mult})`;
+    scoreEl.style.color = score >= 100000 ? '#ffcc44' : score >= 50000 ? '#ffee88' : '#e0e0ff';
+    scoreEl.style.textShadow = score >= 50000 ? '0 0 10px rgba(255, 204, 68, 0.5)' : 'none';
+  }
   const totalSpawned = enemiesToSpawn + enemies.length;
   const killed = totalSpawned - enemiesToSpawn;
   const waveEl = document.getElementById('wave');
@@ -5533,7 +5538,7 @@ function takeScreenshot() {
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
   const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
-  ctx.fillText(`Stellar Defense v1.80.2 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.80.3 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
