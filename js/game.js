@@ -880,6 +880,7 @@ const ENEMY_LOG_DATA = [
   { type: 'divider', name: 'Divider', color: '#4466ff' },
   { type: 'boss', name: 'Boss', color: '#ff3333' },
   { type: 'mine', name: 'Mine', color: '#aa2222' },
+  { type: 'phantom', name: 'Phantom', color: '#aa66ff' },
 ];
 function updateEnemyLogUI() {
   const list = document.getElementById('enemy-log-list');
@@ -4624,7 +4625,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.9 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.0 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
