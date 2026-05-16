@@ -4803,11 +4803,12 @@ if (resetDataBtn) {
 function takeScreenshot() {
   ctx.save();
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.fillRect(W - 280, H - 30, 275, 24);
+  ctx.fillRect(W - 420, H - 30, 415, 24);
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.75.2 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
+  ctx.fillText(`Stellar Defense v1.75.3 | ${diffNames[difficulty] || 'Normal'} | ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)} | Score: ${score.toLocaleString()} | Kills: ${stats.kills} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
