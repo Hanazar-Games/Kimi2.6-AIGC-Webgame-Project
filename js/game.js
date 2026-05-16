@@ -404,6 +404,7 @@ let rewardOptions = [];
 let damageMult = 1.0;
 let speedMultBonus = 1.0;
 let scoreMultBonus = 1.0;
+let scoreMultTimer = 0;
 let damageTakenThisWave = false;
 let usedWeapons = new Set();
 let bombsUsedThisWave = 0;
@@ -811,6 +812,7 @@ function spawnPowerup(x, y) {
   else if (roll < 0.30) type = 'timestop';
   else if (roll < 0.35) type = 'magnet';
   else if (roll < 0.40) type = 'overdrive';
+  else if (roll < 0.45) type = 'score';
   powerups.push({
     x, y,
     vx: rand(-0.5, 0.5),
@@ -1399,6 +1401,10 @@ function waveLogic() {
 /* ---------- Player Logic ---------- */
 function updatePlayer() {
   if (overdriveTimer > 0) overdriveTimer--;
+  if (scoreMultTimer > 0) {
+    scoreMultTimer--;
+    if (scoreMultTimer <= 0) scoreMultBonus = Math.max(1.0, scoreMultBonus - 0.5);
+  }
   const focus = isDown('shift') || touchFocusBtn;
   const speed = (focus ? player.focusSpeed : player.speed) * speedMultBonus;
 
@@ -1935,6 +1941,11 @@ function updatePowerups(timeScale = 1) {
         overdriveTimer = 300;
         spawnFloatingText(player.x, player.y - 20, 'OVERDRIVE!', '#ff4444');
         sfxUpgrade();
+      } else if (p.type === 'score') {
+        scoreMultTimer = 600;
+        scoreMultBonus += 0.5;
+        spawnFloatingText(player.x, player.y - 20, 'SCORE x1.5!', '#ffee44');
+        sfxPowerup();
       }
       powerups.splice(i, 1);
     }
@@ -3361,6 +3372,15 @@ function drawUI() {
       odEl.style.display = 'none';
     }
   }
+  const smEl = document.getElementById('score-mult-status');
+  if (smEl) {
+    if (scoreMultTimer > 0) {
+      smEl.textContent = `SCORE x${scoreMultBonus.toFixed(1)}`;
+      smEl.style.display = 'inline';
+    } else {
+      smEl.style.display = 'none';
+    }
+  }
   if (activeNotification && state === STATE.PLAYING) {
     drawAchievementNotification();
   }
@@ -3734,6 +3754,7 @@ function resetGame() {
   damageMult = 1.0;
   speedMultBonus = 1.0;
   scoreMultBonus = 1.0;
+  scoreMultTimer = 0;
   damageTakenThisWave = false;
   musicBeat = 0;
   if (audioCtx) musicNextTime = audioCtx.currentTime;

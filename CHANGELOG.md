@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.71.2] - 2026-05-13
+
+### Added
+- New power-up: SCORE MULTIPLIER
+  - 7th power-up type (5% drop chance)
+  - Increases score multiplier by +0.5 for 10 seconds
+  - Stacks with wave reward multipliers
+  - HUD timer shows active multiplier value
+  - Golden floating text on pickup
+
 ## [1.71.1] - 2026-05-13
 
 ### Improved
