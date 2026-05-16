@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.84.0';
+const VERSION = 'v1.84.1';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -3645,6 +3645,19 @@ function drawPlayer() {
     ctx.beginPath();
     ctx.arc(0, 0, player.radius + 6, 0, Math.PI * 2);
     ctx.fill();
+  }
+
+  // combo guard aura
+  if (combo >= 10 && comboGuard) {
+    const cgPulse = 0.25 + 0.15 * Math.sin(Date.now() * 0.006);
+    ctx.strokeStyle = `rgba(255, 68, 255, ${cgPulse})`;
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#ff44ff';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(0, 0, player.radius + 16, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
   }
 
   // glow
