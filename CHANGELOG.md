@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.63.7] - 2026-05-13
+
+### Improved
+- Screenshot now includes watermark
+  - Game name, version, score, and wave in bottom-right corner
+  - Semi-transparent black background for readability
+  - Helps with brand recognition when sharing
+
 ## [1.63.6] - 2026-05-13
 
 ### Added

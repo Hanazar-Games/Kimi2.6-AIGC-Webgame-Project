@@ -3178,6 +3178,16 @@ if (resetDataBtn) {
 const screenshotBtn = document.getElementById('screenshot-btn');
 if (screenshotBtn) {
   screenshotBtn.addEventListener('click', () => {
+    // draw watermark
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(W - 260, H - 30, 255, 24);
+    ctx.fillStyle = '#aabbdd';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`Stellar Defense v1.63.6 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+    ctx.restore();
+    // capture
     const link = document.createElement('a');
     link.download = `stellar-defense-w${wave}-${score}.png`;
     link.href = canvas.toDataURL('image/png');
