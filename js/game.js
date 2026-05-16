@@ -1079,6 +1079,7 @@ let fullscreenDisplayTimer = 0;
 let helpOverlayTimer = 0;
 let weaponInfoTimer = 0;
 let statsPanelTimer = 0;
+let achievementListTimer = 0;
 let rewardSelectActive = false;
 let rewardOptions = [];
 let damageMult = 1.0;
@@ -4934,7 +4935,7 @@ function drawUI() {
   ctx.fillStyle = '#556688';
   ctx.font = '9px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText('v1.81.9', W - 6, H - 6);
+  ctx.fillText('v1.82.0', W - 6, H - 6);
   ctx.restore();
   // Weapon info overlay
   if (weaponInfoTimer > 0) {
@@ -5015,6 +5016,43 @@ function drawUI() {
       ctx.fillStyle = color;
       ctx.fillText(line, W / 2, H / 2 - 105 + i * 18);
     });
+    ctx.restore();
+  }
+  // Achievement list overlay
+  if (achievementListTimer > 0) {
+    achievementListTimer--;
+    const alpha = Math.min(1, achievementListTimer / 30);
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.92;
+    ctx.fillStyle = 'rgba(10, 15, 30, 0.9)';
+    ctx.fillRect(W / 2 - 150, H / 2 - 160, 300, 320);
+    ctx.strokeStyle = 'rgba(100, 150, 255, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W / 2 - 150, H / 2 - 160, 300, 320);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#aaccff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ACHIEVEMENTS', W / 2, H / 2 - 135);
+    const unlocked = Object.entries(ACHIEVEMENTS).filter(([, a]) => a.unlocked);
+    const total = Object.keys(ACHIEVEMENTS).length;
+    ctx.fillStyle = '#88aadd';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(`${unlocked.length} / ${total} unlocked`, W / 2, H / 2 - 115);
+    ctx.font = '10px sans-serif';
+    unlocked.slice(0, 12).forEach(([key, a], i) => {
+      ctx.fillStyle = '#ffcc44';
+      ctx.textAlign = 'left';
+      ctx.fillText(`✓ ${a.name}`, W / 2 - 130, H / 2 - 90 + i * 18);
+      ctx.fillStyle = '#8899bb';
+      ctx.textAlign = 'right';
+      ctx.fillText(a.desc, W / 2 + 130, H / 2 - 90 + i * 18);
+    });
+    if (unlocked.length > 12) {
+      ctx.fillStyle = '#556688';
+      ctx.textAlign = 'center';
+      ctx.fillText(`... and ${unlocked.length - 12} more`, W / 2, H / 2 - 90 + 12 * 18 + 10);
+    }
     ctx.restore();
   }
 }
@@ -5430,6 +5468,7 @@ function resetGame() {
   helpOverlayTimer = 0;
   weaponInfoTimer = 0;
   statsPanelTimer = 0;
+  achievementListTimer = 0;
   rewardSelectActive = false;
   rewardOptions = [];
   damageMult = 1.0;
@@ -5847,6 +5886,16 @@ function loop(timestamp) {
   } else if (isDown('Tab') && state === STATE.PLAYING && statsPanelTimer > 0) {
     keys['Tab'] = false;
     statsPanelTimer = 0;
+  }
+
+  // Achievement list shortcut
+  if (isDown('l') && state === STATE.PLAYING && achievementListTimer <= 0) {
+    keys['l'] = false;
+    achievementListTimer = 300; // 5 seconds
+    sfxClick();
+  } else if (isDown('l') && state === STATE.PLAYING && achievementListTimer > 0) {
+    keys['l'] = false;
+    achievementListTimer = 0;
   }
 
   // FPS display toggle shortcut
