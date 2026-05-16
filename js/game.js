@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.85.6';
+const VERSION = 'v1.85.7';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -2114,7 +2114,8 @@ function startWave() {
   }
   waveTimer = 0;
   bossSpawned = false;
-  const count = 4 + Math.floor(wave * 1.6);
+  // Smoother difficulty curve: slower early, steeper later
+  const count = wave <= 3 ? 3 + wave : 4 + Math.floor(wave * 1.3 + (wave > 10 ? (wave - 10) * 0.3 : 0));
   enemiesToSpawn = count;
   spawnTimer = 0;
   warnings.length = 0;
@@ -3621,12 +3622,13 @@ function drawStars() {
 
 function drawNebulae() {
   for (const n of nebulae) {
-    const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.radius);
+    const pulse = 1 + Math.sin(Date.now() * 0.0005 + n.x * 0.01) * 0.15;
+    const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.radius * pulse);
     g.addColorStop(0, `rgba(${n.color.r},${n.color.g},${n.color.b},${n.alpha})`);
     g.addColorStop(1, `rgba(${n.color.r},${n.color.g},${n.color.b},0)`);
     ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+    ctx.arc(n.x, n.y, n.radius * pulse, 0, Math.PI * 2);
     ctx.fill();
     n.y += n.speed;
     if (n.y > H + n.radius) { n.y = -n.radius; n.x = rand(0, W); }
