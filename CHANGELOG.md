@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.67.0] - 2026-05-13
+
+### Added
+- In-game achievement unlock notifications
+  - Slide-in banner at top of screen when achievement unlocked during gameplay
+  - Shows achievement name and description with gold border
+  - Smooth fade in / hold / fade out animation (5 seconds total)
+  - Queued notifications so multiple unlocks don't overlap
+- Achievement progress counter in menu
+  - Shows "X/25" next to ACHIEVEMENTS heading
+  - Color-coded by progress: red → orange → yellow → green
+  - Gives players a clear sense of completion
+
 ## [1.66.5] - 2026-05-13
 
 ### Improved

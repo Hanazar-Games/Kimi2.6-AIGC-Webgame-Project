@@ -235,6 +235,9 @@ let comboTimer = 0;
 let shake = 0;
 let slowMo = 0;
 let difficulty = 2; // 1=easy, 2=normal, 3=hard
+let achievementNotifications = [];
+let activeNotification = null;
+let notificationTimer = 0;
 let bombCooldown = 0;
 let bombAnim = 0;
 let grazeCount = 0;
@@ -425,6 +428,9 @@ function unlockAchievement(key) {
     spawnFloatingText(W / 2, H / 2 - 60, `Achievement: ${a.name}`, '#ffcc44');
     spawnFloatingText(W / 2, H / 2 - 40, a.desc, '#ffee88');
     shake = Math.max(shake, 8);
+    if (state === STATE.PLAYING) {
+      achievementNotifications.push({ name: a.name, desc: a.desc });
+    }
     for (let k = 0; k < 20; k++) {
       const angle = rand(0, Math.PI * 2);
       const speed = rand(2, 5);
@@ -452,13 +458,23 @@ function updateAchievementUI() {
   const list = document.getElementById('achievement-list');
   if (!list) return;
   list.innerHTML = '';
+  let unlocked = 0;
+  let total = 0;
   for (const k in ACHIEVEMENTS) {
     const a = ACHIEVEMENTS[k];
+    total++;
+    if (a.unlocked) unlocked++;
     const el = document.createElement('div');
     el.className = 'achievement' + (a.unlocked ? ' unlocked' : '');
     el.textContent = a.unlocked ? `✓ ${a.name}` : `? ${a.name}`;
     el.title = a.desc;
     list.appendChild(el);
+  }
+  const progEl = document.getElementById('achievement-progress');
+  if (progEl) {
+    progEl.textContent = `${unlocked}/${total}`;
+    const pct = unlocked / total;
+    progEl.style.color = pct >= 0.8 ? '#44ff88' : pct >= 0.5 ? '#ffcc44' : pct >= 0.25 ? '#ff8844' : '#ff4444';
   }
 }
 const ENEMY_LOG_DATA = [
@@ -2948,6 +2964,70 @@ function drawUI() {
       dashEl.style.color = '#88aaff';
     }
   }
+  if (activeNotification && state === STATE.PLAYING) {
+    drawAchievementNotification();
+  }
+}
+
+function drawAchievementNotification() {
+  const maxTimer = 300;
+  const fadeIn = 20;
+  const fadeOut = 40;
+  let alpha = 1;
+  if (notificationTimer > maxTimer - fadeIn) {
+    alpha = (maxTimer - notificationTimer) / fadeIn;
+  } else if (notificationTimer < fadeOut) {
+    alpha = notificationTimer / fadeOut;
+  }
+  alpha = Math.max(0, Math.min(1, alpha));
+  const yOffset = (1 - alpha) * -30;
+
+  const notifW = 360;
+  const notifH = 56;
+  const nx = W / 2 - notifW / 2;
+  const ny = 18 + yOffset;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // Background
+  ctx.fillStyle = 'rgba(10, 10, 20, 0.88)';
+  ctx.beginPath();
+  ctx.roundRect(nx, ny, notifW, notifH, 8);
+  ctx.fill();
+
+  // Gold border
+  ctx.strokeStyle = '#ffcc44';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(nx, ny, notifW, notifH, 8);
+  ctx.stroke();
+
+  // Glow line
+  ctx.strokeStyle = 'rgba(255, 204, 68, 0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(nx + 12, ny + notifH - 6);
+  ctx.lineTo(nx + notifW - 12, ny + notifH - 6);
+  ctx.stroke();
+
+  // Title
+  ctx.font = 'bold 11px monospace';
+  ctx.fillStyle = '#ffcc44';
+  ctx.textAlign = 'center';
+  ctx.fillText('★ ACHIEVEMENT UNLOCKED ★', W / 2, ny + 18);
+
+  // Name
+  ctx.font = 'bold 14px monospace';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText(activeNotification.name, W / 2, ny + 38);
+
+  // Description
+  ctx.font = '11px monospace';
+  ctx.fillStyle = '#aabbdd';
+  ctx.fillText(activeNotification.desc, W / 2, ny + 52);
+
+  ctx.restore();
 }
 
 /* ---------- Screens ---------- */
@@ -3614,6 +3694,16 @@ function loop(timestamp) {
     updateParticles();
     updateShockwaves(timeScale);
     waveLogic();
+
+    // Achievement notifications
+    if (!activeNotification && achievementNotifications.length > 0) {
+      activeNotification = achievementNotifications.shift();
+      notificationTimer = 300; // 5 seconds @ 60fps
+    }
+    if (activeNotification) {
+      notificationTimer -= timeScale;
+      if (notificationTimer <= 0) activeNotification = null;
+    }
 
     if (comboTimer > 0) {
       comboTimer -= timeScale;
