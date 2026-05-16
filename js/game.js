@@ -268,6 +268,69 @@ function sfxWaveStart() {
   playTone(554, 'square', 0.15, 0.05);
   playTone(659, 'square', 0.2, 0.05);
 }
+function sfxPickupEnergy() {
+  // Warm healing ascending major triad
+  playTone(523, 'sine', 0.08, 0.05);
+  setTimeout(() => playTone(659, 'sine', 0.08, 0.05), 60);
+  setTimeout(() => playTone(784, 'sine', 0.12, 0.05), 120);
+}
+function sfxPickupShield() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(440, t);
+  o.frequency.exponentialRampToValueAtTime(880, t + 0.15);
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.05 * masterVolume, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  o.start(t);
+  o.stop(t + 0.35);
+}
+function sfxPickupTimestop() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  // Reverse-sweep: high to low for time-freeze feel
+  const o = audioCtx.createOscillator();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(1200, t);
+  o.frequency.exponentialRampToValueAtTime(200, t + 0.4);
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.05 * masterVolume, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  o.start(t);
+  o.stop(t + 0.55);
+}
+function sfxPickupMagnet() {
+  // Rapid metallic chirps
+  playTone(1000, 'triangle', 0.04, 0.04);
+  setTimeout(() => playTone(1200, 'triangle', 0.04, 0.04), 50);
+  setTimeout(() => playTone(1400, 'triangle', 0.06, 0.04), 100);
+}
+function sfxPickupOverdrive() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(300, t);
+  o.frequency.exponentialRampToValueAtTime(900, t + 0.2);
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.06 * masterVolume, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  o.start(t);
+  o.stop(t + 0.35);
+}
+function sfxPickupScore() {
+  // Coin-like crisp high ping
+  playTone(1500, 'sine', 0.06, 0.04);
+  setTimeout(() => playTone(2000, 'sine', 0.08, 0.03), 60);
+}
 function sfxUpgrade() {
   playTone(523, 'sine', 0.1, 0.07);
   playTone(659, 'sine', 0.1, 0.07);
@@ -2205,7 +2268,7 @@ function updatePowerups(timeScale = 1) {
         if (p.type === 'energy') {
           player.hp = clamp(player.hp + 20, 0, player.maxHp);
           spawnFloatingText(player.x, player.y - 20, '+HP', '#44ff66');
-          sfxPowerup();
+          sfxPickupEnergy();
         } else if (p.type === 'power') {
           player.powerLevel = clamp(player.powerLevel + 1, 1, player.maxPower);
           spawnFloatingText(player.x, player.y - 20, 'POWER UP!', '#ffcc44');
@@ -2213,25 +2276,25 @@ function updatePowerups(timeScale = 1) {
         } else if (p.type === 'shield') {
           player.invincible = Math.max(player.invincible, 300);
           spawnFloatingText(player.x, player.y - 20, 'SHIELD!', '#44aaff');
-          sfxPowerup();
+          sfxPickupShield();
         } else if (p.type === 'timestop') {
           timeStopTimer = 180;
           spawnFloatingText(player.x, player.y - 20, 'TIME STOP!', '#ff88ff');
-          sfxUpgrade();
+          sfxPickupTimestop();
         } else if (p.type === 'magnet') {
           magnetTimer = 300;
           spawnFloatingText(player.x, player.y - 20, 'MAGNET!', '#ffaa44');
-          sfxPowerup();
+          sfxPickupMagnet();
           unlockAchievement('magnetic_personality');
         } else if (p.type === 'overdrive') {
           overdriveTimer = 300;
           spawnFloatingText(player.x, player.y - 20, 'OVERDRIVE!', '#ff4444');
-          sfxUpgrade();
+          sfxPickupOverdrive();
         } else if (p.type === 'score') {
           scoreMultTimer = 600;
           scoreMultBonus += 0.5;
           spawnFloatingText(player.x, player.y - 20, 'SCORE x1.5!', '#ffee44');
-          sfxPowerup();
+          sfxPickupScore();
         }
         powerups.splice(i, 1);
       }
@@ -4318,7 +4381,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.72.8 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.72.9 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
