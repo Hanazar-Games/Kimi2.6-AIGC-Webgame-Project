@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.8] - 2026-05-13
+
+### Improved
+- Enhanced spawn warning visuals
+  - Expanding pulse ring that grows as enemy approaches spawn
+  - Larger arrow marker with brighter glow
+  - White inner dot for extra visibility
+  - Ring alpha fades as it expands for smooth effect
+  - Makes spawn warnings much harder to miss
+
 ## [1.68.7] - 2026-05-13
 
 ### Added

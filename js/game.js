@@ -2837,19 +2837,35 @@ function drawWarnings() {
     w.life--;
     if (w.life <= 0) { warnings.splice(i, 1); continue; }
     const alpha = Math.abs(Math.sin(w.life * 0.25)) * 0.8 + 0.2;
+    const progress = 1 - w.life / 45;
     ctx.save();
     ctx.translate(w.x, w.y);
     ctx.rotate(w.angle);
     ctx.globalAlpha = alpha;
     ctx.fillStyle = w.color || '#ffcc44';
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 10;
     ctx.shadowColor = w.color || '#ffcc44';
+    // Pulsing ring
+    ctx.strokeStyle = w.color || '#ffcc44';
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = alpha * (1 - progress);
     ctx.beginPath();
-    ctx.moveTo(0, -8);
-    ctx.lineTo(6, 4);
+    ctx.arc(0, 0, 10 + progress * 20, 0, Math.PI * 2);
+    ctx.stroke();
+    // Arrow
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.moveTo(0, -10);
+    ctx.lineTo(7, 5);
     ctx.lineTo(0, 2);
-    ctx.lineTo(-6, 4);
+    ctx.lineTo(-7, 5);
     ctx.closePath();
+    ctx.fill();
+    // Inner dot
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = alpha * 0.8;
+    ctx.beginPath();
+    ctx.arc(0, 0, 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
