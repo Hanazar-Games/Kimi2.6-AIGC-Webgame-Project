@@ -217,6 +217,31 @@ function sfxPortalOpen() {
   o1.stop(t + 0.4);
   o2.stop(t + 0.4);
 }
+function sfxBossAlert() {
+  if (!audioCtx) return;
+  const t = audioCtx.currentTime;
+  // Alarm siren: alternating frequencies with square wave
+  const o = audioCtx.createOscillator();
+  o.type = 'square';
+  // Rapid frequency modulation
+  for (let i = 0; i < 8; i++) {
+    const t0 = t + i * 0.1;
+    o.frequency.setValueAtTime(600, t0);
+    o.frequency.linearRampToValueAtTime(350, t0 + 0.05);
+  }
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.08 * masterVolume, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+  // Lowpass to soften harsh square wave
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(1500, t);
+  o.connect(filter);
+  filter.connect(g);
+  g.connect(audioCtx.destination);
+  o.start(t);
+  o.stop(t + 0.9);
+}
 function sfxEnemyShoot() { playTone(220, 'sawtooth', 0.1, 0.03); }
 function sfxHit() { playTone(150, 'sawtooth', 0.15, 0.06); }
 function sfxExplosion() {
@@ -1233,6 +1258,7 @@ function spawnEnemy(type) {
     base.targetY = 70;
     base.vx = rand(0, 1) < 0.5 ? 1.8 : -1.8;
     base.introTimer = 90;
+    sfxBossAlert();
   } else if (type === 'swarmer') {
     base.hp = base.maxHp = Math.floor((6 + wave) * diffMult);
     base.radius = 7;
@@ -4292,7 +4318,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.72.7 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.72.8 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
