@@ -881,7 +881,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.85.3';
+const VERSION = 'v1.85.4';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -3831,6 +3831,22 @@ function drawEnemies() {
         ctx.arc(Math.cos(a) * r * 0.5, Math.sin(a) * r * 0.5, 2, 0, Math.PI * 2);
         ctx.fill();
       }
+      // Portal spawn particles
+      if (Math.random() < 0.3 && particleDensity > 0) {
+        const pa = rand(0, Math.PI * 2);
+        const ps = rand(0.5, 2);
+        particles.push({
+          x: e.x + Math.cos(pa) * r * 0.5,
+          y: e.y + Math.sin(pa) * r * 0.5,
+          vx: Math.cos(pa) * ps,
+          vy: Math.sin(pa) * ps,
+          life: rand(8, 18),
+          maxLife: 18,
+          color: e.color,
+          size: rand(1, 2),
+          decay: 0.88,
+        });
+      }
       ctx.restore();
       continue;
     }
@@ -5360,16 +5376,20 @@ function drawUI() {
     ctx.textAlign = 'center';
     ctx.fillText('RUN STATISTICS', W / 2, H / 2 - 135);
     ctx.font = '12px sans-serif';
+    const wUses = stats.weaponUses[weaponType] || 0;
+    const wStars = Math.min(5, Math.floor(wUses / 50));
+    const starStr = wStars > 0 ? ' ' + '★'.repeat(wStars) + '☆'.repeat(5 - wStars) : '';
     const lines = [
       `Score: ${score.toLocaleString()}`,
       `Wave: ${wave}`,
       `Kills: ${stats.kills}`,
+      `Damage: ${Math.floor(totalDamageDealt).toLocaleString()}`,
       `Combo: x${combo}`,
       `Graze: ${grazeCount}`,
       `Perfect Waves: ${totalPerfectWaves}`,
       `Bosses Defeated: ${bossesDefeatedThisRun}`,
       `Achievements: ${achievementsThisRun}`,
-      `Weapon: ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)}`,
+      `Weapon: ${weaponType.charAt(0).toUpperCase() + weaponType.slice(1)}${starStr}`,
       `Difficulty: ${['Easy', 'Normal', 'Hard', 'Nightmare'][difficulty - 1] || 'Normal'}`,
     ];
     lines.forEach((line, i) => {
