@@ -4175,6 +4175,17 @@ function loop(timestamp) {
 
   playMusicStep();
 
+  if (state === STATE.MENU) {
+    updatePlanets(1);
+    updateAsteroids(1);
+    updateMeteors(1);
+    drawPlanets();
+    drawStars();
+    drawNebulae();
+    drawAsteroids();
+    drawMeteors();
+  }
+
   if (state === STATE.PAUSED) {
     ctx.save();
     ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';

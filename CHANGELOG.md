@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.70.3] - 2026-05-13
+
+### Added
+- Animated background in menu screen
+  - Stars, nebulae, asteroids, and meteors continue moving behind menu
+  - Adds visual life to the menu without interfering with UI
+  - Makes the game feel more polished and immersive from the start
+
 ## [1.70.2] - 2026-05-13
 
 ### Added
