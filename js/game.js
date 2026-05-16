@@ -4384,7 +4384,18 @@ function animateGameOverStats() {
     }
     if (scoreEl) scoreEl.textContent = `Score: ${current.toLocaleString()}`;
   }, 25);
-  if (killsEl) killsEl.textContent = `Kills: ${stats.kills}`;
+  // Animate kills counter
+  let killCurrent = 0;
+  const killTarget = stats.kills;
+  const killStep = Math.max(1, Math.floor(killTarget / 30));
+  const killInterval = setInterval(() => {
+    killCurrent += killStep;
+    if (killCurrent >= killTarget) {
+      killCurrent = killTarget;
+      clearInterval(killInterval);
+    }
+    if (killsEl) killsEl.textContent = `Kills: ${killCurrent}`;
+  }, 30);
   if (grazeEl) grazeEl.textContent = `Graze: ${grazeCount}`;
 }
 
@@ -4770,7 +4781,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.74.8 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.74.9 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
