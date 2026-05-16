@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.66.3] - 2026-05-13
+
+### Improved
+- Weapon proficiency display in menu
+  - Stars (★/☆) show mastery level (1 per 50 uses, max 5)
+  - Gives players a long-term goal for each weapon
+  - More visually appealing than raw numbers alone
+
 ## [1.66.2] - 2026-05-13
 
 ### Improved

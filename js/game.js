@@ -2975,13 +2975,17 @@ function showMenu() {
   const sw = document.getElementById('stat-weapons');
   if (sw) {
     const w = stats.weaponUses;
+    const names = { balanced: 'B', spread: 'S', rapid: 'R', laser: 'L', ricochet: 'Rc' };
     const parts = [];
-    if (w.balanced) parts.push(`B:${w.balanced}`);
-    if (w.spread) parts.push(`S:${w.spread}`);
-    if (w.rapid) parts.push(`R:${w.rapid}`);
-    if (w.laser) parts.push(`L:${w.laser}`);
-    if (w.ricochet) parts.push(`Rc:${w.ricochet}`);
-    sw.textContent = parts.length ? `Weapons: ${parts.join(' · ')}` : 'Weapons: —';
+    for (const key in names) {
+      const count = w[key] || 0;
+      if (count > 0) {
+        const level = Math.min(5, Math.floor(count / 50));
+        const stars = '★'.repeat(level) + '☆'.repeat(5 - level);
+        parts.push(`${names[key]}:${count} ${stars}`);
+      }
+    }
+    sw.innerHTML = parts.length ? `Weapons: ${parts.join(' · ')}` : 'Weapons: —';
   }
 }
 
