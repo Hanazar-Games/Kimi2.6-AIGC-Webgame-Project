@@ -235,6 +235,8 @@ let wave = 1;
 let combo = 0;
 let comboTimer = 0;
 let shake = 0;
+let shakeDirX = 0;
+let shakeDirY = 0;
 let slowMo = 0;
 let difficulty = 2; // 1=easy, 2=normal, 3=hard
 let achievementNotifications = [];
@@ -803,6 +805,9 @@ function bomberExplode(e) {
   spawnExplosion(e.x, e.y, '#ff5522', 25, true);
   spawnFloatingText(e.x, e.y - 20, 'BOOM!', '#ff5522');
   shake = Math.max(shake, 8);
+  const boomAngle = Math.atan2(player.y - e.y, player.x - e.x);
+  shakeDirX = Math.cos(boomAngle);
+  shakeDirY = Math.sin(boomAngle);
   if (player.invincible <= 0 && dist(e, player) < radius + player.radius) {
     player.hp -= practiceMode ? 0 : 12;
     player.invincible = 60;
@@ -1111,6 +1116,8 @@ function startWave() {
     generateRewardOptions();
     spawnFloatingText(W / 2, H / 2 - 30, 'CHOOSE YOUR REWARD!', '#ffee44');
     shake = Math.max(shake, 4);
+    shakeDirX = 0;
+    shakeDirY = -1;
   }
   waveTimer = 0;
   bossSpawned = false;
@@ -1159,6 +1166,8 @@ function applyReward(idx) {
     spawnFloatingText(W / 2, H / 2 + 80, r.name, r.color);
     sfxPowerup();
     shake = Math.max(shake, 6);
+    shakeDirX = 0;
+    shakeDirY = -1;
     // milestone particles
     const count = particleDensity === 0 ? 15 : particleDensity === 1 ? 25 : 35;
     for (let k = 0; k < count; k++) {
@@ -1226,6 +1235,8 @@ function useBomb() {
   bombCooldown = 30;
   bombAnim = 40;
   shake = 20;
+  shakeDirX = 0;
+  shakeDirY = 0;
   slowMo = 45;
   sfxBomb();
   // clear enemy bullets
@@ -1310,6 +1321,8 @@ function waveLogic() {
       if (!damageTakenThisWave && wave > 1) {
         spawnFloatingText(W / 2, H / 2 - 40, 'PERFECT WAVE!', '#ffee44');
         shake = Math.max(shake, 8);
+        shakeDirX = 0;
+        shakeDirY = -1;
         const perfectCount = particleDensity === 0 ? 15 : particleDensity === 1 ? 25 : 35;
         for (let k = 0; k < perfectCount; k++) {
           const a = rand(0, Math.PI * 2);
@@ -1584,6 +1597,9 @@ function updateEnemies(timeScale = 1) {
           e.color = e.bossType === 'beta' ? '#00aaff' : '#ff00aa';
           spawnFloatingText(e.x, e.y - 50, e.elite ? 'ELITE ENRAGED!' : 'ENRAGED!', e.elite ? '#ffaa00' : (e.bossType === 'beta' ? '#00aaff' : '#ff00aa'));
           shake = Math.max(shake, 10);
+          const enrageAngle = Math.atan2(player.y - e.y, player.x - e.x);
+          shakeDirX = Math.cos(enrageAngle);
+          shakeDirY = Math.sin(enrageAngle);
           sfxHurt();
         }
       }
@@ -1923,6 +1939,9 @@ function checkCollisions() {
         e.hitFlash = 4;
         const shakeAmt = dmg >= 20 ? 10 : dmg >= 10 ? 6 : dmg >= 5 ? 4 : 2;
         shake = Math.max(shake, shakeAmt);
+        const bAngle = Math.atan2(b.vy, b.vx);
+        shakeDirX = Math.cos(bAngle);
+        shakeDirY = Math.sin(bAngle);
         hitstop = 3;
         if (e.hp <= 0) {
           const pts = Math.floor(e.score * (1 + combo * 0.1));
@@ -1932,6 +1951,8 @@ function checkCollisions() {
           if (combo === 10 || combo === 25 || combo === 50 || combo === 100) {
             spawnFloatingText(W / 2, H / 2 - 40, `COMBO x${combo}!`, '#ff44ff');
             shake = Math.max(shake, 6);
+            shakeDirX = 0;
+            shakeDirY = -1;
             const milestoneCount = particleDensity === 0 ? 12 : particleDensity === 1 ? 20 : 30;
             for (let k = 0; k < milestoneCount; k++) {
               const a = rand(0, Math.PI * 2);
@@ -1966,6 +1987,8 @@ function checkCollisions() {
               player.bombs = Math.min(5, player.bombs + 2);
               spawnFloatingText(player.x, player.y - 50, 'MAX HP + 2 BOMBS!', '#ffee44');
               shake = Math.max(shake, 12);
+              shakeDirX = 0;
+              shakeDirY = -1;
               sfxPowerup();
               // combo burst: clear bullets and damage all enemies
               spawnFloatingText(W / 2, H / 2 + 50, 'COMBO BURST!', '#ffee44');
@@ -2000,6 +2023,9 @@ function checkCollisions() {
             spawnExplosion(e.x, e.y, '#ffee88', 25, true);
             spawnFloatingText(W / 2, H / 2 - 60, 'BOSS DEFEATED!', '#ffee44');
             shake = Math.max(shake, 20);
+            const bossDefeatAngle = Math.atan2(player.y - e.y, player.x - e.x);
+            shakeDirX = Math.cos(bossDefeatAngle);
+            shakeDirY = Math.sin(bossDefeatAngle);
             damageFlash = 10;
             sfxExplosion();
           }
@@ -2055,6 +2081,9 @@ function checkCollisions() {
         comboTimer = 0;
         player.invincible = 90;
         shake = 12;
+        const bAngle2 = Math.atan2(player.y - b.y, player.x - b.x);
+        shakeDirX = Math.cos(bAngle2);
+        shakeDirY = Math.sin(bAngle2);
         damageFlash = 15;
         damageTakenThisWave = true;
         spawnExplosion(player.x, player.y, '#44aaff', 16);
@@ -2095,6 +2124,9 @@ function checkCollisions() {
         comboTimer = 0;
         player.invincible = 90;
         shake = 14;
+        const eAngle = Math.atan2(player.y - e.y, player.x - e.x);
+        shakeDirX = Math.cos(eAngle);
+        shakeDirY = Math.sin(eAngle);
         damageFlash = 15;
         damageTakenThisWave = true;
         spawnPlayerHitParticles();
@@ -3414,6 +3446,8 @@ function resetGame() {
   combo = 0;
   comboTimer = 0;
   shake = 0;
+  shakeDirX = 0;
+  shakeDirY = 0;
   grazeCount = 0;
   grazeTimer = 0;
   noDamageWaves = 0;
@@ -3724,11 +3758,17 @@ function loop(timestamp) {
   // shake
   ctx.save();
   if (shake > 0) {
-    const sx = (Math.random() - 0.5) * shake;
-    const sy = (Math.random() - 0.5) * shake;
+    const directed = 0.7;
+    const randomAmt = 0.3;
+    const sx = shakeDirX * shake * directed + (Math.random() - 0.5) * shake * randomAmt;
+    const sy = shakeDirY * shake * directed + (Math.random() - 0.5) * shake * randomAmt;
     ctx.translate(sx, sy);
     shake *= 0.9;
-    if (shake < 0.5) shake = 0;
+    if (shake < 0.5) {
+      shake = 0;
+      shakeDirX = 0;
+      shakeDirY = 0;
+    }
   }
 
   drawPlanets();
@@ -3999,6 +4039,8 @@ function drawWaveClear() {
       });
     }
     shake = Math.max(shake, waveClearIsBoss ? 10 : waveClearPerfect ? 6 : 3);
+    shakeDirX = 0;
+    shakeDirY = -1;
   }
 
   ctx.restore();

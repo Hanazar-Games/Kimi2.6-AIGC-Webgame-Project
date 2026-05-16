@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.68.4] - 2026-05-13
+
+### Improved
+- Directional screen shake
+  - Shake now has directionality based on event source
+  - Player hit by enemy: shake pushes away from enemy
+  - Player hit by bullet: shake follows bullet direction
+  - Bomb explosion: omnidirectional (random)
+  - Boss defeat / enrage: shake radiates from boss
+  - Wave clear / rewards / milestones: upward celebration shake
+  - 70% directional + 30% random for organic feel
+  - Makes impacts feel more grounded and spatial
+
 ## [1.68.3] - 2026-05-13
 
 ### Added
