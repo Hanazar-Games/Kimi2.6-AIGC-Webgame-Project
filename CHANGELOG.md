@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.67.1] - 2026-05-13
+
+### Added
+- Wave clear celebration effects
+  - "WAVE X CLEARED!" animated text with scale + fade animation (3 seconds)
+  - Color-coded: blue for normal, red for boss defeat, gold for perfect
+  - Particle burst from center on clear
+  - Screen shake scaled to clear type (boss = 10, perfect = 6, normal = 3)
+  - Draws over all game states (hitstop, reward select, 30fps skip)
+
 ## [1.67.0] - 2026-05-13
 
 ### Added

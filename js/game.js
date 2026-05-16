@@ -238,6 +238,10 @@ let difficulty = 2; // 1=easy, 2=normal, 3=hard
 let achievementNotifications = [];
 let activeNotification = null;
 let notificationTimer = 0;
+let waveClearTimer = 0;
+let waveClearWave = 0;
+let waveClearPerfect = false;
+let waveClearIsBoss = false;
 let bombCooldown = 0;
 let bombAnim = 0;
 let grazeCount = 0;
@@ -1317,11 +1321,19 @@ function waveLogic() {
           });
         }
       }
+      waveClearTimer = 180;
+      waveClearWave = wave;
+      waveClearPerfect = !damageTakenThisWave && wave > 1;
+      waveClearIsBoss = false;
       wave++;
       checkWaveAchievements();
       startWave();
     }
   } else if (bossSpawned && enemies.length === 0) {
+    waveClearTimer = 180;
+    waveClearWave = wave;
+    waveClearPerfect = false;
+    waveClearIsBoss = true;
     wave++;
     checkWaveAchievements();
     startWave();
@@ -3612,6 +3624,7 @@ function loop(timestamp) {
       if (bombAnim > 0) drawBombEffect();
       drawBossUI();
       ctx.restore();
+      drawWaveClear();
       drawUI();
       requestAnimationFrame(loop);
       return;
@@ -3643,6 +3656,7 @@ function loop(timestamp) {
       drawBossUI();
       drawRewardSelect();
       ctx.restore();
+      drawWaveClear();
       drawUI();
       requestAnimationFrame(loop);
       return;
@@ -3670,6 +3684,7 @@ function loop(timestamp) {
       if (bombAnim > 0) drawBombEffect();
       drawBossUI();
       ctx.restore();
+      drawWaveClear();
       drawUI();
       requestAnimationFrame(loop);
       return;
@@ -3704,6 +3719,8 @@ function loop(timestamp) {
       notificationTimer -= timeScale;
       if (notificationTimer <= 0) activeNotification = null;
     }
+
+    if (waveClearTimer > 0) waveClearTimer -= timeScale;
 
     if (comboTimer > 0) {
       comboTimer -= timeScale;
@@ -3775,9 +3792,76 @@ function loop(timestamp) {
 
   ctx.restore();
 
+  drawWaveClear();
   drawUI();
 
   requestAnimationFrame(loop);
+}
+
+function drawWaveClear() {
+  if (waveClearTimer <= 0) return;
+  const t = waveClearTimer;
+  const maxT = 180;
+  let alpha = 1;
+  let scale = 1;
+  if (t > maxT - 20) {
+    alpha = (maxT - t) / 20;
+    scale = 0.7 + 0.3 * alpha;
+  } else if (t < 40) {
+    alpha = t / 40;
+    scale = 1 + (1 - alpha) * 0.2;
+  }
+  alpha = Math.max(0, Math.min(1, alpha));
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = 'center';
+
+  const cy = H / 2 - 30;
+
+  // Main text
+  ctx.font = `bold ${Math.floor(28 * scale)}px monospace`;
+  ctx.fillStyle = waveClearIsBoss ? '#ff4444' : '#44aaff';
+  const label = waveClearIsBoss ? 'BOSS DEFEATED!' : `WAVE ${waveClearWave} CLEARED!`;
+  ctx.fillText(label, W / 2, cy);
+
+  // Glow outline
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = waveClearIsBoss ? 'rgba(255,68,68,0.4)' : 'rgba(68,170,255,0.4)';
+  ctx.strokeText(label, W / 2, cy);
+
+  // Perfect subtext
+  if (waveClearPerfect) {
+    ctx.font = `bold ${Math.floor(16 * scale)}px monospace`;
+    ctx.fillStyle = '#ffee44';
+    ctx.fillText('PERFECT!', W / 2, cy + 26);
+    ctx.strokeStyle = 'rgba(255,238,68,0.3)';
+    ctx.lineWidth = 1;
+    ctx.strokeText('PERFECT!', W / 2, cy + 26);
+  }
+
+  // Bonus particles on first frame
+  if (t >= maxT - 1 && t <= maxT) {
+    const count = particleDensity === 0 ? 20 : particleDensity === 1 ? 35 : 50;
+    const baseColor = waveClearIsBoss ? '#ff4444' : waveClearPerfect ? '#ffee44' : '#44aaff';
+    for (let k = 0; k < count; k++) {
+      const a = rand(0, Math.PI * 2);
+      const s = rand(2, 6);
+      particles.push({
+        x: W / 2, y: cy,
+        vx: Math.cos(a) * s,
+        vy: Math.sin(a) * s,
+        life: rand(40, 80),
+        maxLife: 80,
+        color: k % 3 === 0 ? '#ffffff' : baseColor,
+        size: rand(2, 5),
+        decay: 0.96,
+      });
+    }
+    shake = Math.max(shake, waveClearIsBoss ? 10 : waveClearPerfect ? 6 : 3);
+  }
+
+  ctx.restore();
 }
 
 /* ---------- URL Score Sharing ---------- */
