@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.69.1] - 2026-05-13
+
+### Added
+- Random game tips in menu
+  - 20 helpful tips covering mechanics, enemies, weapons, and strategies
+  - Updates randomly each time menu is opened
+  - Helps new players discover advanced features
+  - Positioned below weapon/enemy log sections
+
 ## [1.69.0] - 2026-05-13
 
 ### Improved

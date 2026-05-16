@@ -3324,6 +3324,36 @@ function showMenu() {
     }
     sw.innerHTML = parts.length ? `Weapons: ${parts.join(' · ')}` : 'Weapons: —';
   }
+  updateGameTip();
+}
+
+const GAME_TIPS = [
+  "Tip: Hold Shift to focus and slow down for precise dodging.",
+  "Tip: Dash (K/X) gives brief invincibility — use it to escape tight spots!",
+  "Tip: Higher combos give score multipliers. Don't let it drop!",
+  "Tip: Elite enemies have 1.5x HP and stronger attacks. Prioritize them!",
+  "Tip: The Laser weapon pierces through multiple enemies in a line.",
+  "Tip: Ricochet bullets bounce off walls twice — great for tight spaces.",
+  "Tip: Homing missiles track enemies automatically but move slower.",
+  "Tip: Bombs clear all enemy bullets and damage every enemy on screen.",
+  "Tip: Perfect Waves (no damage taken) build up reward choices every 3 waves.",
+  "Tip: Grazing enemy bullets (near misses) builds graze count for bonus score.",
+  "Tip: Shielders regenerate shield over time — burst them down quickly!",
+  "Tip: Medics heal nearby enemies — take them out first.",
+  "Tip: Dividers split when hit. Be ready for multiple smaller targets!",
+  "Tip: Bombers explode on death — keep your distance when they fall.",
+  "Tip: Weapon proficiency increases damage by +2% per star (max +10%).",
+  "Tip: Combo Guard saves you from death once if combo is 10 or higher.",
+  "Tip: Time Stop freezes all enemies for 3 seconds — perfect for escapes.",
+  "Tip: The Magnet power-up attracts all nearby pickups for 5 seconds.",
+  "Tip: Bosses enrage at 50% HP with faster attacks and new colors!",
+  "Tip: Every 3rd non-boss wave has a theme (Swarm/Assault/Fortress/etc).",
+];
+function updateGameTip() {
+  const el = document.getElementById('game-tip');
+  if (!el) return;
+  const tip = GAME_TIPS[Math.floor(Math.random() * GAME_TIPS.length)];
+  el.textContent = tip;
 }
 
 function hideScreens() {
