@@ -167,6 +167,22 @@ function sfxShoot() {
     g2.connect(audioCtx.destination);
     o2.start(t);
     o2.stop(t + 0.22);
+  } else if (weaponType === 'explosive') {
+    // Explosive: deep thump + low-frequency impact
+    const o = audioCtx.createOscillator();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(150, t);
+    o.frequency.exponentialRampToValueAtTime(60, t + 0.15);
+    g.gain.setValueAtTime(0.05 * masterVolume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(400, t);
+    o.connect(filter);
+    filter.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(t);
+    o.stop(t + 0.22);
   } else {
     // Balanced: clean dual square wave with slight detune
     const o1 = audioCtx.createOscillator();
@@ -589,7 +605,7 @@ let meteorTimer = 0;
 let practiceMode = false;
 let autoFire = false;
 let planets = [];
-let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser', 'ricochet'
+let weaponType = 'balanced'; // 'balanced', 'spread', 'rapid', 'laser', 'ricochet', 'homing', 'explosive'
 let encounteredTypes = new Set();
 let persistentEncountered = new Set();
 let enemyKillsLog = {};
@@ -644,7 +660,7 @@ function addToLeaderboard(score, wave) {
 loadLeaderboard();
 
 /* ---------- Stats ---------- */
-let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0, ricochet: 0 } };
+let stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0, ricochet: 0, homing: 0, explosive: 0 } };
 function loadStats() {
   try {
     const v = localStorage.getItem('stellar_defense_stats');
@@ -706,6 +722,7 @@ const ACHIEVEMENTS = {
   overdrive_killer: { name: 'Overdrive Killer', desc: 'Destroy 30 enemies during Overdrive', unlocked: false },
   elite_wave_survivor: { name: 'Elite Wave Survivor', desc: 'Survive an Elite Wave', unlocked: false },
   combo_burst_master: { name: 'Combo Burst Master', desc: 'Trigger Combo Burst 3 times', unlocked: false },
+  demolition_expert: { name: 'Demolition Expert', desc: 'Kill 3 enemies with one explosive shell', unlocked: false },
 };
 let noDamageWaves = 0;
 let totalPerfectWaves = 0;
@@ -724,6 +741,7 @@ let homingKills = 0;
 let overdriveKills = 0;
 let eliteWavesSurvived = 0;
 let comboBurstsTriggered = 0;
+let explosiveBestMultiKill = 0;
 
 function loadAchievements() {
   try {
@@ -1095,11 +1113,11 @@ function spawnDamageNumber(x, y, dmg) {
 }
 
 /* ---------- Bullet Factory ---------- */
-function spawnBullet(x, y, angle, speed, color, isEnemy = false, radius = 3, bounces = 0) {
+function spawnBullet(x, y, angle, speed, color, isEnemy = false, radius = 3, bounces = 0, explosive = false) {
   const arr = isEnemy ? enemyBullets : bullets;
   const limit = isEnemy ? 500 : 200;
   if (arr.length >= limit) arr.shift();
-  const b = { x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color, radius, isEnemy, bounces, maxBounces: bounces };
+  const b = { x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, color, radius, isEnemy, bounces, maxBounces: bounces, explosive };
   arr.push(b);
   return b;
 }
@@ -1850,6 +1868,7 @@ function updatePlayer() {
         laser: '#ff66ff',
         ricochet: '#ffcc66',
         homing: '#ff66cc',
+        explosive: '#ff6633',
       };
       particles.push({
         x: player.x + Math.cos(backAngle) * 8 + rand(-3, 3),
@@ -1938,6 +1957,14 @@ function updatePlayer() {
         const offsetX = (k - (hCount - 1) / 2) * 12;
         const b = spawnBullet(player.x + offsetX, player.y - 10, baseAngle, bSpeed * 0.85, '#ff66cc', false, 5);
         if (b) { b.homing = true; b.homingTurn = 0.04 + pl * 0.01; }
+      }
+    } else if (weaponType === 'explosive') {
+      player.shootCooldown = 14;
+      const exCount = 1 + Math.floor(pl / 3);
+      for (let k = 0; k < exCount; k++) {
+        const offsetX = (k - (exCount - 1) / 2) * 14;
+        const spread = exCount > 1 ? (k - (exCount - 1) / 2) * 0.06 : 0;
+        const b = spawnBullet(player.x + offsetX, player.y - 10, baseAngle + spread, bSpeed * 0.8, '#ff6633', false, 5, 0, true);
       }
     } else {
       // balanced
@@ -2372,6 +2399,22 @@ function checkCollisions() {
       if (dist(b, e) < e.radius + b.radius) {
         if (b.laser && b.hitTimer > 0) continue;
         if (!b.laser) bullets.splice(i, 1);
+        // explosive AOE
+        let explosiveKillsThisHit = 0;
+        if (b.explosive) {
+          const aoeRadius = 60 + pl * 5;
+          const aoeDmg = dmg * 0.5;
+          spawnExplosion(e.x, e.y, '#ff6633', aoeRadius * 0.4, true);
+          for (const other of enemies) {
+            if (other === e || other.spawnDelay > 0) continue;
+            if (dist({x: e.x, y: e.y}, other) < aoeRadius + other.radius) {
+              other.hp -= aoeDmg;
+              other.hitFlash = 3;
+              spawnFloatingText(other.x, other.y - other.radius - 5, Math.floor(aoeDmg), '#ff8844');
+              if (other.hp <= 0) explosiveKillsThisHit++;
+            }
+          }
+        }
         if (b.laser) {
           b.hitTimer = 4;
           b.hitCount = (b.hitCount || 0) + 1;
@@ -2484,6 +2527,12 @@ function checkCollisions() {
           if (e.elite) spawnFloatingText(e.x, e.y - 15, 'ELITE!', '#ffee88');
           spawnFloatingText(e.x, e.y, `+${pts}`, '#ffcc44');
           sfxEnemyDeath(e.type);
+          // explosive multi-kill tracking
+          if (b.explosive && explosiveKillsThisHit > 0) {
+            const totalKills = explosiveKillsThisHit + 1; // +1 for primary target
+            if (totalKills > explosiveBestMultiKill) explosiveBestMultiKill = totalKills;
+            if (totalKills >= 3) unlockAchievement('demolition_expert');
+          }
           // drop powerup chance
           if (Math.random() < 0.12) spawnPowerup(e.x, e.y);
           unlockAchievement('first_blood');
@@ -4191,6 +4240,7 @@ function resetGame() {
   overdriveKills = 0;
   eliteWavesSurvived = 0;
   comboBurstsTriggered = 0;
+  explosiveBestMultiKill = 0;
 
   score = 0;
   wave = 1;
@@ -4268,6 +4318,7 @@ const WEAPON_DESCS = {
   laser: { name: 'Laser', desc: 'Piercing beams that hit up to 3 enemies in a line. High damage, medium cooldown.', color: '#ff66ff' },
   ricochet: { name: 'Ricochet', desc: 'Bouncing projectiles that hit walls twice. Excellent for tight spaces and angles.', color: '#ffcc66' },
   homing: { name: 'Homing', desc: 'Auto-tracking missiles seek the nearest enemy. Lower speed but guaranteed hits.', color: '#ff66cc' },
+  explosive: { name: 'Explosive', desc: 'Heavy shells explode on impact, dealing 50% splash damage in a radius. Slower fire rate but devastating crowds.', color: '#ff6633' },
 };
 function updateWeaponDesc() {
   const el = document.getElementById('weapon-desc');
@@ -4292,7 +4343,7 @@ document.querySelectorAll('#weapon-select .weapon-btn').forEach(btn => {
 function loadWeapon() {
   try {
     const v = localStorage.getItem('stellar_defense_weapon');
-    if (v && ['balanced', 'spread', 'rapid', 'laser', 'ricochet', 'homing'].includes(v)) {
+    if (v && ['balanced', 'spread', 'rapid', 'laser', 'ricochet', 'homing', 'explosive'].includes(v)) {
       weaponType = v;
       document.querySelectorAll('#weapon-select .weapon-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.weapon === v);
@@ -4440,7 +4491,7 @@ function takeScreenshot() {
   ctx.fillStyle = '#aabbdd';
   ctx.font = '11px sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(`Stellar Defense v1.73.0 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
+  ctx.fillText(`Stellar Defense v1.73.1 | Score: ${score.toLocaleString()} | Wave: ${wave}`, W - 8, H - 14);
   ctx.restore();
   const link = document.createElement('a');
   link.download = `stellar-defense-w${wave}-${score}.png`;
