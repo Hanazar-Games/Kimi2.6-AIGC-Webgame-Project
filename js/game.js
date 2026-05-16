@@ -3041,6 +3041,20 @@ function showPause() {
       pBuffsRow.style.display = 'none';
     }
   }
+  // reward bonuses
+  const pRewards = document.getElementById('pause-rewards');
+  if (pRewards) {
+    const rewards = [];
+    if (damageMult > 1) rewards.push(`Dmg x${damageMult.toFixed(1)}`);
+    if (speedMultBonus > 1) rewards.push(`Spd x${speedMultBonus.toFixed(1)}`);
+    if (scoreMultBonus > 1) rewards.push(`Score x${scoreMultBonus.toFixed(2)}`);
+    if (rewards.length) {
+      pRewards.style.display = 'block';
+      pRewards.innerHTML = `Rewards: <span style="color:#ffcc44;">${rewards.join(' · ')}</span>`;
+    } else {
+      pRewards.style.display = 'none';
+    }
+  }
 }
 
 function animateGameOverStats() {

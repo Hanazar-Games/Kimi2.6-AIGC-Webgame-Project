@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.66.1] - 2026-05-13
+
+### Improved
+- Pause screen now shows active reward bonuses
+  - Damage multiplier, Speed multiplier, Score multiplier
+  - Only shows when rewards are active
+  - Helps players track their accumulated power
+
 ## [1.66.0] - 2026-05-13
 
 ### Added
