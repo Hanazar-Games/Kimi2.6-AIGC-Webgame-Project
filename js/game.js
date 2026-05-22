@@ -1930,6 +1930,7 @@ function lightenColor(hex) {
 
 /* ---------- Particle Spawners ---------- */
 function spawnExplosion(x, y, color, count = 12, shockwave = false) {
+  if (shockwaves.length >= 30) shockwaves.shift();
   const densityMult = particleDensity === 0 ? 0.4 : particleDensity === 1 ? 0.7 : 1.0;
   const maxNew = Math.max(0, 300 - particles.length);
   const actualCount = Math.min(Math.floor(count * densityMult), maxNew);
@@ -1964,8 +1965,9 @@ function spawnExplosion(x, y, color, count = 12, shockwave = false) {
 }
 
 function spawnPlayerHitParticles() {
+  if (particles.length >= 300) return;
   const densityMult = particleDensity === 0 ? 0.5 : particleDensity === 1 ? 0.8 : 1.0;
-  const count = Math.floor(14 * densityMult);
+  const count = Math.min(Math.floor(14 * densityMult), 300 - particles.length);
   for (let i = 0; i < count; i++) {
     const a = rand(0, Math.PI * 2);
     const s = rand(2, 6);
@@ -2004,9 +2006,11 @@ function spawnHitSparks(x, y, color = '#ffaa44') {
 }
 
 function spawnFloatingText(x, y, txt, color) {
+  if (texts.length >= 60) texts.shift();
   texts.push({ x, y, txt, color, life: 45, maxLife: 45, vy: -2.2, size: 16, baseScale: 1.5 });
 }
 function spawnDamageNumber(x, y, dmg) {
+  if (texts.length >= 60) texts.shift();
   const isCrit = dmg >= 20;
   const color = isCrit ? '#ff4444' : dmg >= 15 ? '#ffee44' : dmg >= 8 ? '#ffffff' : '#aabbcc';
   const size = isCrit ? 16 : 12;
@@ -2044,6 +2048,7 @@ function spawnLaser(x, y, angle) {
 
 /* ---------- Power-up Factory ---------- */
 function spawnPowerup(x, y) {
+  if (powerups.length >= 20) powerups.shift();
   const roll = Math.random();
   let type = 'energy';
   if (roll < 0.15) type = 'power';
@@ -2085,6 +2090,7 @@ function bomberExplode(e) {
     player.invincible = 60;
     damageFlash = 10;
     triggerScreenFlash('rgba(255,80,80,0.25)', 120);
+    if (damageIndicators.length >= 20) damageIndicators.shift();
     damageIndicators.push({ angle: boomAngle, life: 60, maxLife: 60 });
     shake = Math.max(shake, 12);
     damageTakenThisWave = true;
@@ -2709,6 +2715,7 @@ function waveLogic() {
       else if (side === 1) { wx = W - 8; wy = rand(30, H * 0.6); wa = Math.PI; }
       else { wx = 8; wy = rand(30, H * 0.6); wa = 0; }
       const warnColor = type === 'bomber' ? '#ff4444' : type === 'shielder' ? '#44ddaa' : type === 'medic' ? '#44ff88' : type === 'splitter' ? '#cc44ff' : type === 'divider' ? '#4466ff' : '#ffcc44';
+      if (warnings.length >= 30) warnings.shift();
       warnings.push({ x: wx, y: wy, angle: wa, life: 45, color: warnColor });
     }
     if (spawnTimer <= 0) {
@@ -3848,6 +3855,7 @@ function checkCollisions() {
         const bAngle2 = Math.atan2(player.y - b.y, player.x - b.x);
         shakeDirX = Math.cos(bAngle2);
         shakeDirY = Math.sin(bAngle2);
+        if (damageIndicators.length >= 20) damageIndicators.shift();
         damageIndicators.push({ angle: bAngle2, life: 60, maxLife: 60 });
         damageFlash = 15;
         triggerScreenFlash('rgba(255,60,60,0.35)', 150);
@@ -3929,6 +3937,7 @@ function playerDeathEffect() {
         const eAngle = Math.atan2(player.y - e.y, player.x - e.x);
         shakeDirX = Math.cos(eAngle);
         shakeDirY = Math.sin(eAngle);
+        if (damageIndicators.length >= 20) damageIndicators.shift();
         damageIndicators.push({ angle: eAngle, life: 60, maxLife: 60 });
         damageFlash = 15;
         triggerScreenFlash('rgba(255,60,60,0.35)', 150);
@@ -4110,6 +4119,7 @@ function updateMeteors(timeScale = 1) {
       mx = -10; my = rand(0, H * 0.5);
       mvx = rand(3, 6); mvy = rand(0.5, 2);
     }
+    if (meteors.length >= 15) meteors.shift();
     meteors.push({ x: mx, y: my, vx: mvx, vy: mvy, life: rand(40, 70), maxLife: 70, size: rand(1.5, 3.5) });
   }
   if (meteorTimer > 0) meteorTimer -= timeScale;
@@ -5335,6 +5345,10 @@ function drawOffscreenIndicators() {
 }
 
 function drawUI() {
+  // Achievement notification always updates regardless of state
+  updateAchievementNotification();
+  // Skip expensive HUD DOM updates when not in active gameplay
+  if (state !== STATE.PLAYING && state !== STATE.PAUSED && state !== STATE.COUNTDOWN) return;
   const mult = (1 + combo * 0.1).toFixed(1);
   const scoreEl = document.getElementById('score');
   if (scoreEl) {
@@ -5548,7 +5562,6 @@ function drawUI() {
       smEl.style.display = 'none';
     }
   }
-  updateAchievementNotification();
   // Volume indicator overlay
   if (volumeDisplayTimer > 0) {
     volumeDisplayTimer--;
@@ -6757,7 +6770,7 @@ if (resetDataBtn) {
         localStorage.removeItem('stellar_defense_encountered');
       } catch (e) {}
       highScore = 0;
-      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0, ricochet: 0 } };
+      stats = { games: 0, kills: 0, bestWave: 0, deaths: 0, totalGraze: 0, totalTime: 0, highestCombo: 0, bossesDefeated: 0, weaponUses: { balanced: 0, spread: 0, rapid: 0, laser: 0, ricochet: 0, homing: 0, explosive: 0 } };
       leaderboard = [];
       persistentEncountered = new Set();
       for (const k in ACHIEVEMENTS) ACHIEVEMENTS[k].unlocked = false;
@@ -7128,6 +7141,11 @@ function loop(timestamp) {
   drawMeteors();
 
   const timeScale = deathSlowMo > 0 ? 0.15 : (slowMo > 0 ? 0.4 : 1.0);
+  // Decrement death slow-mo regardless of state so GAMEOVER death animation plays
+  if (deathSlowMo > 0) {
+    deathSlowMo -= 1;
+    if (deathSlowMo <= 0) deathSlowMo = 0;
+  }
   // frame skip for 30fps mode
   if (targetFPS === 30) {
     skipFrame = !skipFrame;
@@ -7251,10 +7269,6 @@ function loop(timestamp) {
       return;
     }
     if (slowMo > 0) slowMo -= timeScale;
-    if (deathSlowMo > 0) {
-      deathSlowMo -= 1;
-      if (deathSlowMo <= 0) deathSlowMo = 0;
-    }
     if (timeStopTimer > 0) timeStopTimer -= timeScale;
     stats.totalTime += dt / 1000;
     updatePlayer();

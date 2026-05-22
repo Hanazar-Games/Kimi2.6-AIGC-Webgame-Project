@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.87.1] - 2026-05-22
+
+### Fixed — Runtime Stability & Memory Safety
+- **Array caps added** to prevent unbounded growth:
+  - `particles` (300), `texts` (60), `shockwaves` (30), `powerups` (20), `warnings` (30), `damageIndicators` (20), `meteors` (15)
+  - `spawnPlayerHitParticles()` now respects particle ceiling
+- **`deathSlowMo` decrements in all states**: Death animation no longer freezes when transitioning to GAMEOVER
+- **`drawUI()` state-gated**: Skips expensive HUD DOM updates in MENU/GAMEOVER; achievement notification still updates universally
+- **`stats.weaponUses` reset consistency**: Data reset now includes `homing` and `explosive` (was missing both)
+
 ## [1.87.0] - 2026-05-22
 
 ### Added — Splash Screen Intro Animation
