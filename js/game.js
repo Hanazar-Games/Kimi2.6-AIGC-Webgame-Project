@@ -27,11 +27,15 @@ let engineOsc2 = null;
 let engineGainNode2 = null;
 function ensureAudio() {
   if (!audioCtx) {
-    audioCtx = new AudioCtx();
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    audioCtx = new AC();
     musicNextTime = audioCtx.currentTime;
     initMusicEngine();
   }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().catch(() => {});
+  }
   // Start engine hum
   if (!engineOsc && audioCtx) {
     engineOsc = audioCtx.createOscillator();
@@ -551,7 +555,7 @@ function sfxExplosion() {
   g.connect(audioCtx.destination);
   noise.start();
 }
-function sfxPowerup() { playTone(660, 'sine', 0.1, 0.06); playTone(880, 'sine', 0.15, 0.06); }
+function sfxPowerup() { if (!audioCtx) return; playTone(660, 'sine', 0.1, 0.06); playTone(880, 'sine', 0.15, 0.06); }
 function sfxPerfectWave() {
   if (!audioCtx) return;
   const t = audioCtx.currentTime;
@@ -617,11 +621,13 @@ function sfxComboMilestone(combo) {
 }
 function sfxHurt() { playTone(120, 'sawtooth', 0.25, 0.08); }
 function sfxWaveStart() {
+  if (!audioCtx) return;
   playTone(440, 'square', 0.15, 0.05);
   playTone(554, 'square', 0.15, 0.05);
   playTone(659, 'square', 0.2, 0.05);
 }
 function sfxPickupEnergy() {
+  if (!audioCtx) return;
   // Warm healing ascending major triad
   playTone(523, 'sine', 0.08, 0.05);
   setTimeout(() => playTone(659, 'sine', 0.08, 0.05), 60);
@@ -659,6 +665,7 @@ function sfxPickupTimestop() {
   o.stop(t + 0.55);
 }
 function sfxPickupMagnet() {
+  if (!audioCtx) return;
   // Rapid metallic chirps
   playTone(1000, 'triangle', 0.04, 0.04);
   setTimeout(() => playTone(1200, 'triangle', 0.04, 0.04), 50);
@@ -680,11 +687,13 @@ function sfxPickupOverdrive() {
   o.stop(t + 0.35);
 }
 function sfxPickupScore() {
+  if (!audioCtx) return;
   // Coin-like crisp high ping
   playTone(1500, 'sine', 0.06, 0.04);
   setTimeout(() => playTone(2000, 'sine', 0.08, 0.03), 60);
 }
 function sfxUpgrade() {
+  if (!audioCtx) return;
   playTone(523, 'sine', 0.1, 0.07);
   playTone(659, 'sine', 0.1, 0.07);
   playTone(784, 'sine', 0.15, 0.07);
@@ -755,6 +764,7 @@ function sfxBomb() {
   o.stop(audioCtx.currentTime + 0.8);
 }
 function sfxDash() {
+  if (!audioCtx) return;
   playTone(400, 'sawtooth', 0.15, 0.06);
   playTone(600, 'sawtooth', 0.1, 0.04);
 }
@@ -1162,6 +1172,7 @@ const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.key.toLowerCase()] = true;
   if (e.key === ' ' || e.key.toLowerCase() === 'p') e.preventDefault();
+  if (e.key.startsWith('Arrow')) e.preventDefault();
   if (e.key === 'F12') {
     e.preventDefault();
     takeScreenshot();
@@ -1232,7 +1243,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.85.7';
+const VERSION = 'v1.87.0';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -2091,7 +2102,7 @@ function bomberExplode(e) {
         sfxPowerup();
       } else {
         player.hp = 0;
-        deathSlowMo = 90;
+        playerDeathEffect();
         state = STATE.GAMEOVER;
         if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
         if (engineGainNode2 && audioCtx) engineGainNode2.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
@@ -3538,11 +3549,14 @@ function checkCollisions() {
       if (e.type === 'phantom' && !e.phantomVisible) continue;
       if (dist(b, e) < e.radius + b.radius) {
         if (b.laser && b.hitTimer > 0) continue;
-        if (!b.laser) bullets.splice(i, 1);
+        // Compute damage first (needed by explosive AOE below)
+        const profLevel = Math.min(5, Math.floor((stats.weaponUses[weaponType] || 0) / 50));
+        const profMult = 1 + profLevel * 0.02;
+        let dmg = (b.laser ? (b.damage || 10) : (5 + player.powerLevel)) * damageMult * profMult;
         // explosive AOE
         let explosiveKillsThisHit = 0;
         if (b.explosive) {
-          const aoeRadius = 60 + pl * 5;
+          const aoeRadius = 60 + player.powerLevel * 5;
           const aoeDmg = dmg * 0.5;
           spawnExplosion(e.x, e.y, '#ff6633', aoeRadius * 0.4, true);
           for (const other of enemies) {
@@ -3555,14 +3569,12 @@ function checkCollisions() {
             }
           }
         }
+        if (!b.laser) bullets.splice(i, 1);
         if (b.laser) {
           b.hitTimer = 4;
           b.hitCount = (b.hitCount || 0) + 1;
           if (b.hitCount >= 3) unlockAchievement('piercing_shot');
         }
-        const profLevel = Math.min(5, Math.floor((stats.weaponUses[weaponType] || 0) / 50));
-        const profMult = 1 + profLevel * 0.02;
-        let dmg = (b.laser ? (b.damage || 10) : (5 + player.powerLevel)) * damageMult * profMult;
         if (e.shield > 0) {
           e.shield -= dmg;
           e.shieldRegenTimer = 90; // pause regen for 1.5s after hit
@@ -3858,6 +3870,7 @@ function checkCollisions() {
             playerDeathEffect();
             state = STATE.GAMEOVER;
             if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+            if (engineGainNode2 && audioCtx) engineGainNode2.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
             checkHighScore();
             stats.totalGraze += grazeCount;
             updateStats(true);
@@ -3946,6 +3959,7 @@ function playerDeathEffect() {
             playerDeathEffect();
             state = STATE.GAMEOVER;
             if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+            if (engineGainNode2 && audioCtx) engineGainNode2.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
             checkHighScore();
             stats.totalGraze += grazeCount;
             updateStats(true);
@@ -5092,6 +5106,7 @@ function drawWaveBorder() {
 let lowHPTimer = 0;
 let deathSlowMo = 0;
 function drawLowHPWarning() {
+  if (state !== STATE.PLAYING) return;
   const hpRatio = player.hp / player.maxHp;
   if (hpRatio < 0.3 && player.hp > 0) {
     const flash = Math.abs(Math.sin(Date.now() * 0.008)) * 0.3 + 0.1;
@@ -6006,6 +6021,7 @@ function showWaveAnnouncer(text, subText, color) {
 function hideWaveAnnouncer() {
   const el = document.getElementById('wave-announcer');
   if (el) el.classList.remove('active');
+  announcerTimer = 0;
 }
 
 let bossWarningTimer = 0;
@@ -6041,6 +6057,13 @@ function showMenu() {
   document.getElementById('menu-screen').classList.add('active');
   hideWaveAnnouncer();
   hideBossWarning();
+  // Defensive: stop engine audio and clear any lingering flash overlays
+  if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+  if (engineGainNode2 && audioCtx) engineGainNode2.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+  const sf = document.getElementById('screen-flash');
+  if (sf) sf.classList.remove('active');
+  const bf = document.getElementById('bomb-flash-overlay');
+  if (bf) bf.style.opacity = '0';
   const el = document.getElementById('menu-highscore');
   if (el) {
     const diffNames = { 1: 'Easy', 2: 'Normal', 3: 'Hard', 4: 'Nightmare' };
@@ -6131,6 +6154,9 @@ function showPause() {
   document.getElementById('pause-screen').classList.add('active');
   hideWaveAnnouncer();
   hideBossWarning();
+  // Pause engine audio
+  if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.15);
+  if (engineGainNode2 && audioCtx) engineGainNode2.gain.setTargetAtTime(0, audioCtx.currentTime, 0.15);
   const ps = document.getElementById('pause-score');
   const pw = document.getElementById('pause-wave');
   const pk = document.getElementById('pause-kills');
@@ -6225,6 +6251,11 @@ function animateCounter(el, prefix, target, duration = 800) {
   const step = Math.max(1, Math.floor(target / (duration / 25)));
   let current = 0;
   const interval = setInterval(() => {
+    // Abort if user left gameover screen
+    if (!el.isConnected || state !== STATE.GAMEOVER) {
+      clearInterval(interval);
+      return;
+    }
     current += step;
     if (current >= target) {
       current = target;
@@ -6241,19 +6272,23 @@ function animateGameOverStats() {
   const comboEl = document.getElementById('final-combo');
   const perfectEl = document.getElementById('final-perfect');
   const bossesEl = document.getElementById('final-bosses');
-  // Staggered animations
+  // Staggered animations — abort if user left gameover screen
   animateCounter(scoreEl, 'Score', score, 1000);
-  setTimeout(() => animateCounter(killsEl, 'Kills', stats.kills, 600), 200);
+  setTimeout(() => { if (state === STATE.GAMEOVER) animateCounter(killsEl, 'Kills', stats.kills, 600); }, 200);
   setTimeout(() => {
+    if (state !== STATE.GAMEOVER) return;
     if (grazeEl) grazeEl.textContent = `Graze: ${grazeCount}`;
   }, 400);
   setTimeout(() => {
+    if (state !== STATE.GAMEOVER) return;
     if (comboEl) comboEl.textContent = `Best Combo: ${combo}`;
   }, 500);
   setTimeout(() => {
+    if (state !== STATE.GAMEOVER) return;
     if (perfectEl) perfectEl.textContent = `Perfect Waves: ${totalPerfectWaves}`;
   }, 600);
   setTimeout(() => {
+    if (state !== STATE.GAMEOVER) return;
     if (bossesEl) bossesEl.textContent = `Bosses: ${bossesDefeatedThisRun}`;
   }, 700);
 }
@@ -6494,6 +6529,13 @@ function resetGame() {
   tutorialStepsShown.clear();
   countdownValue = 3;
   countdownTimer = 0;
+  // Clear any lingering achievement notifications
+  achievementNotifications = [];
+  activeNotification = null;
+  notificationTimer = 0;
+  // Re-arm engine audio for new game
+  if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+  if (engineGainNode2 && audioCtx) engineGainNode2.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
 
   initStars();
 }
@@ -6844,14 +6886,14 @@ function loop(timestamp) {
   }
 
   // Volume shortcuts
-  if (isDown('BracketLeft')) {
+  if (isDown('[')) {
     keys['BracketLeft'] = false;
     volumeIndex = Math.max(0, volumeIndex - 1);
     masterVolume = volumeLevels[volumeIndex];
     volumeDisplayTimer = 120;
     sfxClick();
   }
-  if (isDown('BracketRight')) {
+  if (isDown(']')) {
     keys['BracketRight'] = false;
     volumeIndex = Math.min(3, volumeIndex + 1);
     masterVolume = volumeLevels[volumeIndex];
@@ -6860,19 +6902,19 @@ function loop(timestamp) {
   }
 
   // Screenshot shortcut
-  if (isDown('F2')) {
+  if (isDown('f2')) {
     keys['F2'] = false;
     takeScreenshot();
   }
 
   // Particle density shortcut
-  if (isDown('Minus')) {
+  if (isDown('-')) {
     keys['Minus'] = false;
     particleDensity = Math.max(0, particleDensity - 1);
     particleDisplayTimer = 120;
     sfxClick();
   }
-  if (isDown('Equal')) {
+  if (isDown('=')) {
     keys['Equal'] = false;
     particleDensity = Math.min(2, particleDensity + 1);
     particleDisplayTimer = 120;
@@ -6942,11 +6984,11 @@ function loop(timestamp) {
   }
 
   // Stats panel shortcut
-  if (isDown('Tab') && state === STATE.PLAYING && statsPanelTimer <= 0) {
+  if (isDown('tab') && state === STATE.PLAYING && statsPanelTimer <= 0) {
     keys['Tab'] = false;
     statsPanelTimer = 300; // 5 seconds
     sfxClick();
-  } else if (isDown('Tab') && state === STATE.PLAYING && statsPanelTimer > 0) {
+  } else if (isDown('tab') && state === STATE.PLAYING && statsPanelTimer > 0) {
     keys['Tab'] = false;
     statsPanelTimer = 0;
   }
@@ -6992,7 +7034,7 @@ function loop(timestamp) {
   }
 
   // FPS display toggle shortcut
-  if (isDown('F3')) {
+  if (isDown('f3')) {
     keys['F3'] = false;
     showFPS = !showFPS;
     fpsDisplayTimer = 120;
@@ -7000,7 +7042,7 @@ function loop(timestamp) {
   }
 
   // Fullscreen toggle shortcut
-  if (isDown('F4')) {
+  if (isDown('f4')) {
     keys['F4'] = false;
     const elem = document.documentElement;
     if (!document.fullscreenElement) {
@@ -7052,6 +7094,7 @@ function loop(timestamp) {
   // Return to menu from game over or pause
   if (isDown('escape') && (state === STATE.GAMEOVER || state === STATE.PAUSED)) {
     keys['escape'] = false;
+    resetGame();
     state = STATE.MENU;
     if (engineGainNode && audioCtx) engineGainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
     if (engineGainNode2 && audioCtx) engineGainNode2.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
@@ -7094,25 +7137,28 @@ function loop(timestamp) {
       drawStars();
       drawNebulae();
       drawAsteroids();
-      drawPlayer();
-      drawEnemies();
-      drawBullets(bullets);
-      drawBullets(enemyBullets);
-      drawPowerups();
-      drawTouchControls();
-      drawParticles();
-      drawShockwaves();
-      drawTexts();
-      drawWaveBorder();
-      drawWarnings();
-      drawDangerZone();
-      drawComboGuardFlash();
-      drawComboFlash();
-      drawDamageFlash();
-      drawLowHPWarning();
-      drawBossWarning();
-      if (bombAnim > 0) drawBombEffect();
-      drawBossUI();
+      // Only draw gameplay entities when actually playing
+      if (state === STATE.PLAYING || state === STATE.COUNTDOWN) {
+        drawPlayer();
+        drawEnemies();
+        drawBullets(bullets);
+        drawBullets(enemyBullets);
+        drawPowerups();
+        drawTouchControls();
+        drawParticles();
+        drawShockwaves();
+        drawTexts();
+        drawWaveBorder();
+        drawWarnings();
+        drawDangerZone();
+        drawComboGuardFlash();
+        drawComboFlash();
+        drawDamageFlash();
+        drawLowHPWarning();
+        drawBossWarning();
+        if (bombAnim > 0) drawBombEffect();
+        drawBossUI();
+      }
       ctx.restore();
       drawWaveClear();
       drawUI();
@@ -7226,16 +7272,6 @@ function loop(timestamp) {
     updateShockwaves(timeScale);
     waveLogic();
 
-    // Achievement notifications
-    if (!activeNotification && achievementNotifications.length > 0) {
-      activeNotification = achievementNotifications.shift();
-      notificationTimer = 180; // 3 seconds @ 60fps
-    }
-    if (activeNotification) {
-      notificationTimer -= timeScale;
-      if (notificationTimer <= 0) activeNotification = null;
-    }
-
     if (waveClearTimer > 0) waveClearTimer -= timeScale;
     if (announcerTimer > 0) {
       announcerTimer -= timeScale;
@@ -7260,6 +7296,16 @@ function loop(timestamp) {
     if (combo >= 10 && state === STATE.PLAYING) {
       score += Math.floor(combo * 0.05 * timeScale * scoreMultBonus);
     }
+  }
+
+  // Achievement notifications (run regardless of state so they can dismiss)
+  if (!activeNotification && achievementNotifications.length > 0 && state === STATE.PLAYING) {
+    activeNotification = achievementNotifications.shift();
+    notificationTimer = 180; // 3 seconds @ 60fps
+  }
+  if (activeNotification) {
+    notificationTimer -= 1;
+    if (notificationTimer <= 0) activeNotification = null;
   }
 
   playMusicStep();
@@ -7603,8 +7649,73 @@ document.querySelectorAll('.lb-filter').forEach(btn => {
   });
 });
 
+/* ---------- Splash Screen ---------- */
+function startSplashScreen() {
+  const splash = document.getElementById('splash-screen');
+  const progressBar = document.getElementById('splash-progress-bar');
+  const progressGlow = document.getElementById('splash-progress-glow');
+  const statusText = document.getElementById('splash-status');
+  const phases = document.querySelectorAll('.splash-phases .phase');
+  const flash = document.getElementById('splash-flash');
+
+  if (!splash) {
+    showMenu();
+    return;
+  }
+
+  const stageNames = [
+    'Initializing Systems',
+    'Loading Assets',
+    'Configuring Audio',
+    'Calibrating Inputs',
+    'Ready'
+  ];
+
+  const stageDuration = 400;
+  const startDelay = 600;
+  let currentStage = 0;
+
+  function updateStage() {
+    const pct = ((currentStage + 1) / 5) * 100;
+    if (progressBar) progressBar.style.width = pct + '%';
+    if (progressGlow) progressGlow.style.left = pct + '%';
+    if (statusText) statusText.textContent = stageNames[currentStage] || '';
+
+    phases.forEach((ph, idx) => {
+      ph.classList.remove('active', 'done');
+      if (idx < currentStage) ph.classList.add('done');
+      else if (idx === currentStage) ph.classList.add('active');
+    });
+
+    currentStage++;
+    if (currentStage < 5) {
+      setTimeout(updateStage, stageDuration);
+    } else {
+      setTimeout(finishSplash, 400);
+    }
+  }
+
+  function finishSplash() {
+    if (flash) flash.classList.add('trigger');
+    if (statusText) {
+      statusText.textContent = 'Launching...';
+      statusText.style.color = '#88ccff';
+    }
+    setTimeout(() => {
+      splash.classList.add('done');
+      logoTimer = 0; // Skip canvas logo since splash already showed branding
+      showMenu();
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 800);
+    }, 400);
+  }
+
+  setTimeout(updateStage, startDelay);
+}
+
 /* ---------- Start ---------- */
 initStars();
 parseSharedScore();
-showMenu();
+startSplashScreen();
 requestAnimationFrame(loop);

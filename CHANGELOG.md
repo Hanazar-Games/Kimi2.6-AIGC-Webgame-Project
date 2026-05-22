@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.87.0] - 2026-05-22
+
+### Added — Splash Screen Intro Animation
+- Full-screen intro overlay (`z-index: 100`) with 5-stage loading sequence (~3s total)
+- "Hanazar Games" typewriter effect with blue glow + "PRODUCTS" subtitle fade-in
+- "STELLAR DEFENSE" title entrance with glitch displacement effect
+- Animated progress bar with 5 phase indicators (Core → Audio → Input → Starfield → Combat)
+- Light burst transition to main menu, automatic DOM cleanup
+- Pure CSS animations + JS timing control, responsive at 480px and 1440px breakpoints
+
+### Fixed — CRITICAL Runtime Bugs
+- **`checkCollisions()` explosive AOE crash**: `pl` (undefined variable) → `player.powerLevel`; `dmg` Temporal Dead Zone fixed by computing damage before AOE block
+- **Two gameover paths missing `engineGainNode2` stop**: Enemy bullet collision (line ~3860) and enemy body collision (line ~3948) now correctly fade both engine oscillators
+- **`bomberExplode()` missing `playerDeathEffect()`**: Bomber death now triggers explosions, particle shards, and shockwave like all other death paths
+- **Broken keyboard shortcuts**: `BracketLeft`/`BracketRight`/`Minus`/`Equal`/`Tab`/`F2`/`F3`/`F4` key identifiers mismatched `e.key.toLowerCase()` storage — all 8 shortcuts now functional
+- **Achievement notification freeze**: Timer now decrements outside PLAYING block; notifications dismiss properly in PAUSED/MENU/GAMEOVER
+- **`drawLowHPWarning()` heartbeat in menus**: Added `state === STATE.PLAYING` guard to prevent heartbeat SFX firing on menu/pause screens
+
+### Fixed — Audio State Safety
+- `showPause()` now fades both engine gain nodes to 0 (prevents frozen engine hum)
+- `showMenu()` defensively stops engine audio + clears lingering `screen-flash` / `bomb-flash-overlay`
+- `ensureAudio()` now checks `window.AudioContext` existence before construction; `resume()` promise caught
+- 7 SFX functions (`sfxPowerup`, `sfxWaveStart`, `sfxPickupEnergy`, `sfxPickupMagnet`, `sfxPickupScore`, `sfxUpgrade`, `sfxDash`) now guard with `if (!audioCtx) return`
+- `resetGame()` clears `achievementNotifications` queue + `activeNotification` + re-arms engine audio
+- Escape-to-menu now calls `resetGame()` to prevent stale enemies/bullets rendering behind menu overlay
+
+### Fixed — DOM / Animation Leaks
+- `animateCounter()` intervals now self-clear when element is disconnected or state leaves GAMEOVER
+- `animateGameOverStats()` setTimeout callbacks now check `state === STATE.GAMEOVER` before executing
+- `hideWaveAnnouncer()` now resets `announcerTimer = 0` (consistent with `hideBossWarning()`)
+- Splash screen `logoTimer = 0` on finish prevents duplicate canvas logo animation
+
+### Fixed — HTML/CSS
+- Splash internal elements (`splash-progress-bar`, `splash-progress-glow`, `splash-status`) added `id` attributes to match JS `getElementById` lookups
+- Arrow keys now call `e.preventDefault()` to prevent page scrolling during gameplay
+
 ## [1.86.0] - 2026-05-22
 
 ### Added — BGM Multi-Theme Music System

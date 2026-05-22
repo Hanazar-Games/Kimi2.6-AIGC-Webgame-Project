@@ -1355,3 +1355,451 @@ button:active {
   .screen h1 { font-size: 42px; }
   .screen h2 { font-size: 32px; }
 }
+
+/* ============================================
+   SPLASH SCREEN — Intro Animation
+   ============================================ */
+
+#splash-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #000000;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#splash-screen.done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Background radial glow */
+.splash-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, #0a0a25 0%, #050510 40%, #000000 70%);
+  animation: splashBgPulse 3s ease-in-out infinite;
+}
+
+@keyframes splashBgPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+/* Floating stars */
+.splash-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(200,220,255,0.7), transparent),
+    radial-gradient(2px 2px at 130px 80px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 160px 20px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 200px 60px, rgba(180,200,255,0.6), transparent),
+    radial-gradient(1px 1px at 250px 30px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 280px 90px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 320px 50px, rgba(200,220,255,0.8), transparent),
+    radial-gradient(2px 2px at 350px 70px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 380px 25px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 420px 85px, rgba(180,200,255,0.5), transparent),
+    radial-gradient(1px 1px at 450px 45px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 480px 65px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 520px 35px, rgba(200,220,255,0.8), transparent),
+    radial-gradient(2px 2px at 550px 75px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 580px 20px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 620px 80px, rgba(180,200,255,0.6), transparent),
+    radial-gradient(1px 1px at 650px 40px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 680px 60px, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 720px 30px, rgba(200,220,255,0.8), transparent),
+    radial-gradient(2px 2px at 750px 70px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 780px 25px, rgba(255,255,255,0.9), transparent),
+    radial-gradient(2px 2px at 820px 85px, rgba(180,200,255,0.5), transparent),
+    radial-gradient(1px 1px at 850px 45px, rgba(255,255,255,0.7), transparent),
+    radial-gradient(2px 2px at 880px 65px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 920px 35px, rgba(200,220,255,0.8), transparent),
+    radial-gradient(2px 2px at 950px 75px, rgba(255,255,255,0.5), transparent);
+  background-size: 1000px 100px;
+  animation: splashStarsMove 8s linear infinite;
+  opacity: 0;
+  animation-delay: 0.3s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes splashStarsMove {
+  0% { opacity: 0; background-position: 0 0; }
+  20% { opacity: 0.6; }
+  100% { opacity: 0.6; background-position: -1000px 0; }
+}
+
+/* Subtle scanlines */
+.splash-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.05) 3px,
+    rgba(0, 0, 0, 0.05) 6px
+  );
+  pointer-events: none;
+  opacity: 0;
+  animation: splashScanlineFade 0.5s ease 1.5s forwards;
+}
+
+@keyframes splashScanlineFade {
+  to { opacity: 1; }
+}
+
+/* Content wrapper */
+.splash-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  padding: 0 20px;
+}
+
+/* Studio name */
+.splash-studio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  animation: splashStudioIn 0.6s ease 0.2s forwards;
+}
+
+@keyframes splashStudioIn {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.splash-hanazar-wrap {
+  overflow: hidden;
+}
+
+.splash-hanazar {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 8px;
+  color: #88bbff;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(100, 170, 255, 0.4);
+  opacity: 0;
+  animation: splashTypewriter 1s steps(13) 0.4s forwards;
+  white-space: nowrap;
+  clip-path: inset(0 100% 0 0);
+}
+
+@keyframes splashTypewriter {
+  0% { clip-path: inset(0 100% 0 0); opacity: 1; }
+  100% { clip-path: inset(0 0% 0 0); opacity: 1; }
+}
+
+.splash-products-wrap {
+  overflow: hidden;
+}
+
+.splash-products {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 12px;
+  color: #5566aa;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(100%);
+  animation: splashProductsIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.2s forwards;
+}
+
+@keyframes splashProductsIn {
+  0% { opacity: 0; transform: translateY(100%); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Title with glitch */
+.splash-title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 10px 0;
+}
+
+.splash-stellar,
+.splash-defense {
+  position: relative;
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: 12px;
+  color: #ffffff;
+  text-transform: uppercase;
+  opacity: 0;
+  text-shadow: 0 0 40px rgba(100, 180, 255, 0.5);
+}
+
+.splash-stellar {
+  animation: splashTitleIn 0.4s ease 1.4s forwards, splashGlitch1 0.15s ease 1.6s;
+}
+
+.splash-defense {
+  font-size: 42px;
+  letter-spacing: 16px;
+  color: #ff4444;
+  text-shadow: 0 0 40px rgba(255, 80, 80, 0.5);
+  animation: splashTitleIn 0.4s ease 1.55s forwards, splashGlitch2 0.15s ease 1.75s;
+}
+
+@keyframes splashTitleIn {
+  0% { opacity: 0; transform: scale(1.5) translateX(-20px); filter: blur(10px); }
+  100% { opacity: 1; transform: scale(1) translateX(0); filter: blur(0); }
+}
+
+/* Glitch effect for title */
+.glitch-layer::before,
+.glitch-layer::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.splash-stellar.glitch-layer::before {
+  color: #4488ff;
+  animation: splashGlitchCyan 0.15s ease 1.65s;
+}
+.splash-stellar.glitch-layer::after {
+  color: #ff4444;
+  animation: splashGlitchRed 0.15s ease 1.7s;
+}
+
+.splash-defense.glitch-layer::before {
+  color: #ff8844;
+  animation: splashGlitchCyan 0.15s ease 1.8s;
+}
+.splash-defense.glitch-layer::after {
+  color: #ffcc44;
+  animation: splashGlitchRed 0.15s ease 1.85s;
+}
+
+@keyframes splashGlitch1 {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-3px, 2px); }
+  40% { transform: translate(3px, -2px); }
+  60% { transform: translate(-2px, 1px); }
+  80% { transform: translate(2px, -1px); }
+}
+
+@keyframes splashGlitch2 {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(3px, -2px); }
+  40% { transform: translate(-3px, 2px); }
+  60% { transform: translate(2px, -1px); }
+  80% { transform: translate(-2px, 1px); }
+}
+
+@keyframes splashGlitchCyan {
+  0%, 100% { opacity: 0; transform: translate(0); }
+  25% { opacity: 0.8; transform: translateX(4px); }
+  50% { opacity: 0; }
+  75% { opacity: 0.6; transform: translateX(-3px); }
+}
+
+@keyframes splashGlitchRed {
+  0%, 100% { opacity: 0; transform: translate(0); }
+  25% { opacity: 0.8; transform: translateX(-4px); }
+  50% { opacity: 0; }
+  75% { opacity: 0.6; transform: translateX(3px); }
+}
+
+/* Loading section */
+.splash-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 10px;
+  opacity: 0;
+  animation: splashFadeIn 0.5s ease 0.6s forwards;
+}
+
+@keyframes splashFadeIn {
+  to { opacity: 1; }
+}
+
+/* Progress bar */
+.splash-progress-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(80, 120, 200, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.splash-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4488ff, #88ccff);
+  border-radius: 2px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(68, 136, 255, 0.4);
+}
+
+.splash-progress-glow {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 20px;
+  height: 8px;
+  background: radial-gradient(circle, rgba(136, 204, 255, 0.8), transparent 70%);
+  border-radius: 50%;
+  transform: translateX(-10px);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.6;
+}
+
+/* Status text */
+.splash-status {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #6688aa;
+  text-transform: uppercase;
+  font-weight: 600;
+  min-height: 14px;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+/* Loading dots */
+.splash-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.splash-dots span {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(100, 160, 255, 0.3);
+  animation: splashDotPulse 1s ease-in-out infinite;
+}
+
+.splash-dots span:nth-child(1) { animation-delay: 0s; }
+.splash-dots span:nth-child(2) { animation-delay: 0.15s; }
+.splash-dots span:nth-child(3) { animation-delay: 0.3s; }
+.splash-dots span:nth-child(4) { animation-delay: 0.45s; }
+.splash-dots span:nth-child(5) { animation-delay: 0.6s; }
+
+@keyframes splashDotPulse {
+  0%, 100% { transform: scale(1); background: rgba(100, 160, 255, 0.3); }
+  50% { transform: scale(1.6); background: rgba(100, 180, 255, 0.8); box-shadow: 0 0 8px rgba(100, 180, 255, 0.4); }
+}
+
+/* Phase indicators */
+.splash-phases {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 4px;
+}
+
+.splash-phases .phase {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #334466;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(80, 120, 200, 0.1);
+  transition: all 0.3s ease;
+  text-align: center;
+  flex: 1;
+}
+
+.splash-phases .phase.active {
+  color: #88ccff;
+  border-color: rgba(100, 180, 255, 0.3);
+  background: rgba(100, 180, 255, 0.08);
+  text-shadow: 0 0 8px rgba(100, 180, 255, 0.3);
+}
+
+.splash-phases .phase.done {
+  color: #44aa66;
+  border-color: rgba(68, 170, 102, 0.2);
+  background: rgba(68, 170, 102, 0.05);
+}
+
+/* Final flash transition */
+.splash-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.splash-flash.trigger {
+  animation: splashFlashOut 0.8s ease forwards;
+}
+
+@keyframes splashFlashOut {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Responsive splash */
+@media (max-width: 480px) {
+  .splash-hanazar { font-size: 12px; letter-spacing: 5px; }
+  .splash-products { font-size: 8px; letter-spacing: 8px; }
+  .splash-stellar { font-size: 36px; letter-spacing: 8px; }
+  .splash-defense { font-size: 28px; letter-spacing: 10px; }
+  .splash-loading { max-width: 280px; }
+  .splash-phases .phase { font-size: 7px; padding: 2px 3px; }
+}
+
+@media (min-width: 1440px) {
+  .splash-stellar { font-size: 64px; letter-spacing: 16px; }
+  .splash-defense { font-size: 52px; letter-spacing: 20px; }
+  .splash-hanazar { font-size: 18px; }
+}

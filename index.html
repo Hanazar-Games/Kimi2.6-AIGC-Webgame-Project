@@ -8,6 +8,45 @@
 </head>
 <body>
   <div id="game-container">
+    <!-- Splash / Intro Screen -->
+    <div id="splash-screen">
+      <div class="splash-bg"></div>
+      <div class="splash-stars"></div>
+      <div class="splash-scanlines"></div>
+      <div class="splash-content">
+        <div class="splash-studio">
+          <div class="splash-hanazar-wrap">
+            <span class="splash-hanazar">Hanazar Games</span>
+          </div>
+          <div class="splash-products-wrap">
+            <span class="splash-products">PRODUCTS</span>
+          </div>
+        </div>
+        <div class="splash-title-wrap">
+          <div class="splash-stellar glitch-layer" data-text="STELLAR">STELLAR</div>
+          <div class="splash-defense glitch-layer" data-text="DEFENSE">DEFENSE</div>
+        </div>
+        <div class="splash-loading">
+          <div class="splash-progress-track">
+            <div class="splash-progress-bar" id="splash-progress-bar"></div>
+            <div class="splash-progress-glow" id="splash-progress-glow"></div>
+          </div>
+          <div class="splash-status" id="splash-status">Initializing Core Systems</div>
+          <div class="splash-dots">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <div class="splash-phases">
+            <span class="phase active">CORE</span>
+            <span class="phase">AUDIO</span>
+            <span class="phase">INPUT</span>
+            <span class="phase">STARFIELD</span>
+            <span class="phase">COMBAT</span>
+          </div>
+        </div>
+      </div>
+      <div class="splash-flash"></div>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
     <div id="ui-overlay">
       <div id="top-bar">
