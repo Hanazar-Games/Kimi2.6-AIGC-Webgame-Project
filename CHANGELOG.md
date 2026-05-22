@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.87.2] - 2026-05-22
+
+### Fixed — CRITICAL: Enemy Rendering & Logic Structure
+- **Medic enemy had no shooting logic**: Drawing code was incorrectly placed inside `updateEnemies()`; medic now fires green bullets at player
+- **Divider enemy had no shooting logic**: Same structural bug; divider now fires dual blue bullets
+- **Medic/divider rendering relocated**: Moved from `updateEnemies()` (wrong place) to `drawEnemies()` (correct place), restoring proper canvas transform context
+
+### Fixed — Audio Tab-Background Burst
+- `playMusicStep()` now detects `audioCtx.state !== 'running'` and resyncs `musicNextTime` to prevent all scheduled notes from playing simultaneously when tab returns to foreground
+
 ## [1.87.1] - 2026-05-22
 
 ### Fixed — Runtime Stability & Memory Safety

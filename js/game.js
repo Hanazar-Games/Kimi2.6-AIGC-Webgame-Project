@@ -1043,6 +1043,12 @@ function playMusicStep() {
   if (!audioCtx || !musicEnabled) return;
   if (!musicEngine) initMusicEngine();
   if (!musicEngine) return;
+  // Skip scheduling when audio context is suspended (tab in background)
+  // and resync timeline when it comes back to prevent note bursts
+  if (audioCtx.state !== 'running') {
+    musicNextTime = audioCtx.currentTime + 0.1;
+    return;
+  }
 
   // Auto-select theme based on game state
   let targetTheme = 'MENU';
@@ -3307,42 +3313,13 @@ function updateEnemies(timeScale = 1) {
           spawnBullet(e.x, e.y, a, rand(2.5, 3.5), '#ffaa44', true, 5);
         }
       } else if (e.type === 'medic') {
-      ctx.fillStyle = e.color;
-      ctx.beginPath();
-      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
-      ctx.fill();
-      // white cross
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(-3, -8, 6, 16);
-      ctx.fillRect(-8, -3, 16, 6);
-      // heal pulse ring
-      if (e.healTimer <= 15) {
-        const pulse = 1 - e.healTimer / 15;
-        ctx.strokeStyle = `rgba(68, 255, 136, ${pulse * 0.5})`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 0, e.radius + 8 + pulse * 10, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-    } else if (e.type === 'divider') {
-      ctx.fillStyle = e.color;
-      ctx.beginPath();
-      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
-      ctx.fill();
-      // inner pattern
-      ctx.fillStyle = '#88aaff';
-      ctx.beginPath();
-      ctx.arc(0, 0, e.radius * 0.5, 0, Math.PI * 2);
-      ctx.fill();
-      // split count indicator
-      if (e.splitCount > 0) {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(0, 0, e.radius + 4, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-    } else if (e.type === 'sniper') {
+        const a = angleTo(e, player);
+        spawnBullet(e.x, e.y, a, 2.5, '#44ff88', true, 4);
+      } else if (e.type === 'divider') {
+        const a = angleTo(e, player);
+        spawnBullet(e.x, e.y, a, 3.0, '#4466ff', true, 4);
+        spawnBullet(e.x, e.y, a + 0.3, 3.0, '#4466ff', true, 4);
+      } else if (e.type === 'sniper') {
         const a = angleTo(e, player);
         spawnBullet(e.x, e.y, a, 7, '#ff88ff', true, 3);
         e.aimTimer = 20;
@@ -4484,6 +4461,42 @@ function drawEnemies() {
         ctx.font = 'bold 8px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('🛡', 0, -e.radius - 10);
+      }
+    } else if (e.type === 'medic') {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // white cross
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-3, -8, 6, 16);
+      ctx.fillRect(-8, -3, 16, 6);
+      // heal pulse ring
+      if (e.healTimer <= 15) {
+        const pulse = 1 - e.healTimer / 15;
+        ctx.strokeStyle = `rgba(68, 255, 136, ${pulse * 0.5})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius + 8 + pulse * 10, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    } else if (e.type === 'divider') {
+      ctx.fillStyle = e.color;
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.fill();
+      // inner pattern
+      ctx.fillStyle = '#88aaff';
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      // split count indicator
+      if (e.splitCount > 0) {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, e.radius + 4, 0, Math.PI * 2);
+        ctx.stroke();
       }
     } else if (e.type === 'sniper') {
       ctx.fillStyle = e.color;
