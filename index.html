@@ -45,94 +45,124 @@
       </div>
     </div>
     <div id="menu-screen" class="screen active">
-      <h1>STELLAR DEFENSE</h1>
-      <p class="subtitle">Bullet Hell Space Shooter</p>
-      <p id="menu-highscore" style="color:#ffcc44; font-size:14px; margin-top:4px;">High Score: 0</p>
-      <div id="difficulty-select" style="margin: 12px 0;">
-        <button class="diff-btn" data-diff="1">EASY</button>
-        <button class="diff-btn active" data-diff="2">NORMAL</button>
-        <button class="diff-btn" data-diff="3">HARD</button>
-        <button class="diff-btn" data-diff="4">NIGHTMARE</button>
+      <!-- Header Group -->
+      <div class="menu-header">
+        <h1>STELLAR DEFENSE</h1>
+        <p class="subtitle">Bullet Hell Space Shooter</p>
+        <p id="menu-highscore">High Score: 0</p>
       </div>
-      <div id="weapon-select" style="margin: 8px 0;">
-        <p style="color:#88aadd; font-size:11px; margin-bottom:4px;">WEAPON</p>
-        <button class="weapon-btn active" data-weapon="balanced">BALANCED</button>
-        <button class="weapon-btn" data-weapon="spread">SPREAD</button>
-        <button class="weapon-btn" data-weapon="rapid">RAPID</button>
-        <button class="weapon-btn" data-weapon="laser">LASER</button>
-        <button class="weapon-btn" data-weapon="ricochet">RICOCHET</button>
-        <button class="weapon-btn" data-weapon="homing">HOMING</button>
-        <button class="weapon-btn" data-weapon="explosive">EXPLOSIVE</button>
-        <div id="weapon-desc" style="margin-top:6px; padding:6px 8px; background:rgba(20,30,50,0.6); border-radius:4px; font-size:11px; color:#aabbdd; min-height:32px;"></div>
-      </div>
-      <div class="controls-info">
-        <p><kbd>WASD</kbd> / <kbd>Arrows</kbd> Move</p>
-        <p><kbd>Space</kbd> / <kbd>J</kbd> Shoot</p>
-        <p><kbd>B</kbd> Bomb (clear screen)</p>
-        <p><kbd>K</kbd> / <kbd>X</kbd> Dash (while moving)</p>
-        <p><kbd>Shift</kbd> Focus (Slow)</p>
-        <p><kbd>P</kbd> Pause · <kbd>H</kbd> Help</p>
-        <p style="color:#88aadd; font-size:11px; margin-top:4px;">
-          <kbd>Q</kbd> Cycle Weapon · <kbd>1-7</kbd> Select Weapon · <kbd>W</kbd> Weapon Info
-        </p>
-        <p style="color:#88aadd; font-size:11px;">
-          <kbd>Tab</kbd> Stats · <kbd>L</kbd> Achieve · <kbd>E</kbd> Enemies · <kbd>G</kbd> Board · <kbd>I</kbd> Wave
-        </p>
-        <p style="color:#88aadd; font-size:11px;">
-          <kbd>[</kbd>/<kbd>]</kbd> Vol · <kbd>-</kbd>/<kbd>=</kbd> Particles · <kbd>T</kbd> Theme · <kbd>A</kbd> Auto · <kbd>M</kbd> Music
-        </p>
-        <p style="color:#88aadd; font-size:11px;">
-          <kbd>F2</kbd> Screenshot · <kbd>F3</kbd> FPS · <kbd>F4</kbd> Fullscreen
-        </p>
-        <p style="color:#88aadd; font-size:12px; margin-top:4px;">Touch: left drag = move, right = shoot, mid = slow</p>
-      </div>
-      <button id="start-btn">START MISSION</button>
-      <div style="margin-top:10px;">
-        <button id="music-toggle" class="diff-btn" style="padding:6px 14px; font-size:11px;">MUSIC: ON</button>
-        <button id="fullscreen-btn" class="diff-btn" style="padding:6px 14px; font-size:11px;">FULLSCREEN</button>
-        <button id="particle-toggle" class="diff-btn" style="padding:6px 14px; font-size:11px;">PARTICLES: HIGH</button>
-        <button id="fps-toggle" class="diff-btn" style="padding:6px 14px; font-size:11px;">FPS: 60</button>
-        <button id="volume-toggle" class="diff-btn" style="padding:6px 14px; font-size:11px;">VOL: 100%</button>
-        <button id="fps-toggle-display" class="diff-btn" style="padding:6px 14px; font-size:11px;">FPS: ON</button>
-      </div>
-      <div style="margin-top:6px;">
-        <button id="practice-toggle" class="diff-btn" style="padding:4px 10px; font-size:10px;">PRACTICE: OFF</button>
-        <button id="autofire-toggle" class="diff-btn" style="padding:4px 10px; font-size:10px;">AUTO FIRE: OFF</button>
-        <button id="reset-data-btn" class="diff-btn" style="padding:4px 10px; font-size:10px; background:rgba(180,60,60,0.2); border-color:rgba(255,100,100,0.3); color:#ff9999;">RESET ALL DATA</button>
-      </div>
-      <div id="stats-section" style="margin-top:10px; color:#8899bb; font-size:11px; line-height:1.6;">
-        <span id="stat-games">Games: 0</span> · 
-        <span id="stat-kills">Kills: 0</span> · 
-        <span id="stat-bestwave">Best Wave: 0</span><br>
-        <span id="stat-time">Time: 0m</span> · 
-        <span id="stat-combo">Best Combo: 0</span> · 
-        <span id="stat-bosses">Bosses: 0</span><br>
-        <span id="stat-graze">Graze: 0</span> · 
-        <span id="stat-achievements">Achievements: 0/50</span><br>
-        <span id="stat-damage" style="font-size:10px; color:#ff8866;">Damage: 0</span> · 
-        <span id="stat-weapons" style="font-size:10px; color:#667799;">Weapons: —</span>
-      </div>
-      <div id="leaderboard-menu" style="margin-top:10px; max-width:260px;">
-        <p style="color:#88aadd; font-size:12px; letter-spacing:1px; margin-bottom:4px;">TOP SCORES</p>
-        <div id="leaderboard-filters" style="margin-bottom:6px;">
-          <button class="lb-filter diff-btn active" data-filter="0" style="padding:2px 6px; font-size:9px;">ALL</button>
-          <button class="lb-filter diff-btn" data-filter="1" style="padding:2px 6px; font-size:9px; color:#44ff88;">E</button>
-          <button class="lb-filter diff-btn" data-filter="2" style="padding:2px 6px; font-size:9px; color:#aabbdd;">N</button>
-          <button class="lb-filter diff-btn" data-filter="3" style="padding:2px 6px; font-size:9px; color:#ff8844;">H</button>
-          <button class="lb-filter diff-btn" data-filter="4" style="padding:2px 6px; font-size:9px; color:#ff4444;">X</button>
+
+      <!-- Main Selection Group -->
+      <div class="menu-card">
+        <div id="difficulty-select" class="btn-row">
+          <button class="diff-btn" data-diff="1">EASY</button>
+          <button class="diff-btn active" data-diff="2">NORMAL</button>
+          <button class="diff-btn" data-diff="3">HARD</button>
+          <button class="diff-btn" data-diff="4">NIGHTMARE</button>
         </div>
-        <div id="leaderboard-menu-list"></div>
+        <div id="weapon-select" class="btn-row">
+          <button class="weapon-btn active" data-weapon="balanced">BALANCED</button>
+          <button class="weapon-btn" data-weapon="spread">SPREAD</button>
+          <button class="weapon-btn" data-weapon="rapid">RAPID</button>
+          <button class="weapon-btn" data-weapon="laser">LASER</button>
+          <button class="weapon-btn" data-weapon="ricochet">RICOCHET</button>
+          <button class="weapon-btn" data-weapon="homing">HOMING</button>
+          <button class="weapon-btn" data-weapon="explosive">EXPLOSIVE</button>
+        </div>
+        <div id="weapon-desc"></div>
       </div>
-      <div id="achievement-section" style="margin-top:10px; max-width:320px;">
-        <p style="color:#88aadd; font-size:12px; letter-spacing:1px; margin-bottom:6px;">ACHIEVEMENTS <span id="achievement-progress" style="color:#ffcc44; font-size:11px;">0/0</span></p>
-        <div id="achievement-list"></div>
+
+      <!-- Controls Card -->
+      <div class="menu-card controls-card">
+        <div class="controls-grid">
+          <div class="control-item"><kbd>WASD</kbd> <span>Move</span></div>
+          <div class="control-item"><kbd>Space</kbd> <span>Shoot</span></div>
+          <div class="control-item"><kbd>B</kbd> <span>Bomb</span></div>
+          <div class="control-item"><kbd>K</kbd> <span>Dash</span></div>
+          <div class="control-item"><kbd>Shift</kbd> <span>Focus</span></div>
+          <div class="control-item"><kbd>P</kbd> <span>Pause</span></div>
+        </div>
+        <div class="controls-extra">
+          <span><kbd>Q</kbd> Cycle</span>
+          <span><kbd>1-7</kbd> Weapon</span>
+          <span><kbd>Tab</kbd> Stats</span>
+          <span><kbd>M</kbd> Music</span>
+          <span><kbd>F4</kbd> Full</span>
+        </div>
+        <p class="touch-hint">Touch: drag = move, tap right = shoot</p>
       </div>
-      <div id="enemy-log-section" style="margin-top:10px; max-width:320px;">
-        <p style="color:#88aadd; font-size:12px; letter-spacing:1px; margin-bottom:6px;">ENEMY LOG</p>
-        <div id="enemy-log-list" style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center;"></div>
+
+      <!-- Main Action -->
+      <button id="start-btn">START MISSION</button>
+
+      <!-- Settings Row -->
+      <div class="menu-card settings-card">
+        <div class="settings-row">
+          <button id="music-toggle" class="diff-btn">MUSIC: ON</button>
+          <button id="fullscreen-btn" class="diff-btn">FULLSCREEN</button>
+          <button id="particle-toggle" class="diff-btn">PARTICLES: HIGH</button>
+        </div>
+        <div class="settings-row">
+          <button id="fps-toggle" class="diff-btn">FPS: 60</button>
+          <button id="volume-toggle" class="diff-btn">VOL: 100%</button>
+          <button id="fps-toggle-display" class="diff-btn">FPS: ON</button>
+        </div>
+        <div class="settings-row">
+          <button id="practice-toggle" class="diff-btn small">PRACTICE: OFF</button>
+          <button id="autofire-toggle" class="diff-btn small">AUTO FIRE: OFF</button>
+          <button id="reset-data-btn" class="diff-btn small danger">RESET</button>
+        </div>
       </div>
-      <div id="game-tip" style="margin-top:8px; padding:6px 10px; background:rgba(30,50,80,0.4); border-radius:4px; font-size:11px; color:#88aadd; max-width:320px; min-height:20px;"></div>
-      <p style="color:#556688; font-size:10px; margin-top:10px;">v1.85.7 — Built with vanilla JS</p>
+
+      <!-- Stats Card -->
+      <div class="menu-card stats-card">
+        <div id="stats-section">
+          <div class="stat-row">
+            <span id="stat-games">Games: 0</span>
+            <span id="stat-kills">Kills: 0</span>
+            <span id="stat-bestwave">Best Wave: 0</span>
+          </div>
+          <div class="stat-row">
+            <span id="stat-time">Time: 0m</span>
+            <span id="stat-combo">Best Combo: 0</span>
+            <span id="stat-bosses">Bosses: 0</span>
+          </div>
+          <div class="stat-row">
+            <span id="stat-graze">Graze: 0</span>
+            <span id="stat-achievements">Achievements: 0/50</span>
+          </div>
+          <div class="stat-row secondary">
+            <span id="stat-damage">Damage: 0</span>
+            <span id="stat-weapons">Weapons: —</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable Content Area -->
+      <div class="menu-scroll-area">
+        <div id="leaderboard-menu">
+          <p class="section-title">TOP SCORES</p>
+          <div id="leaderboard-filters">
+            <button class="lb-filter diff-btn active" data-filter="0">ALL</button>
+            <button class="lb-filter diff-btn" data-filter="1">E</button>
+            <button class="lb-filter diff-btn" data-filter="2">N</button>
+            <button class="lb-filter diff-btn" data-filter="3">H</button>
+            <button class="lb-filter diff-btn" data-filter="4">X</button>
+          </div>
+          <div id="leaderboard-menu-list"></div>
+        </div>
+        <div id="achievement-section">
+          <p class="section-title">ACHIEVEMENTS <span id="achievement-progress">0/0</span></p>
+          <div id="achievement-list"></div>
+        </div>
+        <div id="enemy-log-section">
+          <p class="section-title">ENEMY LOG</p>
+          <div id="enemy-log-list"></div>
+        </div>
+      </div>
+
+      <div id="game-tip"></div>
+      <p class="version-text">v1.85.7 — Built with vanilla JS</p>
     </div>
     <div id="pause-screen" class="screen">
       <h2>PAUSED</h2>
@@ -161,7 +191,7 @@
         <p style="color:#88aadd; font-size:12px; margin-top:6px; border-top:1px solid #334466; padding-top:6px;">
           Enemies: <span id="pause-enemies" style="color:#ffaa88;">0</span> · 
           Streak: <span id="pause-streak" style="color:#ffcc44;">0</span> · 
-          Bosses: <span id="pause-bosses" style="color:#ff8888;">0</span> · 
+          Bosses: <span id="pause-bosses-detail" style="color:#ff8888;">0</span> · 
           Damage: <span id="pause-damage" style="color:#ff6644;">0</span>
         </p>
         <p style="color:#556688; font-size:10px; margin-top:6px; border-top:1px solid #334466; padding-top:6px;">
@@ -193,6 +223,33 @@
       <button id="screenshot-btn" class="diff-btn" style="padding:8px 20px; font-size:12px; margin-bottom:8px;">SCREENSHOT</button>
       <button id="restart-btn">RETRY</button>
       <button id="checkpoint-btn" class="diff-btn" style="padding:8px 20px; font-size:12px; margin-top:6px; display:none;">CONTINUE FROM CHECKPOINT</button>
+    </div>
+
+    <!-- Wave Announcer Overlay -->
+    <div id="wave-announcer">
+      <div class="scanlines"></div>
+      <div class="announcer-text" id="announcer-main">WAVE 1</div>
+      <div class="announcer-sub" id="announcer-sub"></div>
+    </div>
+
+    <!-- Achievement Notification (Upgraded) -->
+    <div id="achievement-notification">
+      <div class="ach-badge">🏆</div>
+      <div class="ach-title">Achievement Unlocked</div>
+      <div class="ach-name" id="ach-notify-name">Name</div>
+      <div class="ach-desc" id="ach-notify-desc">Description</div>
+    </div>
+
+    <!-- Screen Flash Overlay -->
+    <div id="screen-flash"></div>
+
+    <!-- Bomb Flash Overlay -->
+    <div id="bomb-flash-overlay"></div>
+
+    <!-- Boss Warning Overlay -->
+    <div id="boss-warning-overlay">
+      <div class="boss-warning-text">⚠ WARNING ⚠</div>
+      <div class="announcer-sub" style="color:#ff8888; margin-top:4px;">BOSS APPROACHING</div>
     </div>
   </div>
   <script src="js/game.js"></script>

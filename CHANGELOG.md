@@ -2,6 +2,70 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.86.0] - 2026-05-22
+
+### Added — BGM Multi-Theme Music System
+- Complete procedural music engine with 5 dynamic themes
+  - `MENU`: Ambient space pad + gentle arpeggios at 72 BPM
+  - `COMBAT`: Driving electronic beat + bassline + lead synth at 118 BPM
+  - `BOSS`: Tense synth + deep bass + urgent arpeggios at 138 BPM
+  - `ELITE`: High-intensity rhythm + dense arpeggios at 128 BPM
+  - `GAMEOVER`: Melancholic descending melody at 60 BPM
+- 4-track architecture: bass, lead, pad, arp — each with independent volume
+- Crossfade transitions: 1.2s smooth theme switching with cubic ease-in-out
+- Global effects chain: DynamicsCompressorNode + ConvolverNode synthetic reverb
+- Sidechain ducking: Music dips 50% during explosions/bombs for clarity
+- Auto-theme selection based on game state (wave type, boss presence)
+
+### Added — SFX Spatial Audio & Effects
+- Stereo panning (`StereoPannerNode`): enemy sounds positioned by screen X
+- Enhanced engine sound: sawtooth overtone + LFO pitch wobble for mechanical feel
+- New sound effects: `sfxGraze` (panned), `sfxWaveTransition`, `sfxMenuHover`, `sfxMenuClickEnhanced`, `sfxCountdown`
+- Audio ducking integrated into `sfxExplosion()` and `sfxBomb()`
+
+### Added — UI/UX Visual Overhaul
+- Screen transition animations: opacity + transform smooth transitions
+  - Pause slides from top, Game Over rises from bottom
+- Wave announcer overlay: elastic scale pop with scanline effect
+- Boss warning overlay: pulsing red "WARNING" with radial vignette
+- Achievement notification upgrade: golden badge spin-in with stagger text
+- Game Over glitch effect: RGB channel shift + clip-path distortion
+- Low HP screen edge vignette: pulsing red inset shadow
+- Screen flash on damage, bomb radial flash on explosion
+- HUD enhancement: frosted glass backgrounds (`backdrop-filter: blur`)
+
+### Added — Responsive Design System
+- 10 media query breakpoints covering all devices
+  - `< 480px` phones, `480-767px` large phones, `768-1023px` tablets
+  - `1024-1439px` desktop, `≥1440px` wide, `≥1920px` ultra-wide
+- Portrait orientation handling for phones and tablets
+- Touch device optimizations (`hover: none` media query)
+- Flexible `#game-container` sizing with `aspect-ratio` support
+
+### Added — Menu Layout Rebuild
+- Card-based information hierarchy with `.menu-card` containers
+- Controls grid: 3×2 keyboard layout instead of 9 lines of text
+- Settings grouped into 3 compact rows
+- Stats displayed in flex rows with visual separators
+- Scrollable content area for leaderboard/achievements/enemy log
+- Custom thin scrollbar styling
+
+### Added — Button Animation System
+- Shimmer sweep effect on hover (`button::before` gradient sweep)
+- Magnetic hover: `translateY(-3px) scale(1.02)` with multi-layer glow
+- Press ripple: `::after` pseudo-element expanding from center
+- Difficulty button pulse animation with unique colors per difficulty
+- Weapon button hover tints matching weapon theme colors
+- Elastic transition curve: `cubic-bezier(0.34, 1.56, 0.64, 1)`
+
+### Fixed
+- `isBeta` duplicate `const` declaration causing SyntaxError
+- Overlay (wave announcer / boss warning) not hidden on state transitions
+- `engineOsc2` not stopped on gameover/menu transitions
+- `health-text` DOM access without null check
+- CSS `.screen` duplicate definition
+- Duplicate `pause-bosses` ID in HTML
+
 ## [1.72.3] - 2026-05-13
 
 ### Added
