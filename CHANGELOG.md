@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.87.3] - 2026-05-22
+
+### Fixed — CRITICAL: Laser Bullet & Achievement Logic
+- **`b.hitTimer` never decremented**: Laser bullets permanently blocked after first hit; fixed by adding `b.hitTimer -= timeScale` in `updateBullets()`
+- **`piercing_shot` achievement impossible**: Required 3 laser hits, but `hitTimer` freeze prevented any follow-up hits — now unlockable
+- **`elite_wave_survivor` impossible on wave 10/20/30...**: Elite waves overlap with boss waves; boss-clear branch now checks `eliteWave` and increments counter
+- **`century` achievement used lifetime kills**: Described "100 enemies in one run" but checked `stats.kills` (persistent across all runs); now tracks `runKills` (per-run counter)
+
+### Fixed — Canvas Rendering Paths
+- **30fps skip-frame**: `drawPlanets()` was called twice instead of `drawPlanets()` + `drawMeteors()`
+- **hitstop path**: Missing `drawPlanets()` and `drawMeteors()`
+- **rewardSelectActive path**: Missing `drawMeteors()`
+
 ## [1.87.2] - 2026-05-22
 
 ### Fixed — CRITICAL: Enemy Rendering & Logic Structure

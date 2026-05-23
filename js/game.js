@@ -1501,6 +1501,7 @@ let balancedKills = 0;
 let bombKills = 0;
 let eliteKills = 0;
 let mineKills = 0;
+let runKills = 0;
 let dashCount = 0;
 let powerupsCollected = 0;
 
@@ -2821,6 +2822,10 @@ function waveLogic() {
     waveClearWave = wave;
     waveClearPerfect = false;
     waveClearIsBoss = true;
+    if (eliteWave) {
+      eliteWavesSurvived++;
+      unlockAchievement('elite_wave_survivor');
+    }
     // boss defeat particle burst
     const bossBurstCount = particleDensity === 0 ? 30 : particleDensity === 1 ? 50 : 70;
     for (let k = 0; k < bossBurstCount; k++) {
@@ -3395,6 +3400,7 @@ function updateBullets(arr, timeScale = 1) {
     }
     if (b.laser) {
       b.life -= timeScale;
+      if (b.hitTimer > 0) b.hitTimer -= timeScale;
       if (b.life <= 0) {
         arr.splice(i, 1);
         continue;
@@ -3766,8 +3772,9 @@ function checkCollisions() {
           }
           enemyKillsLog[e.type] = (enemyKillsLog[e.type] || 0) + 1;
           stats.kills++;
-          if (stats.kills >= 100) unlockAchievement('century');
-          if ([50, 100, 200, 500].includes(stats.kills)) {
+          runKills++;
+          if (runKills >= 100) unlockAchievement('century');
+          if ([50, 100, 200, 500].includes(runKills)) {
             spawnFloatingText(W / 2, H / 2 - 60, `KILL MILESTONE: ${stats.kills}!`, '#ffee44');
             shake = Math.max(shake, 8);
             sfxMilestone();
@@ -6500,6 +6507,7 @@ function resetGame() {
   bombKills = 0;
   eliteKills = 0;
   mineKills = 0;
+  runKills = 0;
   dashCount = 0;
   powerupsCollected = 0;
 
@@ -7164,7 +7172,7 @@ function loop(timestamp) {
     skipFrame = !skipFrame;
     if (skipFrame) {
       drawPlanets();
-      drawPlanets();
+      drawMeteors();
       drawStars();
       drawNebulae();
       drawAsteroids();
@@ -7225,6 +7233,7 @@ function loop(timestamp) {
       drawNebulae();
       drawPlanets();
       drawAsteroids();
+      drawMeteors();
       drawPlayer();
       drawEnemies();
       drawBullets(bullets);
@@ -7255,7 +7264,9 @@ function loop(timestamp) {
       hitstop -= timeScale;
       drawStars();
       drawNebulae();
+      drawPlanets();
       drawAsteroids();
+      drawMeteors();
       drawPlayer();
       drawEnemies();
       drawBullets(bullets);
