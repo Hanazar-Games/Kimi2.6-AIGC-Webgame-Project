@@ -1831,6 +1831,7 @@ const stars = [];
 const texts = [];
 const powerups = [];
 const warnings = [];
+const shockwaves = [];
 
 /* ---------- Starfield (parallax) ---------- */
 let nebulae = [];
@@ -6825,6 +6826,10 @@ if (screenshotBtn) {
 }
 
 /* ---------- Event Listeners ---------- */
+let mouseDown = false;
+document.addEventListener('mousedown', () => { mouseDown = true; });
+document.addEventListener('mouseup', () => { mouseDown = false; });
+
 // Global button click sound (excludes buttons with their own sfx)
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('button');
