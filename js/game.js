@@ -1281,6 +1281,7 @@ let grazeTimer = 0;
 let dashCooldown = 0;
 let dashing = 0;
 let damageFlash = 0;
+let hitstop = 0;
 let comboBurstFlash = 0;
 let waveAlertTimer = 0;
 let waveAlertType = null; // 'elite' or 'boss'
