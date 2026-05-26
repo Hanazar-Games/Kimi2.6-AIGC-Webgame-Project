@@ -2438,6 +2438,7 @@ let waveTimer = 0;
 let enemiesToSpawn = 0;
 let spawnTimer = 0;
 let bossSpawned = false;
+let nextSpawnType = null;
 
 function checkWaveAchievements() {
   if (usedWeapons.size >= 7) unlockAchievement('weapon_master');
@@ -2495,6 +2496,7 @@ function startWave() {
   }
   waveTimer = 0;
   bossSpawned = false;
+  nextSpawnType = null;
   // Smoother difficulty curve: slower early, steeper later
   const count = wave <= 3 ? 3 + wave : 4 + Math.floor(wave * 1.3 + (wave > 10 ? (wave - 10) * 0.3 : 0));
   enemiesToSpawn = count;
@@ -2713,40 +2715,46 @@ function useBomb() {
   player.invincible = Math.max(player.invincible, 120);
 }
 
+function rollEnemyType() {
+  const roll = Math.random();
+  let type = 'drone';
+  if (waveTheme === 'SWARM') {
+    if (wave >= 2 && roll < 0.45) type = 'swarmer';
+    else if (wave >= 6 && roll < 0.70) type = 'splitter';
+  } else if (waveTheme === 'ASSAULT') {
+    if (wave >= 3 && roll < 0.35) type = 'hunter';
+    else if (wave >= 7 && roll < 0.60) type = 'bomber';
+  } else if (waveTheme === 'FORTRESS') {
+    if (wave >= 5 && roll < 0.30) type = 'tank';
+    else if (wave >= 8 && roll < 0.55) type = 'shielder';
+    else if (wave >= 11 && roll < 0.70) type = 'mine';
+  } else if (waveTheme === 'SNIPER') {
+    if (wave >= 4 && roll < 0.30) type = 'sniper';
+    else if (wave >= 9 && roll < 0.50) type = 'medic';
+  } else if (waveTheme === 'DIVIDE') {
+    if (wave >= 10 && roll < 0.45) type = 'divider';
+  } else {
+    if (wave >= 2 && roll < 0.20) type = 'swarmer';
+    if (wave >= 3 && roll < 0.28) type = 'hunter';
+    if (wave >= 4 && roll < 0.12) type = 'sniper';
+    if (wave >= 5 && roll < 0.18) type = 'tank';
+    if (wave >= 6 && roll < 0.25) type = 'splitter';
+    if (wave >= 7 && roll < 0.30) type = 'bomber';
+    if (wave >= 8 && roll < 0.22) type = 'shielder';
+    if (wave >= 9 && roll < 0.28) type = 'medic';
+    if (wave >= 10 && roll < 0.20) type = 'divider';
+    if (wave >= 11 && roll < 0.15) type = 'mine';
+    if (wave >= 12 && roll < 0.18) type = 'phantom';
+  }
+  return type;
+}
+
 function waveLogic() {
   if (enemiesToSpawn > 0) {
     spawnTimer--;
-    // Determine next enemy type early so warning can show correct color
-    const roll = Math.random();
-    let type = 'drone';
-    if (waveTheme === 'SWARM') {
-      if (wave >= 2 && roll < 0.45) type = 'swarmer';
-      else if (wave >= 6 && roll < 0.70) type = 'splitter';
-    } else if (waveTheme === 'ASSAULT') {
-      if (wave >= 3 && roll < 0.35) type = 'hunter';
-      else if (wave >= 7 && roll < 0.60) type = 'bomber';
-    } else if (waveTheme === 'FORTRESS') {
-      if (wave >= 5 && roll < 0.30) type = 'tank';
-      else if (wave >= 8 && roll < 0.55) type = 'shielder';
-      else if (wave >= 11 && roll < 0.70) type = 'mine';
-    } else if (waveTheme === 'SNIPER') {
-      if (wave >= 4 && roll < 0.30) type = 'sniper';
-      else if (wave >= 9 && roll < 0.50) type = 'medic';
-    } else if (waveTheme === 'DIVIDE') {
-      if (wave >= 10 && roll < 0.45) type = 'divider';
-    } else {
-      // normal spawn rates
-      if (wave >= 2 && roll < 0.20) type = 'swarmer';
-      if (wave >= 3 && roll < 0.28) type = 'hunter';
-      if (wave >= 4 && roll < 0.12) type = 'sniper';
-      if (wave >= 5 && roll < 0.18) type = 'tank';
-      if (wave >= 6 && roll < 0.25) type = 'splitter';
-      if (wave >= 7 && roll < 0.30) type = 'bomber';
-      if (wave >= 8 && roll < 0.22) type = 'shielder';
-      if (wave >= 9 && roll < 0.28) type = 'medic';
-      if (wave >= 10 && roll < 0.20) type = 'divider';
-      if (wave >= 11 && roll < 0.15) type = 'mine';
-      if (wave >= 12 && roll < 0.18) type = 'phantom';
+    // Determine enemy type once when warning triggers so color matches actual spawn
+    if (spawnTimer === 45 && enemiesToSpawn > 0 && !nextSpawnType) {
+      nextSpawnType = rollEnemyType();
     }
     // spawn warning
     if (spawnTimer === 45 && enemiesToSpawn > 0) {
@@ -2755,13 +2763,16 @@ function waveLogic() {
       if (side === 0) { wx = rand(30, W - 30); wy = 8; wa = Math.PI / 2; }
       else if (side === 1) { wx = W - 8; wy = rand(30, H * 0.6); wa = Math.PI; }
       else { wx = 8; wy = rand(30, H * 0.6); wa = 0; }
+      const type = nextSpawnType || 'drone';
       const warnColor = type === 'bomber' ? '#ff4444' : type === 'shielder' ? '#44ddaa' : type === 'medic' ? '#44ff88' : type === 'splitter' ? '#cc44ff' : type === 'divider' ? '#4466ff' : '#ffcc44';
       if (warnings.length >= 30) warnings.shift();
       warnings.push({ x: wx, y: wy, angle: wa, life: 45, color: warnColor });
     }
     if (spawnTimer <= 0) {
       spawnTimer = Math.max(18, 55 - wave * 3);
+      const type = nextSpawnType || rollEnemyType();
       spawnEnemy(type);
+      nextSpawnType = null;
       enemiesToSpawn--;
     }
   } else if (enemies.length === 0 && !bossSpawned) {
