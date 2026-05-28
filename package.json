@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "acorn": "^8.16.0",
+    "puppeteer": "^23.11.1"
+  }
+}
