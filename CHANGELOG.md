@@ -2,6 +2,73 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.89.0] - 2026-06-07
+
+### Fixed — CRITICAL: Post-v1.88 Review Fixes
+- **rewardSelectActive branch duplicate draw calls**: `drawTimeStopEffect`/`drawDeathEffect`/`drawPickupFlash`/`drawDamageIndicators`/`drawOffscreenIndicators` were accidentally added twice, causing alpha stacking and over-bright effects
+- **hitstop branch missing overlay draws**: Same 5 overlay functions absent in hitstop freeze path; now restored
+- **`useBomb()` special death behaviors not applied**: Previous patch failed to insert splitter/bomber/mine/boss/phantom/shielder/medic/divider handling and achievement unlocks; now correctly added
+
+### Fixed — Audio & SFX
+- **`sfxShoot` explosive branch double-connect**: `g.connect(audioCtx.destination)` called twice in explosive weapon branch, doubling perceived volume
+- **`sfxBomb()` ignored `masterVolume`**: Bomb explosion played at fixed 0.2 gain regardless of volume setting; now multiplied by `masterVolume`
+- **BGM did not respond to volume changes**: `[`/`]` shortcuts and volume button only updated SFX/Engine; `updateMusicTrackVolumes()` now called on every volume change
+- **`sfxEnemyDeath` setTimeout safety**: All delayed `playTone` callbacks now guard with `if (audioCtx)` to prevent crashes if audio context is destroyed
+
+### Fixed — CSS & HTML Polish
+- **Media query 768px boundary overlap**: `(max-width: 768px)` overlapped with tablet `(min-width: 768px)` at exactly 768px; changed to 767px
+- **Merged duplicate 481–767px media queries**: Responsive HUD rules merged into single small-tablet query to eliminate redundancy
+- **Restored `.diff-btn`/`.weapon-btn` transition rules**: Removing "duplicate" rules actually regressed `:active` scale from 0.94→0.97/0.95 and transition timing; restored with proper placement
+- **Additional low-contrast colors missed**: `.splash-status`, `.enemy-desc`, `.splash-products`, and inline pause-screen hint color updated to `#88aacc`
+- **`boss-warning-overlay` z-index revision**: Raised to 14 (equal with bomb-flash) to avoid遮挡 wave-announcer (15)
+
+### Fixed — Input & Help
+- **Help overlay showed old shortcuts**: Still displayed `W — Weapon info` and `A — Auto fire` after rebinding to `V` and `U`; corrected
+- **`showMenu()` null check**: Added defensive check for `#menu-screen` before `classList.add('active')`
+
+## [1.88.0] - 2026-06-07
+
+### Fixed — CRITICAL: Game Logic & Rendering
+- **`showGameOver()` stats variable shadowing**: Local `stats` (NodeList) shadowed global `stats` object, causing `final-kills` to display `undefined` and weapon stars to always show 0
+- **Explosive AOE ghost enemies**: AOE damage reduced HP but never removed killed enemies from array; they continued moving/shooting until off-screen. Now dead AOE targets are immediately spliced out
+- **`useBomb()` missing special death behaviors**: Bomber killed by bomb didn't explode, splitter didn't split, and achievements (`first_blood`, `bomber_down`, `splitter_down`, `mine_sweeper`) were unreachable via bomb
+- **Divider bullet piercing bug**: `continue` after `splitDivider()` let the same bullet hit additional enemies; changed to `break`
+- **Phantom invisible collision**: Invisible phantoms could still collide with and damage player; now skipped in enemy-vs-player collision
+- **Sniper `aimTimer` never decremented**: Aim line stayed visible forever; now decrements in `updateEnemies()`
+- **Boss `enraged` uninitialized**: Added explicit `enraged: false` in `spawnEnemy()` boss branch
+
+### Fixed — Input & Controls
+- **Shortcut key clear used wrong key names**: `keys['F2']`, `keys['Tab']`, `keys['BracketLeft']` etc. cleared non-existent keys, causing continuous triggering. Fixed to lowercase (`f2`, `tab`, `[`)
+- **WASD `a`/`w` key conflicts**: `a` (auto-fire toggle) blocked left movement; `w` (weapon info) blocked up movement. Rebound to `u` and `v`
+- **Tab key default not prevented**: Browser focus could leave canvas; now `e.preventDefault()` on Tab
+- **Virtual joystick stuck on finger slide-out**: `touchActive` remained true when finger slid out of move zone; now deactivates on slide-out
+- **Touch `getBoundingClientRect()` uncached**: Forced reflow on every touch event; now cached with `resize`/`scroll` listeners
+- **`keys` object memory leak**: `keyup` set `false` but never deleted properties; now uses `delete`
+
+### Fixed — Rendering Pipeline
+- **30fps skipFrame double background draw**: `drawPlanets/Meteors/Stars/Nebulae/Asteroids` drawn twice per skip frame; removed duplicate draw calls
+- **30fps/hitstop/rewardSelect missing draw calls**: Added `drawTimeStopEffect`, `drawDeathEffect`, `drawPickupFlash`, `drawDamageIndicators`, `drawOffscreenIndicators`
+- **COUNTDOWN missing `updateShockwaves`**: Shockwaves frozen during countdown; now updated
+- **Particle/shockwave cap bypasses**: `playerDeathEffect()`, score milestone burst, and `drawWaveClear()` particles could exceed 300 limit; now capped
+- **`drawDamageFlash` alpha overflow**: `globalAlpha` could reach 1.26; now clamped to 1.0
+- **Offscreen indicator filter incomplete**: Added `phantom`, `divider`, `turret`, `mine` to high-threat whitelist
+
+### Fixed — UI/UX & CSS
+- **CSS `@media (max-width: 768px)` overrode 480px rules**: Mobile styles broken on ≤480px screens; changed to `(min-width: 481px) and (max-width: 768px)`
+- **Color contrast too low**: `.version-text` (#556688 → #88aacc) and `.touch-hint` (#6688aa → #88aacc) for WCAG AA compliance
+- **Missing `prefers-reduced-motion`**: Added media query to disable animations for accessibility
+- **z-index layering conflict**: `boss-warning-overlay` (13) was below `bomb-flash-overlay` (14); raised to 16
+- **CSS duplicate transition rules**: Removed redundant `.diff-btn`/`.weapon-btn` transition declarations
+- **HTML buttons missing `type="button"`**: All `<button>` elements now explicitly typed
+- **Version number inconsistency**: Unified to `v1.88.0` across `index.html` and `game.js`
+
+### Fixed — State & Persistence
+- **`resetGame()` missing array clears**: `damageIndicators` and `meteors` not reset between runs; added
+- **`resetGame()` missing `comboScale` reset**: UI could start with wrong scale; added
+- **`loadStats()` shallow merge data pollution**: `saved` fields could inject unexpected keys; now uses whitelist merge
+- **`showGameOver()` `goScreen` null check**: Added defensive check before DOM manipulation
+- **`pause-bosses` duplicate assignment**: Removed redundant second assignment
+
 ## [1.87.3] - 2026-05-22
 
 ### Fixed — CRITICAL: Laser Bullet & Achievement Logic

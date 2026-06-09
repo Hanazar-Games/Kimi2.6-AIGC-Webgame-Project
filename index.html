@@ -95,19 +95,19 @@
       <!-- Main Selection Group -->
       <div class="menu-card">
         <div id="difficulty-select" class="btn-row">
-          <button class="diff-btn" data-diff="1">EASY</button>
-          <button class="diff-btn active" data-diff="2">NORMAL</button>
-          <button class="diff-btn" data-diff="3">HARD</button>
-          <button class="diff-btn" data-diff="4">NIGHTMARE</button>
+          <button type="button" class="diff-btn" data-diff="1">EASY</button>
+          <button type="button" class="diff-btn active" data-diff="2">NORMAL</button>
+          <button type="button" class="diff-btn" data-diff="3">HARD</button>
+          <button type="button" class="diff-btn" data-diff="4">NIGHTMARE</button>
         </div>
         <div id="weapon-select" class="btn-row">
-          <button class="weapon-btn active" data-weapon="balanced">BALANCED</button>
-          <button class="weapon-btn" data-weapon="spread">SPREAD</button>
-          <button class="weapon-btn" data-weapon="rapid">RAPID</button>
-          <button class="weapon-btn" data-weapon="laser">LASER</button>
-          <button class="weapon-btn" data-weapon="ricochet">RICOCHET</button>
-          <button class="weapon-btn" data-weapon="homing">HOMING</button>
-          <button class="weapon-btn" data-weapon="explosive">EXPLOSIVE</button>
+          <button type="button" class="weapon-btn active" data-weapon="balanced">BALANCED</button>
+          <button type="button" class="weapon-btn" data-weapon="spread">SPREAD</button>
+          <button type="button" class="weapon-btn" data-weapon="rapid">RAPID</button>
+          <button type="button" class="weapon-btn" data-weapon="laser">LASER</button>
+          <button type="button" class="weapon-btn" data-weapon="ricochet">RICOCHET</button>
+          <button type="button" class="weapon-btn" data-weapon="homing">HOMING</button>
+          <button type="button" class="weapon-btn" data-weapon="explosive">EXPLOSIVE</button>
         </div>
         <div id="weapon-desc"></div>
       </div>
@@ -133,24 +133,24 @@
       </div>
 
       <!-- Main Action -->
-      <button id="start-btn">START MISSION</button>
+      <button type="button" id="start-btn">START MISSION</button>
 
       <!-- Settings Row -->
       <div class="menu-card settings-card">
         <div class="settings-row">
-          <button id="music-toggle" class="diff-btn">MUSIC: ON</button>
-          <button id="fullscreen-btn" class="diff-btn">FULLSCREEN</button>
-          <button id="particle-toggle" class="diff-btn">PARTICLES: HIGH</button>
+          <button type="button" id="music-toggle" class="diff-btn">MUSIC: ON</button>
+          <button type="button" id="fullscreen-btn" class="diff-btn">FULLSCREEN</button>
+          <button type="button" id="particle-toggle" class="diff-btn">PARTICLES: HIGH</button>
         </div>
         <div class="settings-row">
-          <button id="fps-toggle" class="diff-btn">FPS: 60</button>
-          <button id="volume-toggle" class="diff-btn">VOL: 100%</button>
-          <button id="fps-toggle-display" class="diff-btn">FPS: ON</button>
+          <button type="button" id="fps-toggle" class="diff-btn">FPS: 60</button>
+          <button type="button" id="volume-toggle" class="diff-btn">VOL: 100%</button>
+          <button type="button" id="fps-toggle-display" class="diff-btn">FPS: ON</button>
         </div>
         <div class="settings-row">
-          <button id="practice-toggle" class="diff-btn small">PRACTICE: OFF</button>
-          <button id="autofire-toggle" class="diff-btn small">AUTO FIRE: OFF</button>
-          <button id="reset-data-btn" class="diff-btn small danger">RESET</button>
+          <button type="button" id="practice-toggle" class="diff-btn small">PRACTICE: OFF</button>
+          <button type="button" id="autofire-toggle" class="diff-btn small">AUTO FIRE: OFF</button>
+          <button type="button" id="reset-data-btn" class="diff-btn small danger">RESET</button>
         </div>
       </div>
 
@@ -183,11 +183,11 @@
         <div id="leaderboard-menu">
           <p class="section-title">TOP SCORES</p>
           <div id="leaderboard-filters">
-            <button class="lb-filter diff-btn active" data-filter="0">ALL</button>
-            <button class="lb-filter diff-btn" data-filter="1">E</button>
-            <button class="lb-filter diff-btn" data-filter="2">N</button>
-            <button class="lb-filter diff-btn" data-filter="3">H</button>
-            <button class="lb-filter diff-btn" data-filter="4">X</button>
+            <button type="button" class="lb-filter diff-btn active" data-filter="0">ALL</button>
+            <button type="button" class="lb-filter diff-btn" data-filter="1">E</button>
+            <button type="button" class="lb-filter diff-btn" data-filter="2">N</button>
+            <button type="button" class="lb-filter diff-btn" data-filter="3">H</button>
+            <button type="button" class="lb-filter diff-btn" data-filter="4">X</button>
           </div>
           <div id="leaderboard-menu-list"></div>
         </div>
@@ -202,7 +202,7 @@
       </div>
 
       <div id="game-tip"></div>
-      <p class="version-text">v1.85.7 — Built with vanilla JS</p>
+      <p class="version-text">v1.89.0 — Built with vanilla JS</p>
     </div>
     <div id="pause-screen" class="screen">
       <h2>PAUSED</h2>
@@ -234,11 +234,11 @@
           Bosses: <span id="pause-bosses-detail" style="color:#ff8888;">0</span> · 
           Damage: <span id="pause-damage" style="color:#ff6644;">0</span>
         </p>
-        <p style="color:#556688; font-size:10px; margin-top:6px; border-top:1px solid #334466; padding-top:6px;">
+        <p style="color:#88aacc; font-size:10px; margin-top:6px; border-top:1px solid #334466; padding-top:6px;">
           <kbd>P</kbd> Resume · <kbd>H</kbd> Help · <kbd>Q</kbd>/<kbd>1-7</kbd> Weapon · <kbd>[</kbd>/<kbd>]</kbd> Vol · <kbd>M</kbd> Music · <kbd>F4</kbd> Fullscreen · <kbd>Tab</kbd> Stats
         </p>
       </div>
-      <button id="resume-btn">RESUME</button>
+      <button type="button" id="resume-btn">RESUME</button>
     </div>
     <div id="gameover-screen" class="screen">
       <h2>Mission Failed</h2>
@@ -260,9 +260,9 @@
         <div id="leaderboard-list"></div>
       </div>
       <p style="color:#8899bb; font-size:11px; margin-top:6px;">Press <kbd>R</kbd> to retry · <kbd>ESC</kbd> for menu · <kbd>F2</kbd> Screenshot</p>
-      <button id="screenshot-btn" class="diff-btn" style="padding:8px 20px; font-size:12px; margin-bottom:8px;">SCREENSHOT</button>
-      <button id="restart-btn">RETRY</button>
-      <button id="checkpoint-btn" class="diff-btn" style="padding:8px 20px; font-size:12px; margin-top:6px; display:none;">CONTINUE FROM CHECKPOINT</button>
+      <button type="button" id="screenshot-btn" class="diff-btn" style="padding:8px 20px; font-size:12px; margin-bottom:8px;">SCREENSHOT</button>
+      <button type="button" id="restart-btn">RETRY</button>
+      <button type="button" id="checkpoint-btn" class="diff-btn" style="padding:8px 20px; font-size:12px; margin-top:6px; display:none;">CONTINUE FROM CHECKPOINT</button>
     </div>
 
     <!-- Wave Announcer Overlay -->

@@ -196,7 +196,6 @@ function sfxShoot() {
     filter.frequency.setValueAtTime(400, t);
     o.connect(filter);
     filter.connect(g);
-    g.connect(audioCtx.destination);
     o.start(t);
     o.stop(t + 0.22);
   } else {
@@ -482,23 +481,23 @@ function sfxEnemyDeath(type) {
       break;
     case 'hunter':
       playTone(200, 'sawtooth', 0.12, 0.05);
-      setTimeout(() => playTone(100, 'sawtooth', 0.15, 0.04), 40);
+      setTimeout(() => { if (audioCtx) playTone(100, 'sawtooth', 0.15, 0.04); }, 40);
       break;
     case 'tank':
       // Heavy low thud
       playTone(80, 'square', 0.2, 0.07);
-      setTimeout(() => playTone(60, 'sawtooth', 0.25, 0.06), 60);
+      setTimeout(() => { if (audioCtx) playTone(60, 'sawtooth', 0.25, 0.06); }, 60);
       break;
     case 'sniper':
       playTone(600, 'sine', 0.06, 0.03);
-      setTimeout(() => playTone(300, 'sine', 0.1, 0.02), 50);
+      setTimeout(() => { if (audioCtx) playTone(300, 'sine', 0.1, 0.02); }, 50);
       break;
     case 'swarmer':
       playTone(400, 'triangle', 0.04, 0.025);
       break;
     case 'splitter':
       playTone(300, 'sine', 0.06, 0.03);
-      setTimeout(() => playTone(500, 'sine', 0.06, 0.025), 60);
+      setTimeout(() => { if (audioCtx) playTone(500, 'sine', 0.06, 0.025); }, 60);
       break;
     case 'bomber':
       sfxExplosion();
@@ -506,29 +505,29 @@ function sfxEnemyDeath(type) {
     case 'shielder':
       // Shield shatter: glass-like high break
       playTone(1200, 'sine', 0.05, 0.03);
-      setTimeout(() => playTone(800, 'sine', 0.07, 0.025), 40);
-      setTimeout(() => playTone(400, 'sine', 0.09, 0.02), 80);
+      setTimeout(() => { if (audioCtx) playTone(800, 'sine', 0.07, 0.025); }, 40);
+      setTimeout(() => { if (audioCtx) playTone(400, 'sine', 0.09, 0.02); }, 80);
       break;
     case 'medic':
       playTone(700, 'sine', 0.05, 0.025);
-      setTimeout(() => playTone(350, 'sine', 0.08, 0.02), 50);
+      setTimeout(() => { if (audioCtx) playTone(350, 'sine', 0.08, 0.02); }, 50);
       break;
     case 'divider':
       playTone(280, 'sine', 0.06, 0.03);
-      setTimeout(() => playTone(450, 'sine', 0.06, 0.025), 60);
+      setTimeout(() => { if (audioCtx) playTone(450, 'sine', 0.06, 0.025); }, 60);
       break;
     case 'mine':
       playTone(500, 'sawtooth', 0.08, 0.04);
-      setTimeout(() => playTone(250, 'sawtooth', 0.1, 0.03), 50);
+      setTimeout(() => { if (audioCtx) playTone(250, 'sawtooth', 0.1, 0.03); }, 50);
       break;
     case 'turret':
       playTone(350, 'square', 0.08, 0.035);
-      setTimeout(() => playTone(180, 'square', 0.1, 0.03), 60);
+      setTimeout(() => { if (audioCtx) playTone(180, 'square', 0.1, 0.03); }, 60);
       break;
     case 'phantom':
       playTone(800, 'sine', 0.05, 0.025);
-      setTimeout(() => playTone(400, 'sine', 0.08, 0.02), 50);
-      setTimeout(() => playTone(200, 'sine', 0.1, 0.015), 100);
+      setTimeout(() => { if (audioCtx) playTone(400, 'sine', 0.08, 0.02); }, 50);
+      setTimeout(() => { if (audioCtx) playTone(200, 'sine', 0.1, 0.015); }, 100);
       break;
     case 'boss':
       sfxExplosion();
@@ -756,7 +755,7 @@ function sfxBomb() {
   o.type = 'sawtooth';
   o.frequency.setValueAtTime(100, audioCtx.currentTime);
   o.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.8);
-  g.gain.setValueAtTime(0.2, audioCtx.currentTime);
+  g.gain.setValueAtTime(0.2 * masterVolume, audioCtx.currentTime);
   g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
   o.connect(g);
   g.connect(audioCtx.destination);
@@ -1178,6 +1177,7 @@ const keys = {};
 window.addEventListener('keydown', e => {
   keys[e.key.toLowerCase()] = true;
   if (e.key === ' ' || e.key.toLowerCase() === 'p') e.preventDefault();
+  if (e.key.toLowerCase() === 'tab') e.preventDefault();
   if (e.key.startsWith('Arrow')) e.preventDefault();
   if (e.key === 'F12') {
     e.preventDefault();
@@ -1185,7 +1185,7 @@ window.addEventListener('keydown', e => {
   }
 });
 window.addEventListener('keyup', e => {
-  keys[e.key.toLowerCase()] = false;
+  delete keys[e.key.toLowerCase()];
 });
 
 function isDown(k) { return !!keys[k]; }
@@ -1196,14 +1196,22 @@ let touchStartX = 0, touchStartY = 0;
 let touchCurrentX = 0, touchCurrentY = 0;
 let touchShootBtn = false;
 let touchFocusBtn = false;
+let canvasRect = null;
+
+function updateCanvasRect() {
+  canvasRect = canvas.getBoundingClientRect();
+}
+updateCanvasRect();
+window.addEventListener('resize', updateCanvasRect);
+window.addEventListener('scroll', updateCanvasRect);
 
 function initTouch() {
   canvas.addEventListener('touchstart', e => {
     e.preventDefault();
     ensureAudio();
     for (const t of e.changedTouches) {
-      const rx = t.clientX - canvas.getBoundingClientRect().left;
-      const ry = t.clientY - canvas.getBoundingClientRect().top;
+      const rx = t.clientX - canvasRect.left;
+      const ry = t.clientY - canvasRect.top;
       // right half = shoot, left half = move
       if (rx > W * 0.6) {
         touchShootBtn = true;
@@ -1222,23 +1230,22 @@ function initTouch() {
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
     for (const t of e.changedTouches) {
-      const rx = t.clientX - canvas.getBoundingClientRect().left;
-      const ry = t.clientY - canvas.getBoundingClientRect().top;
+      const rx = t.clientX - canvasRect.left;
+      const ry = t.clientY - canvasRect.top;
       if (rx <= W * 0.45) {
         touchCurrentX = rx;
         touchCurrentY = ry;
+      } else if (touchActive) {
+        // Finger slid out of move zone — deactivate joystick
+        touchActive = false;
       }
     }
   }, { passive: false });
 
   canvas.addEventListener('touchend', e => {
     e.preventDefault();
-    for (const t of e.changedTouches) {
-      const rx = t.clientX - canvas.getBoundingClientRect().left;
-      if (rx > W * 0.6) touchShootBtn = false;
-      else if (rx > W * 0.45 && rx <= W * 0.6) touchFocusBtn = false;
-      else touchActive = false;
-    }
+    // Use identifier tracking: if any touch in move/shoot/focus zone ends, clear all
+    // since we don't track individual touch identifiers per zone
     if (e.touches.length === 0) {
       touchActive = false;
       touchShootBtn = false;
@@ -1249,7 +1256,7 @@ function initTouch() {
 initTouch();
 
 /* ---------- Game State ---------- */
-const VERSION = 'v1.87.0';
+const VERSION = 'v1.89.0';
 const STATE = { MENU: 0, PLAYING: 1, PAUSED: 2, GAMEOVER: 3, COUNTDOWN: 4 };
 const THEME_COLORS = { SWARM: '#ff55aa', ASSAULT: '#ff8844', FORTRESS: '#44ddaa', SNIPER: '#ff44ff', DIVIDE: '#4466ff' };
 let state = STATE.MENU;
@@ -1272,8 +1279,7 @@ let waveClearWave = 0;
 let waveClearPerfect = false;
 let waveClearIsBoss = false;
 let eliteWave = false;
-let waveScale = 1;
-let lastWave = 0;
+
 let bombCooldown = 0;
 let bombAnim = 0;
 let grazeCount = 0;
@@ -1379,7 +1385,10 @@ function loadStats() {
     const v = localStorage.getItem('stellar_defense_stats');
     if (v) {
       const saved = JSON.parse(v);
-      stats = { ...stats, ...saved };
+      const allowedKeys = ['games','deaths','kills','bossesDefeated','totalTime','totalGraze','highestCombo','bestWave','weaponUses'];
+      for (const key of allowedKeys) {
+        if (saved[key] !== undefined) stats[key] = saved[key];
+      }
       if (saved.weaponUses) {
         stats.weaponUses = { ...stats.weaponUses, ...saved.weaponUses };
       }
@@ -2134,6 +2143,8 @@ function mineExplode(e) {
   const radius = 35;
   spawnExplosion(e.x, e.y, '#ff4444', 15, true);
   spawnFloatingText(e.x, e.y - 15, 'BOOM!', '#ff4444');
+  mineKills++;
+  if (mineKills >= 20) unlockAchievement('mine_sweeper');
   shake = Math.max(shake, 6);
   const boomAngle = Math.atan2(player.y - e.y, player.x - e.x);
   shakeDirX = Math.cos(boomAngle);
@@ -2322,6 +2333,7 @@ function spawnEnemy(type) {
       base.speed = 0.8;
       base.shootInterval = Math.floor(18 / spdMult);
     }
+    base.enraged = false;
     base.score = 5000;
     base.x = W / 2;
     base.y = -60;
@@ -2708,6 +2720,15 @@ function useBomb() {
       if (Math.random() < 0.15) spawnPowerup(e.x, e.y);
       bombKills++;
       if (bombKills >= 20) unlockAchievement('bomb_specialist');
+      if (e.type === 'splitter') { splitEnemy(e.x, e.y, e.elite); unlockAchievement('splitter_down'); }
+      if (e.type === 'bomber') { bomberExplode(e); unlockAchievement('bomber_down'); }
+      if (e.type === 'mine') { mineKills++; if (mineKills >= 20) unlockAchievement('mine_sweeper'); }
+      if (e.type === 'boss') { unlockAchievement('boss_slayer'); stats.bossesDefeated++; bossesDefeatedThisRun++; }
+      if (e.type === 'phantom') { unlockAchievement('phantom_slayer'); phantomKills++; if (phantomKills >= 10) unlockAchievement('phantom_hunter'); }
+      if (e.type === 'shielder') unlockAchievement('shield_breaker');
+      if (e.type === 'medic') unlockAchievement('medic_down');
+      if (e.type === 'divider') unlockAchievement('divider_down');
+      unlockAchievement('first_blood');
       enemies.splice(i, 1);
     }
   }
@@ -3159,7 +3180,12 @@ function updateEnemies(timeScale = 1) {
       e.spawnDelay -= timeScale;
       continue;
     }
+    if (e.hp <= 0) {
+      enemies.splice(i, 1);
+      continue;
+    }
     e.phase++;
+    if (e.aimTimer > 0) e.aimTimer -= timeScale;
 
     if (e.type === 'drone') {
       e.vy += 0.05 * timeScale;
@@ -3562,14 +3588,26 @@ function checkCollisions() {
           const aoeRadius = 60 + player.powerLevel * 5;
           const aoeDmg = dmg * 0.5;
           spawnExplosion(e.x, e.y, '#ff6633', aoeRadius * 0.4, true);
-          for (const other of enemies) {
+          const aoeDeathIndices = [];
+          for (let oi = enemies.length - 1; oi >= 0; oi--) {
+            const other = enemies[oi];
             if (other === e || other.spawnDelay > 0) continue;
             if (dist({x: e.x, y: e.y}, other) < aoeRadius + other.radius) {
               other.hp -= aoeDmg;
               other.hitFlash = 3;
               spawnFloatingText(other.x, other.y - other.radius - 5, Math.floor(aoeDmg), '#ff8844');
-              if (other.hp <= 0) explosiveKillsThisHit++;
+              if (other.hp <= 0) {
+                explosiveKillsThisHit++;
+                aoeDeathIndices.push(oi);
+              }
             }
+          }
+          // Remove AOE-killed enemies immediately to prevent ghost enemies
+          for (const di of aoeDeathIndices.sort((a, b) => b - a)) {
+            const other = enemies[di];
+            spawnExplosion(other.x, other.y, other.color, 12, true);
+            if (other.type === 'mine') mineExplode(other);
+            enemies.splice(di, 1);
           }
         }
         if (!b.laser) bullets.splice(i, 1);
@@ -3593,7 +3631,7 @@ function checkCollisions() {
         if (e.type === 'divider' && e.splitCount < e.maxSplits && e.hp > 0 && Math.random() < 0.25) {
           splitDivider(e);
           enemies.splice(j, 1);
-          continue;
+          break;
         }
         // knockback scaled by enemy type and damage
         const kbAngle = Math.atan2(b.vy, b.vx);
@@ -3901,7 +3939,9 @@ function playerDeathEffect() {
   }
   // Energy shards
   const shardCount = particleDensity === 0 ? 30 : particleDensity === 1 ? 50 : 70;
-  for (let k = 0; k < shardCount; k++) {
+  const maxNewShards = Math.max(0, 300 - particles.length);
+  const actualShardCount = Math.min(shardCount, maxNewShards);
+  for (let k = 0; k < actualShardCount; k++) {
     const a = rand(0, Math.PI * 2);
     const s = rand(3, 8);
     particles.push({
@@ -3916,7 +3956,9 @@ function playerDeathEffect() {
     });
   }
   // Shockwave
-  shockwaves.push({ x: player.x, y: player.y, radius: 5, maxRadius: 120, life: 40, color: '#ff8844' });
+  if (shockwaves.length < 30) {
+    shockwaves.push({ x: player.x, y: player.y, radius: 5, maxRadius: 120, life: 40, color: '#ff8844' });
+  }
   sfxExplosion();
 }
 
@@ -3925,6 +3967,7 @@ function playerDeathEffect() {
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
       if (e.spawnDelay > 0) continue;
+      if (e.type === 'phantom' && !e.phantomVisible) continue;
       if (dist(e, player) < e.radius + player.radius) {
         player.hp -= practiceMode ? 0 : 15;
         combo = Math.max(0, combo - 3);
@@ -4973,7 +5016,7 @@ function drawComboFlash() {
 function drawDamageFlash() {
   if (damageFlash > 0) {
     const t = damageFlash / 15;
-    const alpha = t * 0.35;
+    const alpha = Math.min(1, t * 0.35);
     ctx.save();
     // Vignette-style radial gradient from edges
     const maxDim = Math.max(W, H);
@@ -4986,7 +5029,7 @@ function drawDamageFlash() {
     ctx.fillRect(0, 0, W, H);
     // Pulsing border glow
     const pulse = 1 + Math.sin(damageFlash * 0.8) * 0.3;
-    ctx.globalAlpha = alpha * 1.8 * pulse;
+    ctx.globalAlpha = Math.min(1, alpha * 1.8 * pulse);
     ctx.strokeStyle = '#ff3333';
     ctx.lineWidth = 3 * pulse;
     ctx.shadowColor = '#ff0000';
@@ -5351,7 +5394,7 @@ function drawOffscreenIndicators() {
     const onScreen = e.x > -margin && e.x < W + margin && e.y > -margin && e.y < H + margin;
     if (onScreen) continue;
     // Only show for boss, elite, or special enemies
-    if (!e.elite && e.type !== 'boss' && e.type !== 'bomber' && e.type !== 'shielder' && e.type !== 'medic') continue;
+    if (!e.elite && e.type !== 'boss' && e.type !== 'bomber' && e.type !== 'shielder' && e.type !== 'medic' && e.type !== 'phantom' && e.type !== 'divider' && e.type !== 'turret' && e.type !== 'mine') continue;
     const angle = Math.atan2(e.y - H / 2, e.x - W / 2);
     const edgeDist = 18;
     let ix = W / 2 + Math.cos(angle) * (W / 2 - edgeDist);
@@ -5766,7 +5809,7 @@ function drawUI() {
       '',
       'Q — Cycle weapon',
       '1-7 — Select weapon directly',
-      'W — Weapon info',
+      'V — Weapon info',
       'Tab — Stats',
       'L — Achievements',
       'E — Enemy log',
@@ -5776,7 +5819,7 @@ function drawUI() {
       '[ / ] — Volume',
       '- / = — Particle density',
       'T — Color theme',
-      'A — Auto fire',
+      'U — Auto fire',
       'M — Music',
       'F2 — Screenshot',
       'F3 — FPS display',
@@ -6100,7 +6143,8 @@ function triggerBombFlash() {
 /* ---------- Screens ---------- */
 function showMenu() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('menu-screen').classList.add('active');
+  const menuScreen = document.getElementById('menu-screen');
+  if (menuScreen) menuScreen.classList.add('active');
   hideWaveAnnouncer();
   hideBossWarning();
   // Defensive: stop engine audio and clear any lingering flash overlays
@@ -6224,6 +6268,7 @@ function showPause() {
   if (pp) pp.textContent = totalPerfectWaves;
   const pb = document.getElementById('pause-bosses');
   if (pb) pb.textContent = bossesDefeatedThisRun;
+  // pause-bosses detail is set below at line 6291
   const pDamage = document.getElementById('pause-damage');
   if (pDamage) pDamage.textContent = Math.floor(totalDamageDealt).toLocaleString();
   const pWeapon = document.getElementById('pause-weapon');
@@ -6286,8 +6331,6 @@ function showPause() {
   if (pEnemies) pEnemies.textContent = enemies.length + enemiesToSpawn;
   const pStreak = document.getElementById('pause-streak');
   if (pStreak) pStreak.textContent = noDamageWaves;
-  const pBosses = document.getElementById('pause-bosses');
-  if (pBosses) pBosses.textContent = bossesDefeatedThisRun;
   const pBossesDetail = document.getElementById('pause-bosses-detail');
   if (pBossesDetail) pBossesDetail.textContent = bossesDefeatedThisRun;
 }
@@ -6344,6 +6387,7 @@ function showGameOver() {
   hideWaveAnnouncer();
   hideBossWarning();
   const goScreen = document.getElementById('gameover-screen');
+  if (!goScreen) return;
   goScreen.classList.add('active');
   // Glitch effect on title
   const title = goScreen.querySelector('h2');
@@ -6352,8 +6396,8 @@ function showGameOver() {
     title.setAttribute('data-text', title.textContent);
   }
   // Staggered stat animations
-  const stats = goScreen.querySelectorAll('p');
-  stats.forEach((el, i) => {
+  const statEls = goScreen.querySelectorAll('p');
+  statEls.forEach((el, i) => {
     el.classList.add('stagger-fade');
     el.style.animationDelay = `${0.3 + i * 0.1}s`;
   });
@@ -6366,7 +6410,7 @@ function showGameOver() {
     hsEl.innerHTML = `High Score: ${highScore.toLocaleString()} <span style="color:#88aaff; font-size:12px;">(${diffNames[difficulty]}: ${diffHigh.toLocaleString()})</span>`;
   }
   const fkEl = document.getElementById('final-kills');
-  if (fkEl) fkEl.textContent = `Kills: ${stats.kills}`;
+  if (fkEl) fkEl.textContent = `Kills: ${stats.kills || 0}`;
   const fgEl = document.getElementById('final-graze');
   if (fgEl) fgEl.textContent = `Graze: ${grazeCount}`;
   const ftEl = document.getElementById('final-time');
@@ -6388,7 +6432,7 @@ function showGameOver() {
   if (fwEl) {
     if (usedWeapons.size > 0) {
       const lines = [...usedWeapons].map(w => {
-        const uses = stats.weaponUses[w] || 0;
+        const uses = stats.weaponUses && stats.weaponUses[w] || 0;
         const stars = Math.min(5, Math.floor(uses / 50));
         const starStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
         return `${w.charAt(0).toUpperCase() + w.slice(1)} ${starStr}`;
@@ -6485,7 +6529,10 @@ function resetGame() {
   shockwaves.length = 0;
   powerups.length = 0;
   warnings.length = 0;
+  damageIndicators.length = 0;
+  meteors.length = 0;
   bombCooldown = 0;
+  comboScale = 1;
   bombAnim = 0;
   dashCooldown = 0;
   dashing = 0;
@@ -6720,6 +6767,7 @@ if (volumeToggleBtn) {
     masterVolume = volumeLevels[volumeIndex];
     volumeToggleBtn.textContent = volumeLabels[volumeIndex];
     volumeToggleBtn.classList.toggle('active', volumeIndex === 3);
+    updateMusicTrackVolumes();
   });
 }
 
@@ -6917,7 +6965,9 @@ function loop(timestamp) {
         // score milestone particle burst
         const smColor = m >= 100000 ? '#ffcc44' : m >= 10000 ? '#ff88ff' : '#44aaff';
         const smCount = particleDensity === 0 ? 12 : particleDensity === 1 ? 20 : 30;
-        for (let k = 0; k < smCount; k++) {
+        const maxNewSM = Math.max(0, 300 - particles.length);
+        const actualSMCount = Math.min(smCount, maxNewSM);
+        for (let k = 0; k < actualSMCount; k++) {
           const angle = rand(0, Math.PI * 2);
           const speed = rand(2, 6);
           particles.push({
@@ -6938,35 +6988,37 @@ function loop(timestamp) {
 
   // Volume shortcuts
   if (isDown('[')) {
-    keys['BracketLeft'] = false;
+    keys['['] = false;
     volumeIndex = Math.max(0, volumeIndex - 1);
     masterVolume = volumeLevels[volumeIndex];
     volumeDisplayTimer = 120;
     sfxClick();
+    updateMusicTrackVolumes();
   }
   if (isDown(']')) {
-    keys['BracketRight'] = false;
+    keys[']'] = false;
     volumeIndex = Math.min(3, volumeIndex + 1);
     masterVolume = volumeLevels[volumeIndex];
     volumeDisplayTimer = 120;
     sfxClick();
+    updateMusicTrackVolumes();
   }
 
   // Screenshot shortcut
   if (isDown('f2')) {
-    keys['F2'] = false;
+    keys['f2'] = false;
     takeScreenshot();
   }
 
   // Particle density shortcut
   if (isDown('-')) {
-    keys['Minus'] = false;
+    keys['-'] = false;
     particleDensity = Math.max(0, particleDensity - 1);
     particleDisplayTimer = 120;
     sfxClick();
   }
   if (isDown('=')) {
-    keys['Equal'] = false;
+    keys['='] = false;
     particleDensity = Math.min(2, particleDensity + 1);
     particleDisplayTimer = 120;
     sfxClick();
@@ -6981,8 +7033,8 @@ function loop(timestamp) {
   }
 
   // Auto fire toggle shortcut
-  if (isDown('a') && state === STATE.PLAYING) {
-    keys['a'] = false;
+  if (isDown('u') && state === STATE.PLAYING) {
+    keys['u'] = false;
     autoFire = !autoFire;
     autoFireDisplayTimer = 120;
     sfxClick();
@@ -6998,12 +7050,12 @@ function loop(timestamp) {
   }
 
   // Weapon info shortcut
-  if (isDown('w') && state === STATE.PLAYING && weaponInfoTimer <= 0) {
-    keys['w'] = false;
+  if (isDown('v') && state === STATE.PLAYING && weaponInfoTimer <= 0) {
+    keys['v'] = false;
     weaponInfoTimer = 300; // 5 seconds
     sfxClick();
-  } else if (isDown('w') && state === STATE.PLAYING && weaponInfoTimer > 0) {
-    keys['w'] = false;
+  } else if (isDown('v') && state === STATE.PLAYING && weaponInfoTimer > 0) {
+    keys['v'] = false;
     weaponInfoTimer = 0;
   }
 
@@ -7036,11 +7088,11 @@ function loop(timestamp) {
 
   // Stats panel shortcut
   if (isDown('tab') && state === STATE.PLAYING && statsPanelTimer <= 0) {
-    keys['Tab'] = false;
+    keys['tab'] = false;
     statsPanelTimer = 300; // 5 seconds
     sfxClick();
   } else if (isDown('tab') && state === STATE.PLAYING && statsPanelTimer > 0) {
-    keys['Tab'] = false;
+    keys['tab'] = false;
     statsPanelTimer = 0;
   }
 
@@ -7086,7 +7138,7 @@ function loop(timestamp) {
 
   // FPS display toggle shortcut
   if (isDown('f3')) {
-    keys['F3'] = false;
+    keys['f3'] = false;
     showFPS = !showFPS;
     fpsDisplayTimer = 120;
     sfxClick();
@@ -7094,7 +7146,7 @@ function loop(timestamp) {
 
   // Fullscreen toggle shortcut
   if (isDown('f4')) {
-    keys['F4'] = false;
+    keys['f4'] = false;
     const elem = document.documentElement;
     if (!document.fullscreenElement) {
       elem.requestFullscreen?.();
@@ -7188,12 +7240,7 @@ function loop(timestamp) {
   if (targetFPS === 30) {
     skipFrame = !skipFrame;
     if (skipFrame) {
-      drawPlanets();
-      drawMeteors();
-      drawStars();
-      drawNebulae();
-      drawAsteroids();
-      // Only draw gameplay entities when actually playing
+      // Background already drawn at top of loop; draw gameplay entities only
       if (state === STATE.PLAYING || state === STATE.COUNTDOWN) {
         drawPlayer();
         drawEnemies();
@@ -7214,10 +7261,17 @@ function loop(timestamp) {
         drawBossWarning();
         if (bombAnim > 0) drawBombEffect();
         drawBossUI();
+        drawTimeStopEffect();
+        drawDeathEffect();
+        drawPickupFlash();
+        drawDamageIndicators();
+        drawOffscreenIndicators();
       }
       ctx.restore();
       drawWaveClear();
       drawUI();
+      if (state === STATE.COUNTDOWN) drawCountdown();
+      drawTutorial();
       requestAnimationFrame(loop);
       return;
     }
@@ -7242,6 +7296,7 @@ function loop(timestamp) {
     updateAsteroids(timeScale);
     updateMeteors(timeScale);
     updateParticles();
+    updateShockwaves(timeScale);
   }
 
   if (state === STATE.PLAYING) {
@@ -7270,6 +7325,11 @@ function loop(timestamp) {
       drawBossWarning();
       if (bombAnim > 0) drawBombEffect();
       drawBossUI();
+      drawTimeStopEffect();
+      drawDeathEffect();
+      drawPickupFlash();
+      drawDamageIndicators();
+      drawOffscreenIndicators();
       drawRewardSelect();
       ctx.restore();
       drawWaveClear();
@@ -7303,6 +7363,11 @@ function loop(timestamp) {
       drawBossWarning();
       if (bombAnim > 0) drawBombEffect();
       drawBossUI();
+      drawTimeStopEffect();
+      drawDeathEffect();
+      drawPickupFlash();
+      drawDamageIndicators();
+      drawOffscreenIndicators();
       ctx.restore();
       drawWaveClear();
       drawUI();
@@ -7653,7 +7718,9 @@ function drawWaveClear() {
   if (t >= maxT - 1 && t <= maxT) {
     const count = particleDensity === 0 ? 20 : particleDensity === 1 ? 35 : 50;
     const baseColor = waveClearIsBoss ? '#ff4444' : waveClearPerfect ? '#ffee44' : '#44aaff';
-    for (let k = 0; k < count; k++) {
+    const maxNewWC = Math.max(0, 300 - particles.length);
+    const actualWCCount = Math.min(count, maxNewWC);
+    for (let k = 0; k < actualWCCount; k++) {
       const a = rand(0, Math.PI * 2);
       const s = rand(2, 6);
       particles.push({
